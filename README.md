@@ -1,122 +1,56 @@
-# Gopal Maddheshiya — Developer Portfolio
+# Gopal Maddheshiya — Personal Portfolio
 
-A personal portfolio website showcasing full-stack web development projects, Data Structures & Algorithms problem-solving stats, academic background, and technical credentials.
+A personal developer portfolio showcasing full-stack web development projects, Data Structures & Algorithms problem-solving stats, academic background, and technical credentials.
 
-Live Demo: [https://gopal-maddheshiya.vercel.app](https://gopal-maddheshiya.vercel.app)
-
----
-
-## Overview
-
-This repository contains the source code for my personal portfolio. The application is built using React 19, TypeScript, TanStack Start, and Tailwind CSS v4, focusing on performance, clean component architecture, and responsive design.
+**Live Website**: [https://gopal-maddheshiya.vercel.app](https://gopal-maddheshiya.vercel.app)
 
 ---
 
-## Features
+## About Me
 
-- **Hero & Profile**: Interactive typing role animation and developer status indicator.
-- **Highlights Ticker**: Smooth scroll-direction-aware continuous marquee for quick credentials and section shortcuts.
-- **About & Education**: Background narrative, core engineering principles, and B.Tech CSE coursework details.
-- **Skills Matrix**: Categorized technical skills across Languages, Frontend, Backend, Databases, and Developer Tools.
-- **Featured Projects**: Full-stack web applications with direct live demo links and GitHub repository references.
-- **DSA & Problem Solving**: LeetCode stats tracker (50+ problems solved) and Java solutions repository links.
-- **Roadmap & Journey**: Timeline tracking learning milestones and technical growth.
-- **Coding Profiles**: Quick links to LeetCode, GitHub, GeeksforGeeks, CodeChef, and HackerRank.
-- **Verified Certifications**: Credential cards with direct PDF preview and download capabilities.
-- **Theme Support**: Dark and light mode switching with persistent user preference.
-- **Contact Form**: Client-side validated contact form powered by EmailJS.
+I am a Computer Science & Engineering student (B.Tech CSE, 2024–2028) at Shri Ramswaroop Memorial University (CGPA 7.62) with a strong focus on **Java, Data Structures & Algorithms**, and **Full-Stack Web Development (MERN Stack)**.
+
+My objective is to build scalable, high-performance web applications and solve complex algorithmic problems with clean, modular code.
 
 ---
 
-## Tech Stack
+## Core Competencies & Skills
 
-- **Frontend**: React 19, TypeScript, TanStack Router, TanStack Start
-- **Styling**: Tailwind CSS v4, Lucide Icons
-- **Server / SSR Engine**: Nitro
-- **Email Service**: EmailJS
-- **Deployment**: Vercel
-
----
-
-## Project Structure
-
-```text
-├── public/
-│   ├── certificates/        # Verified PDF credentials
-│   └── favicon.svg          # Site icon
-├── src/
-│   ├── assets/              # Static profile images
-│   ├── components/
-│   │   ├── portfolio/       # Modular portfolio components
-│   │   └── ui/              # Base UI primitives
-│   ├── data/
-│   │   └── profile.ts       # Central data configuration
-│   ├── hooks/               # Custom React hooks
-│   ├── routes/              # TanStack Router page routes
-│   └── styles.css           # Design tokens and global CSS
-├── package.json
-├── tsconfig.json
-└── vite.config.ts
-```
+- **Programming Languages**: Java, JavaScript (ES6+), TypeScript, HTML5, CSS3
+- **Frontend Development**: React.js, Tailwind CSS, Responsive Web Design, Modern Component Architecture
+- **Backend & APIs**: Node.js, Express.js, RESTful APIs, Middleware, JWT Authentication
+- **Databases**: MongoDB, Mongoose, MySQL
+- **Core Computer Science**: Data Structures & Algorithms, Object-Oriented Programming (OOP), Database Management Systems (DBMS), Operating Systems (OS), Design & Analysis of Algorithms, Software Engineering, Cloud Computing (AWS)
+- **Developer Tools & Platforms**: Git, GitHub, VS Code, Postman, Vite, Vercel
 
 ---
 
-## Getting Started
+## Featured Highlights
 
-### Prerequisites
-
-- Node.js (v18 or higher)
-- npm
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/gopal-maddheshiya/portfolio.git
-   cd portfolio
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. (Optional) Set up environment variables for EmailJS in a `.env` file:
-   ```env
-   VITE_EMAILJS_SERVICE_ID=your_service_id
-   VITE_EMAILJS_TEMPLATE_ID=your_template_id
-   VITE_EMAILJS_PUBLIC_KEY=your_public_key
-   ```
-
-4. Run the development server:
-   ```bash
-   npm run dev
-   ```
-
-5. Build for production:
-   ```bash
-   npm run build
-   ```
+- **50+ DSA Problems Solved**: Active problem solver on LeetCode focusing on Arrays, Strings, Searching, Sorting, and Time/Space Complexity optimization.
+- **Full-Stack Applications**: Built end-to-end web applications with responsive user interfaces and secure REST APIs.
+- **Verified Credentials**: Holder of certified achievements from SRMU (*Find The Language* Competition) and Web Development certifications (HTML, CSS).
 
 ---
 
-## Deployment
+## Portfolio Sections
 
-The project is configured for one-click deployment on **Vercel**:
-
-1. Push your repository to GitHub.
-2. Import the repository in your Vercel dashboard.
-3. Vercel automatically detects the build command (`npm run build`) and output directory.
-4. Click **Deploy**.
+- **Hero & Profile**: Interactive typing role animation and active developer status.
+- **Highlights Ticker**: Interactive continuous marquee with credentials and instant section shortcuts.
+- **About & Education**: Narrative journey, core engineering principles, and B.Tech CSE coursework.
+- **Featured Projects**: Production-ready full-stack projects with live demo previews and repository links.
+- **DSA & Problem Solving**: Dedicated LeetCode stats breakdown and Java solutions repository tracker.
+- **Learning Roadmap**: Timeline tracking technical milestones and future growth areas.
+- **Verified Certifications**: Dedicated certificates section with direct PDF viewing and download options.
+- **Contact Form**: Real-time validated contact interface for recruiters and collaboration opportunities.
 
 ---
 
-## Contact
+## Connect & Profiles
 
-- **Name**: Gopal Maddheshiya
-- **Education**: B.Tech CSE (2024–2028), Shri Ramswaroop Memorial University
-- **LinkedIn**: [linkedin.com/in/gopal-maddheshiya-05049a2a7](https://linkedin.com/in/gopal-maddheshiya-05049a2a7)
+- **Live Portfolio**: [gopal-maddheshiya.vercel.app](https://gopal-maddheshiya.vercel.app)
 - **GitHub**: [github.com/gopal-maddheshiya](https://github.com/gopal-maddheshiya)
+- **LinkedIn**: [linkedin.com/in/gopal-maddheshiya-05049a2a7](https://linkedin.com/in/gopal-maddheshiya-05049a2a7)
 - **LeetCode**: [leetcode.com/u/gopalmaddheshiya80/](https://leetcode.com/u/gopalmaddheshiya80/)
 - **Email**: [gopalmaddheshiya80@gmail.com](mailto:gopalmaddheshiya80@gmail.com)
 
@@ -125,3 +59,4 @@ The project is configured for one-click deployment on **Vercel**:
 ## License
 
 This project is licensed under the MIT License.
+
