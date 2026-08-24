@@ -56,8 +56,13 @@ function generateSystemContext(): string {
     .map((cp) => `- ${cp.name}: ${cp.url} (@${cp.username}) - ${cp.description}`)
     .join("\n");
 
-  return `You are Ask Gopal, the official intelligent portfolio assistant for Gopal Maddheshiya.
-You represent Gopal professionally, warmly, concisely, and accurately to recruiters, engineering managers, hiring teams, and fellow developers.
+  return `You are Ask Gopal, the official personal AI portfolio assistant for Gopal Maddheshiya.
+You represent Gopal warmly, smartly, accurately, and naturally to recruiters, hiring managers, engineers, and visitors.
+
+LANGUAGE RULES:
+- IMPORTANT: ALWAYS reply in the SAME language the user speaks!
+- If the user writes in Hindi or Hinglish (e.g. "Gopal ke bare me batao", "kaise ho", "kya skills hai"), respond in natural, friendly Hindi/Hinglish!
+- If the user writes in English, reply in professional English.
 
 === ABOUT GOPAL MADDHESHIYA ===
 - Name: ${PERSONAL_INFO.name}
@@ -104,29 +109,36 @@ ${educationList}
 ${certsList}
 
 === GUIDELINES FOR RESPONDING ===
-1. Be polite, engaging, structured, and helpful. Use concise markdown with bullet points where appropriate.
-2. Only provide factual details based strictly on the portfolio information above. Do not invent false experience or companies.
-3. If asked about hiring, internships, or contact, highlight his availability for Summer 2026 roles and invite them to reach out via Email (${PERSONAL_INFO.email}), WhatsApp (+${PERSONAL_INFO.phone}), or download his resume.
-4. If asked about projects or code, mention the relevant project details, tech stack, and links.
-5. If asked about DSA, highlight his 50+ solved problems on LeetCode in Java and his GitHub dsa-with-java repository.
-6. Keep responses succinct (typically 2-4 short paragraphs or bullet points).`;
+1. Be polite, engaging, conversational, and helpful. Use clean markdown (bold text, bullet points).
+2. Only provide factual details based strictly on the portfolio information above. Do not invent false experience.
+3. If asked about hiring or internships, emphasize that Gopal is open for Summer 2026 roles and invite them to reach out via Email (${PERSONAL_INFO.email}), WhatsApp (+${PERSONAL_INFO.phone}), or check out his resume.
+4. Keep responses concise and easy to read.`;
 }
 
 /**
  * Intelligent local fallback responder when no external LLM API key is present
- * or if network fails. Provides instant, high-quality, data-grounded answers.
+ * or if network fails. Provides instant, data-grounded answers.
  */
-function localRuleBasedEngine(prompt: string): {
+export function localRuleBasedEngine(prompt: string): {
   reply: string;
   suggestions: string[];
   actions?: ChatMessage["actions"];
 } {
   const query = prompt.toLowerCase();
+  const isHindi =
+    query.includes("kaise") ||
+    query.includes("batao") ||
+    query.includes("kya") ||
+    query.includes("kon") ||
+    query.includes("kaha") ||
+    query.includes("hai");
 
   // 1. Resume / CV
   if (query.includes("resume") || query.includes("cv") || query.includes("curriculum vitae")) {
     return {
-      reply: `You can view or download Gopal's resume directly. It highlights his academic background in B.Tech CSE at SRMU (CGPA 7.62), Java & DSA problem-solving track record, and full-stack projects.`,
+      reply: isHindi
+        ? `Aap Gopal ka resume directly download kar sakte hain. Isme SRMU (B.Tech CSE, CGPA 7.62), Java & DSA, aur Full-Stack projects ki complete details hain.`
+        : `You can view or download Gopal's resume directly. It highlights his academic background in B.Tech CSE at SRMU (CGPA 7.62), Java & DSA problem-solving track record, and full-stack projects.`,
       suggestions: [
         "What projects has Gopal built?",
         "Tell me about his DSA skills",
@@ -156,7 +168,9 @@ function localRuleBasedEngine(prompt: string): {
     ).join("\n\n");
 
     return {
-      reply: `Here are Gopal's featured full-stack and web development projects:\n\n${projSummary}`,
+      reply: isHindi
+        ? `Yeh rahe Gopal ke main projects:\n\n${projSummary}`
+        : `Here are Gopal's featured full-stack and web development projects:\n\n${projSummary}`,
       suggestions: [
         "Tell me about the Weather App",
         "Tell me about Node Chat API",
@@ -178,7 +192,9 @@ function localRuleBasedEngine(prompt: string): {
     query.includes("java")
   ) {
     return {
-      reply: `Gopal is an active algorithmic problem solver with **${DSA_INFO.problemsSolved} problems solved** on LeetCode using **Java**.\n\n- **Topics Covered:** ${DSA_INFO.topics.join(", ")}\n- **Approach:** Analyzes time & space complexity, organized by pattern in his public [${DSA_INFO.repoName}](${DSA_INFO.repoUrl}) repository.\n- **Coding Profiles:** [LeetCode](${PERSONAL_INFO.leetcode}), [GeeksforGeeks](https://www.geeksforgeeks.org/profile/gopalmaddheshiya), [CodeChef](https://www.codechef.com/users/gopal_code_96).`,
+      reply: isHindi
+        ? `Gopal **Java** me active DSA problem solver hai aur unhone LeetCode par **${DSA_INFO.problemsSolved} questions** solve kiye hain.\n\n- **Topics:** ${DSA_INFO.topics.join(", ")}\n- **GitHub Repo:** [${DSA_INFO.repoName}](${DSA_INFO.repoUrl})\n- **Profiles:** [LeetCode](${PERSONAL_INFO.leetcode})`
+        : `Gopal is an active algorithmic problem solver with **${DSA_INFO.problemsSolved} problems solved** on LeetCode using **Java**.\n\n- **Topics Covered:** ${DSA_INFO.topics.join(", ")}\n- **Approach:** Analyzes time & space complexity, organized by pattern in his public [${DSA_INFO.repoName}](${DSA_INFO.repoUrl}) repository.\n- **Coding Profiles:** [LeetCode](${PERSONAL_INFO.leetcode}), [GeeksforGeeks](https://www.geeksforgeeks.org/profile/gopalmaddheshiya).`,
       suggestions: [
         "What are Gopal's web skills?",
         "What college is he in?",
@@ -204,7 +220,9 @@ function localRuleBasedEngine(prompt: string): {
     );
 
     return {
-      reply: `Gopal's technical expertise spans Java, DSA, and Full-Stack MERN development:\n\n- ${formattedSkills}\n\nHe is currently focused on ${FOCUS_AREAS.slice(0, 3).join(", ")}.`,
+      reply: isHindi
+        ? `Gopal ke technical skills:\n\n- ${formattedSkills}\n\nAbhi active focus: ${FOCUS_AREAS.slice(0, 3).join(", ")}.`
+        : `Gopal's technical expertise spans Java, DSA, and Full-Stack MERN development:\n\n- ${formattedSkills}\n\nHe is currently focused on ${FOCUS_AREAS.slice(0, 3).join(", ")}.`,
       suggestions: [
         "What projects has he built with MERN?",
         "Tell me about his education",
@@ -217,51 +235,7 @@ function localRuleBasedEngine(prompt: string): {
     };
   }
 
-  // 5. Education / College / SRMU
-  if (
-    query.includes("education") ||
-    query.includes("college") ||
-    query.includes("university") ||
-    query.includes("srmu") ||
-    query.includes("cgpa") ||
-    query.includes("degree") ||
-    query.includes("btech")
-  ) {
-    const eduStr = EDUCATION.map(
-      (e) => `**${e.title}**\n- ${e.org} (${e.period})${e.detail ? ` • **${e.detail}**` : ""}`,
-    ).join("\n\n");
-
-    return {
-      reply: `Here is Gopal's academic background:\n\n${eduStr}\n\n**Relevant Coursework:** Data Structures & Algorithms, Design & Analysis of Algorithms, OOP in Java, DBMS, Operating Systems, Software Engineering, and Cloud Computing (AWS).`,
-      suggestions: [
-        "What are his certifications?",
-        "What projects has he built?",
-        "How to contact him?",
-      ],
-      actions: [{ label: "📜 View Credentials", action: "resume" }],
-    };
-  }
-
-  // 6. Certifications / Achievements
-  if (
-    query.includes("certificate") ||
-    query.includes("certification") ||
-    query.includes("achievement") ||
-    query.includes("award")
-  ) {
-    const certStr = CERTIFICATIONS.map(
-      (c) =>
-        `**${c.title}** (${c.period}) — *${c.org}*\n- ${c.detail} [Skills: ${c.skills.join(", ")}]${c.certificateUrl ? ` • [View Certificate PDF](${c.certificateUrl})` : ""}`,
-    ).join("\n\n");
-
-    return {
-      reply: `Gopal holds verified technical and competitive programming credentials:\n\n${certStr}`,
-      suggestions: ["Tell me about his DSA stats", "View his projects", "Contact Gopal"],
-      actions: [{ label: "🏆 View Certificates", action: "resume" }],
-    };
-  }
-
-  // 7. Contact / Hire / Internship / Summer 2026
+  // 5. Contact / Hire / Internship / Summer 2026
   if (
     query.includes("contact") ||
     query.includes("hire") ||
@@ -275,7 +249,9 @@ function localRuleBasedEngine(prompt: string): {
     query.includes("summer")
   ) {
     return {
-      reply: `Gopal is actively seeking **Summer 2026 Software Engineer / Full-Stack Internships** and entry-level engineering roles!\n\n**Direct Contact Details:**\n- **Email:** [${PERSONAL_INFO.email}](mailto:${PERSONAL_INFO.email})\n- **Phone / WhatsApp:** [${PERSONAL_INFO.phone}](https://wa.me/${PERSONAL_INFO.whatsapp})\n- **Location:** ${PERSONAL_INFO.location}\n- **LinkedIn:** [gopal-maddheshiya](${PERSONAL_INFO.linkedin})\n- **GitHub:** [gopal-maddheshiya](${PERSONAL_INFO.github})`,
+      reply: isHindi
+        ? `Gopal **Summer 2026 Software Engineer / Full-Stack Internships** ke liye available hain!\n\n**Contact Details:**\n- **Email:** [${PERSONAL_INFO.email}](mailto:${PERSONAL_INFO.email})\n- **WhatsApp:** [${PERSONAL_INFO.phone}](https://wa.me/${PERSONAL_INFO.whatsapp})\n- **LinkedIn:** [gopal-maddheshiya](${PERSONAL_INFO.linkedin})\n- **GitHub:** [gopal-maddheshiya](${PERSONAL_INFO.github})`
+        : `Gopal is actively seeking **Summer 2026 Software Engineer / Full-Stack Internships** and entry-level engineering roles!\n\n**Direct Contact Details:**\n- **Email:** [${PERSONAL_INFO.email}](mailto:${PERSONAL_INFO.email})\n- **Phone / WhatsApp:** [${PERSONAL_INFO.phone}](https://wa.me/${PERSONAL_INFO.whatsapp})\n- **Location:** ${PERSONAL_INFO.location}\n- **LinkedIn:** [gopal-maddheshiya](${PERSONAL_INFO.linkedin})\n- **GitHub:** [gopal-maddheshiya](${PERSONAL_INFO.github})`,
       suggestions: [
         "Download Gopal's Resume",
         "What are his main projects?",
@@ -293,9 +269,11 @@ function localRuleBasedEngine(prompt: string): {
     };
   }
 
-  // 8. Default overview / General greeting
+  // Default overview
   return {
-    reply: `Hello! I'm **Ask Gopal**, the assistant for Gopal Maddheshiya.\n\nGopal is a **B.Tech Computer Science student at SRMU** (CGPA 7.62, 2024–2028) focused on **Java & DSA** (50+ LeetCode problems solved) and **Full-Stack MERN development** (React, Node.js, Express, MongoDB).\n\nHe is open to **Summer 2026 Software Engineering roles and internships**.\n\nHow can I help you today?`,
+    reply: isHindi
+      ? `Namaste! Main **Ask Gopal**, Gopal Maddheshiya ka AI assistant hoon.\n\nGopal **SRMU me B.Tech CSE (2024–2028, CGPA 7.62)** ke student hain jo **Java & DSA** aur **Full-Stack MERN** par focus karte hain. Wo **Summer 2026 roles** ke liye open hain.\n\nAapko Gopal ke baare me kya janna hai?`
+      : `Hello! I'm **Ask Gopal**, the assistant for Gopal Maddheshiya.\n\nGopal is a **B.Tech Computer Science student at SRMU** (CGPA 7.62, 2024–2028) focused on **Java & DSA** (50+ LeetCode problems solved) and **Full-Stack MERN development** (React, Node.js, Express, MongoDB).\n\nHe is open to **Summer 2026 Software Engineering roles and internships**.\n\nHow can I help you today?`,
     suggestions: [
       "What projects has Gopal built?",
       "Tell me about his DSA background",
@@ -315,9 +293,9 @@ function localRuleBasedEngine(prompt: string): {
 }
 
 /**
- * Calls the Google Gemini API if a key is available in environment variables.
+ * Calls Google Gemini API using the provided API key.
  */
-async function callGeminiApi(
+export async function callGeminiApi(
   apiKey: string,
   history: ChatMessage[],
   userPrompt: string,
@@ -374,36 +352,30 @@ async function callGeminiApi(
 }
 
 /**
- * Handles incoming chat queries.
+ * Server-side processor for /api/chat requests
  */
-export async function askGopalAi({
-  data,
-}: {
-  data: { message: string; history?: ChatMessage[] | undefined };
-}): Promise<{
+export async function processAiChatRequest(
+  message: string,
+  history?: ChatMessage[],
+  serverEnv?: Record<string, unknown>,
+): Promise<{
   reply: string;
   suggestions: string[];
   actions?: ChatAction[] | undefined;
 }> {
-  const { message, history } = data;
-
-  if (!message || typeof message !== "string" || !message.trim()) {
-    throw new Error("A valid message is required.");
-  }
-
-  // Check for API key in environment or global config
   const apiKey =
+    (typeof serverEnv?.["GEMINI_API_KEY"] === "string" && serverEnv["GEMINI_API_KEY"]) ||
+    (typeof serverEnv?.["VITE_GEMINI_API_KEY"] === "string" && serverEnv["VITE_GEMINI_API_KEY"]) ||
     (typeof process !== "undefined" &&
       (process.env?.["GEMINI_API_KEY"] ||
+        process.env?.["VITE_GEMINI_API_KEY"] ||
         process.env?.["AI_API_KEY"] ||
         process.env?.["GOOGLE_AI_KEY"])) ||
-    (typeof import.meta !== "undefined" &&
-      (import.meta.env?.["VITE_GEMINI_API_KEY"] || import.meta.env?.["VITE_AI_API_KEY"])) ||
     "";
 
   if (apiKey) {
     try {
-      const reply = await callGeminiApi(apiKey, history ?? [], message.trim());
+      const reply = await callGeminiApi(apiKey, history ?? [], message);
       return {
         reply,
         suggestions: [
@@ -422,10 +394,48 @@ export async function askGopalAi({
         ],
       };
     } catch (err) {
-      console.warn("AI API call failed, using intelligent local engine:", err);
+      console.warn("Gemini API call failed, using local engine:", err);
     }
   }
 
-  // High-performance intelligent local engine fallback
-  return localRuleBasedEngine(message.trim());
+  return localRuleBasedEngine(message);
+}
+
+/**
+ * Frontend client helper: Calls /api/chat server endpoint or falls back locally
+ */
+export async function askGopalAi({
+  data,
+}: {
+  data: { message: string; history?: ChatMessage[] | undefined };
+}): Promise<{
+  reply: string;
+  suggestions: string[];
+  actions?: ChatAction[] | undefined;
+}> {
+  const { message, history } = data;
+
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, history }),
+    });
+
+    if (res.ok) {
+      const result = (await res.json()) as {
+        reply: string;
+        suggestions: string[];
+        actions?: ChatAction[];
+      };
+      if (result && typeof result.reply === "string") {
+        return result;
+      }
+    }
+  } catch (err) {
+    console.warn("Server /api/chat request failed, using local engine:", err);
+  }
+
+  // Fallback to local engine directly in browser if server request fails
+  return localRuleBasedEngine(message);
 }

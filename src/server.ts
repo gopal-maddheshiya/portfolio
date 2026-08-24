@@ -2,6 +2,7 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { processAiChatRequest } from "./server/ai";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -47,6 +48,34 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const url = new URL(request.url);
+      if (url.pathname === "/api/chat" && request.method === "POST") {
+        try {
+          const body = (await request.json()) as {
+            message?: string;
+            history?: unknown[];
+          };
+          const message = typeof body.message === "string" ? body.message : "";
+          const history = Array.isArray(body.history) ? (body.history as never) : [];
+          const serverEnv = (typeof env === "object" && env !== null ? env : {}) as Record<
+            string,
+            unknown
+          >;
+
+          const result = await processAiChatRequest(message, history, serverEnv);
+          return new Response(JSON.stringify(result), {
+            status: 200,
+            headers: { "content-type": "application/json; charset=utf-8" },
+          });
+        } catch (apiErr) {
+          console.error("API /api/chat error:", apiErr);
+          return new Response(JSON.stringify({ error: "Failed to process AI chat request" }), {
+            status: 500,
+            headers: { "content-type": "application/json; charset=utf-8" },
+          });
+        }
+      }
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
