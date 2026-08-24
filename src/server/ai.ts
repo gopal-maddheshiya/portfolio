@@ -114,8 +114,60 @@ HOW TO ANSWER:
 4. Use clean markdown formatting (bold headers, bullet points).`;
 }
 
+let cachedModels: string[] | null = null;
+
+async function getSupportedModels(apiKey: string): Promise<string[]> {
+  if (cachedModels && cachedModels.length > 0) {
+    return cachedModels;
+  }
+
+  const fallbackList = [
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-8b",
+    "gemini-1.5-pro",
+    "gemini-2.0-flash-lite-preview-02-05",
+    "gemini-pro",
+  ];
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`,
+    );
+    if (res.ok) {
+      const data = (await res.json()) as {
+        models?: { name?: string; supportedGenerationMethods?: string[] }[];
+      };
+      const valid = (data.models || [])
+        .filter(
+          (m) =>
+            m.name &&
+            Array.isArray(m.supportedGenerationMethods) &&
+            m.supportedGenerationMethods.includes("generateContent"),
+        )
+        .map((m) => (m.name ? m.name.replace(/^models\//, "") : ""))
+        .filter(Boolean);
+
+      if (valid.length > 0) {
+        // Prioritize fastest flash models first
+        valid.sort((a, b) => {
+          const aFlash = a.includes("flash") ? -1 : 1;
+          const bFlash = b.includes("flash") ? -1 : 1;
+          return aFlash - bFlash;
+        });
+        cachedModels = valid;
+        return valid;
+      }
+    }
+  } catch (err) {
+    console.warn("Could not query model list from Google AI Studio:", err);
+  }
+
+  return fallbackList;
+}
+
 /**
- * Calls the Google Gemini 1.5 Flash API with valid alternating multi-turn history.
+ * Calls the Google Gemini API with dynamic model discovery.
  */
 export async function callGeminiApi(
   apiKey: string,
@@ -157,17 +209,10 @@ export async function callGeminiApi(
     parts: [{ text: userPrompt }],
   });
 
+  const modelsToTry = await getSupportedModels(apiKey);
   let lastError: Error | null = null;
-  const CANDIDATE_MODELS = [
-    "gemini-2.0-flash",
-    "gemini-1.5-flash-latest",
-    "gemini-1.5-flash",
-    "gemini-1.5-flash-8b",
-    "gemini-1.5-pro-latest",
-    "gemini-2.5-flash",
-  ];
 
-  for (const model of CANDIDATE_MODELS) {
+  for (const model of modelsToTry) {
     try {
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
@@ -193,11 +238,14 @@ export async function callGeminiApi(
         };
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
         if (text) {
+          // Promote working model to front of cache
+          if (cachedModels) {
+            cachedModels = [model, ...cachedModels.filter((m) => m !== model)];
+          }
           return text;
         }
       }
 
-      // If not ok (e.g. 404 not found for this specific model alias), try next candidate
       const errorText = await response.text();
       console.warn(`Model ${model} returned ${response.status}:`, errorText);
       lastError = new Error(`Model ${model} failed (${response.status}): ${errorText}`);
@@ -207,7 +255,7 @@ export async function callGeminiApi(
     }
   }
 
-  throw lastError ?? new Error("All Gemini models failed to respond.");
+  throw lastError ?? new Error("All available Gemini models failed to generate a response.");
 }
 
 /**
