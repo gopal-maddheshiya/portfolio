@@ -1,4 +1,3 @@
-import { createServerFn } from "@tanstack/react-start";
 import {
   CERTIFICATIONS,
   CODING_PROFILES,
@@ -375,54 +374,58 @@ async function callGeminiApi(
 }
 
 /**
- * Server Function: Handles incoming chat queries on the server.
+ * Handles incoming chat queries.
  */
-export const askGopalAi = createServerFn({ method: "POST" })
-  .validator((data: { message: string; history?: ChatMessage[] }) => {
-    if (!data || typeof data.message !== "string" || !data.message.trim()) {
-      throw new Error("A valid message is required.");
+export async function askGopalAi({
+  data,
+}: {
+  data: { message: string; history?: ChatMessage[] | undefined };
+}): Promise<{
+  reply: string;
+  suggestions: string[];
+  actions?: ChatAction[] | undefined;
+}> {
+  const { message, history } = data;
+
+  if (!message || typeof message !== "string" || !message.trim()) {
+    throw new Error("A valid message is required.");
+  }
+
+  // Check for API key in environment or global config
+  const apiKey =
+    (typeof process !== "undefined" &&
+      (process.env?.["GEMINI_API_KEY"] ||
+        process.env?.["AI_API_KEY"] ||
+        process.env?.["GOOGLE_AI_KEY"])) ||
+    (typeof import.meta !== "undefined" &&
+      (import.meta.env?.["VITE_GEMINI_API_KEY"] || import.meta.env?.["VITE_AI_API_KEY"])) ||
+    "";
+
+  if (apiKey) {
+    try {
+      const reply = await callGeminiApi(apiKey, history ?? [], message.trim());
+      return {
+        reply,
+        suggestions: [
+          "What projects has Gopal built?",
+          "Tell me about his DSA skills",
+          "Is Gopal open for Summer 2026 roles?",
+          "Download his resume",
+        ],
+        actions: [
+          { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" as const },
+          {
+            label: "💬 Message on WhatsApp",
+            url: `https://wa.me/${PERSONAL_INFO.whatsapp}`,
+            action: "whatsapp" as const,
+          },
+        ],
+      };
+    } catch (err) {
+      console.warn("AI API call failed, using intelligent local engine:", err);
     }
-    return {
-      message: data.message.trim(),
-      history: Array.isArray(data.history) ? data.history : [],
-    };
-  })
-  .handler(async ({ data }) => {
-    const { message, history } = data;
+  }
 
-    // Check for API key in environment
-    const apiKey =
-      (typeof process !== "undefined" &&
-        (process.env["GEMINI_API_KEY"] ||
-          process.env["AI_API_KEY"] ||
-          process.env["GOOGLE_AI_KEY"])) ||
-      "";
-
-    if (apiKey) {
-      try {
-        const reply = await callGeminiApi(apiKey, history, message);
-        return {
-          reply,
-          suggestions: [
-            "What projects has Gopal built?",
-            "Tell me about his DSA skills",
-            "Is Gopal open for Summer 2026 roles?",
-            "Download his resume",
-          ],
-          actions: [
-            { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" as const },
-            {
-              label: "💬 Message on WhatsApp",
-              url: `https://wa.me/${PERSONAL_INFO.whatsapp}`,
-              action: "whatsapp" as const,
-            },
-          ],
-        };
-      } catch (err) {
-        console.warn("AI API call failed, using intelligent local engine:", err);
-      }
-    }
-
-    // High-performance intelligent local engine fallback
-    return localRuleBasedEngine(message);
-  });
+  // High-performance intelligent local engine fallback
+  return localRuleBasedEngine(message.trim());
+}
