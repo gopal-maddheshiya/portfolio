@@ -151,40 +151,57 @@ export async function callGeminiApi(
     parts: [{ text: userPrompt }],
   });
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        systemInstruction: {
-          parts: [{ text: systemInstruction }],
-        },
-        contents,
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1000,
-        },
-      }),
-    },
-  );
+  let lastError: Error | null = null;
+  const CANDIDATE_MODELS = [
+    "gemini-2.0-flash",
+    "gemini-1.5-flash-latest",
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-8b",
+    "gemini-1.5-pro-latest",
+    "gemini-2.5-flash",
+  ];
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Gemini API Error details:", response.status, errorText);
-    throw new Error(`Gemini API error (${response.status}): ${errorText}`);
+  for (const model of CANDIDATE_MODELS) {
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            systemInstruction: {
+              parts: [{ text: systemInstruction }],
+            },
+            contents,
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 1000,
+            },
+          }),
+        },
+      );
+
+      if (response.ok) {
+        const data = (await response.json()) as {
+          candidates?: { content?: { parts?: { text?: string }[] } }[];
+        };
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) {
+          return text;
+        }
+      }
+
+      // If not ok (e.g. 404 not found for this specific model alias), try next candidate
+      const errorText = await response.text();
+      console.warn(`Model ${model} returned ${response.status}:`, errorText);
+      lastError = new Error(`Model ${model} failed (${response.status}): ${errorText}`);
+    } catch (err) {
+      console.warn(`Error connecting to model ${model}:`, err);
+      lastError = err instanceof Error ? err : new Error(String(err));
+    }
   }
 
-  const data = (await response.json()) as {
-    candidates?: { content?: { parts?: { text?: string }[] } }[];
-  };
-
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) {
-    throw new Error("No response text returned from Gemini API");
-  }
-
-  return text;
+  throw lastError ?? new Error("All Gemini models failed to respond.");
 }
 
 /**
