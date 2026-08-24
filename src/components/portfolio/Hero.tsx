@@ -80,9 +80,9 @@ export function Hero() {
 
           {/* Bio Description */}
           <p className="mt-4 sm:mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-muted-foreground">
-            Computer Science student at SRMU. I practice Data Structures &amp; Algorithms in
-            Java daily, and build practical full-stack web applications with React, Node.js, Express,
-            and MongoDB.
+            Computer Science student at SRMU. I practice Data Structures &amp; Algorithms in Java
+            daily, and build practical full-stack web applications with React, Node.js, Express, and
+            MongoDB.
           </p>
 
           {/* Location */}
@@ -168,9 +168,7 @@ export function Hero() {
                   <p className="font-display text-sm sm:text-base font-semibold text-foreground">
                     Gopal Maddheshiya
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    Java &amp; MERN Developer
-                  </p>
+                  <p className="text-xs text-muted-foreground">Java &amp; MERN Developer</p>
                 </div>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-2.5 py-1 text-[11px] font-medium text-primary-foreground shadow-xs">
                   <span className="relative flex size-2">

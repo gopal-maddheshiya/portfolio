@@ -22,12 +22,7 @@ const ICONS_MAP: Record<string, LucideIcon> = {
 };
 
 // Quadruple items to create an unbroken seamless infinite loop
-const MARQUEE_ITEMS = [
-  ...HIGHLIGHTS,
-  ...HIGHLIGHTS,
-  ...HIGHLIGHTS,
-  ...HIGHLIGHTS,
-];
+const MARQUEE_ITEMS = [...HIGHLIGHTS, ...HIGHLIGHTS, ...HIGHLIGHTS, ...HIGHLIGHTS];
 
 export function Highlights() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -206,9 +201,7 @@ export function Highlights() {
                       <ArrowUpRight className="size-3 text-muted-foreground/50 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
                     )}
                   </div>
-                  <p className="mt-0.5 text-xs text-muted-foreground font-mono">
-                    {item.detail}
-                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground font-mono">{item.detail}</p>
                 </div>
               </a>
             );

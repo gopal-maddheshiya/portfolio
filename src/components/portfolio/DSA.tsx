@@ -33,13 +33,12 @@ export function DSA() {
               <p className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
                 {DSA_INFO.problemsSolved}
               </p>
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                Problems Solved Daily
-              </p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Problems Solved Daily</p>
             </div>
 
             <p className="mt-3 text-xs sm:text-sm leading-relaxed text-muted-foreground">
-              Practicing fundamental and intermediate problem patterns on LeetCode with full complexity notes.
+              Practicing fundamental and intermediate problem patterns on LeetCode with full
+              complexity notes.
             </p>
 
             {/* Topics */}
@@ -75,7 +74,10 @@ export function DSA() {
         </Reveal>
 
         {/* Card 2: GitHub Solutions Repository */}
-        <Reveal delay={80} className="rounded-2xl border border-border bg-card p-6 sm:p-8 flex flex-col justify-between shadow-xs">
+        <Reveal
+          delay={80}
+          className="rounded-2xl border border-border bg-card p-6 sm:p-8 flex flex-col justify-between shadow-xs"
+        >
           <div>
             {/* Header / Eyebrow */}
             <div className="flex items-center justify-between">
@@ -94,7 +96,8 @@ export function DSA() {
             </h3>
 
             <p className="mt-2 text-xs sm:text-sm leading-relaxed text-muted-foreground">
-              A structured public repository containing Java solutions organized by topic, data structure, and problem patterns.
+              A structured public repository containing Java solutions organized by topic, data
+              structure, and problem patterns.
             </p>
 
             {/* Highlights List */}
@@ -105,7 +108,10 @@ export function DSA() {
               <ul className="mt-2.5 space-y-2 text-xs sm:text-sm text-muted-foreground">
                 {DSA_INFO.notes.map((note) => (
                   <li key={note} className="flex items-start gap-2">
-                    <CheckCircle2 className="size-3.5 shrink-0 mt-0.5 text-primary" aria-hidden="true" />
+                    <CheckCircle2
+                      className="size-3.5 shrink-0 mt-0.5 text-primary"
+                      aria-hidden="true"
+                    />
                     <span>{note}</span>
                   </li>
                 ))}

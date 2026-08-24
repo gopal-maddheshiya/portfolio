@@ -29,7 +29,7 @@ My objective is to build scalable, high-performance web applications and solve c
 
 - **50+ DSA Problems Solved**: Active problem solver on LeetCode focusing on Arrays, Strings, Searching, Sorting, and Time/Space Complexity optimization.
 - **Full-Stack Applications**: Built end-to-end web applications with responsive user interfaces and secure REST APIs.
-- **Verified Credentials**: Holder of certified achievements from SRMU (*Find The Language* Competition) and Web Development certifications (HTML, CSS).
+- **Verified Credentials**: Holder of certified achievements from SRMU (_Find The Language_ Competition) and Web Development certifications (HTML, CSS).
 
 ---
 
@@ -59,4 +59,3 @@ My objective is to build scalable, high-performance web applications and solve c
 ## License
 
 This project is licensed under the MIT License.
-

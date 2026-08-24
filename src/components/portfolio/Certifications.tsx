@@ -35,9 +35,7 @@ export function Certifications() {
               <h3 className="mt-4 font-display text-base sm:text-lg font-semibold text-foreground">
                 {cert.title}
               </h3>
-              <p className="mt-0.5 text-xs font-mono text-primary font-medium">
-                {cert.org}
-              </p>
+              <p className="mt-0.5 text-xs font-mono text-primary font-medium">{cert.org}</p>
 
               {/* Detail description */}
               <p className="mt-2 text-xs sm:text-sm leading-relaxed text-muted-foreground">

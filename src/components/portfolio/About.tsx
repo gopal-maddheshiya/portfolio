@@ -1,12 +1,4 @@
-import {
-  CheckCircle2,
-  Code2,
-  Cpu,
-  GraduationCap,
-  MapPin,
-  Sparkles,
-  Zap,
-} from "lucide-react";
+import { CheckCircle2, Code2, Cpu, GraduationCap, MapPin, Sparkles, Zap } from "lucide-react";
 
 import { EDUCATION, FOCUS_AREAS, PERSONAL_INFO } from "@/data/profile";
 import { Reveal } from "./Reveal";
@@ -41,12 +33,13 @@ export function About() {
                   Shri Ramswaroop Memorial University
                 </span>
                 , actively preparing for software engineering roles. My daily work revolves around
-                two pillars: solving algorithmic problems in Java and engineering end-to-end web applications.
+                two pillars: solving algorithmic problems in Java and engineering end-to-end web
+                applications.
               </p>
               <p>
-                On the algorithmic side, I practice problem-solving daily on LeetCode with deliberate
-                focus on time and space complexity. On the development side, I turn ideas into responsive
-                React interfaces backed by Express REST APIs and MongoDB databases.
+                On the algorithmic side, I practice problem-solving daily on LeetCode with
+                deliberate focus on time and space complexity. On the development side, I turn ideas
+                into responsive React interfaces backed by Express REST APIs and MongoDB databases.
               </p>
             </div>
 
@@ -100,7 +93,10 @@ export function About() {
           </Reveal>
 
           {/* Core Focus Pills */}
-          <Reveal delay={60} className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs">
+          <Reveal
+            delay={60}
+            className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs"
+          >
             <p className="font-mono text-xs text-muted-foreground uppercase tracking-wider">
               Current Learning &amp; Focus Areas
             </p>
@@ -121,7 +117,10 @@ export function About() {
         {/* Right Column: Quick Snapshot + Education & Certifications */}
         <div className="space-y-6 lg:col-span-5">
           {/* Quick Snapshot Grid */}
-          <Reveal delay={40} className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs">
+          <Reveal
+            delay={40}
+            className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs"
+          >
             <h4 className="font-mono text-xs text-primary font-medium uppercase tracking-wider">
               Profile Snapshot
             </h4>
@@ -150,7 +149,10 @@ export function About() {
           </Reveal>
 
           {/* Education & Academic Coursework */}
-          <Reveal delay={80} className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs space-y-4">
+          <Reveal
+            delay={80}
+            className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs space-y-4"
+          >
             <div className="flex items-center gap-2.5 font-display text-base font-semibold text-foreground">
               <GraduationCap className="size-4.5 text-primary" />
               <span>Education</span>

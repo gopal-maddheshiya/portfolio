@@ -13,6 +13,7 @@ import { Profiles } from "@/components/portfolio/Profiles";
 import { Projects } from "@/components/portfolio/Projects";
 import { ResumeCTA } from "@/components/portfolio/ResumeCTA";
 import { Skills } from "@/components/portfolio/Skills";
+import { GopalAIAssistant } from "@/components/ai/GopalAIAssistant";
 import { PERSONAL_INFO } from "@/data/profile";
 
 const TITLE = "Gopal Maddheshiya | Software Engineer & Full-Stack Developer";
@@ -76,6 +77,7 @@ function Index() {
         <Contact />
       </main>
       <Footer />
+      <GopalAIAssistant />
     </div>
   );
 }

@@ -30,12 +30,7 @@ const EMPTY: FormState = {
   message: "",
 };
 
-function buildMessage({
-  name,
-  email,
-  subject,
-  message,
-}: FormState) {
+function buildMessage({ name, email, subject, message }: FormState) {
   return `Hello Gopal,
 
 Name: ${name}
@@ -54,18 +49,16 @@ export function Contact() {
   const [success, setSuccess] = useState("");
   const [sending, setSending] = useState(false);
 
-  const update =
-    (key: keyof FormState) =>
-    (event: { target: { value: string } }) => {
-      setForm((prev) => ({
-        ...prev,
-        [key]: event.target.value,
-      }));
+  const update = (key: keyof FormState) => (event: { target: { value: string } }) => {
+    setForm((prev) => ({
+      ...prev,
+      [key]: event.target.value,
+    }));
 
-      // Clear messages when user starts editing again
-      if (error) setError("");
-      if (success) setSuccess("");
-    };
+    // Clear messages when user starts editing again
+    if (error) setError("");
+    if (success) setSuccess("");
+  };
 
   const validate = () => {
     const trimmedName = form.name.trim();
@@ -114,7 +107,7 @@ export function Contact() {
     window.open(
       `https://wa.me/${PERSONAL_INFO.whatsapp}?text=${text}`,
       "_blank",
-      "noopener,noreferrer"
+      "noopener,noreferrer",
     );
   };
 
@@ -143,26 +136,22 @@ export function Contact() {
           user_email: form.email.trim(),
           reply_to: form.email.trim(),
           to_name: "Gopal Maddheshiya",
-          subject:
-            form.subject.trim() ||
-            `Portfolio enquiry from ${form.name.trim()}`,
+          subject: form.subject.trim() || `Portfolio enquiry from ${form.name.trim()}`,
           message: form.message.trim(),
         },
         {
           publicKey: "-7KHeknrjHN-f2QH5",
-        }
+        },
       );
 
       setForm(EMPTY);
 
-      setSuccess(
-        "Your message has been sent successfully! I'll get back to you soon."
-      );
+      setSuccess("Your message has been sent successfully! I'll get back to you soon.");
     } catch (err) {
       console.error("EmailJS error:", err);
 
       setError(
-        "Unable to send your message via email right now. Please try WhatsApp or email directly."
+        "Unable to send your message via email right now. Please try WhatsApp or email directly.",
       );
     } finally {
       setSending(false);
@@ -188,10 +177,7 @@ export function Contact() {
             <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
               {/* Name */}
               <div>
-                <label
-                  htmlFor="name"
-                  className="text-xs sm:text-sm font-medium text-foreground"
-                >
+                <label htmlFor="name" className="text-xs sm:text-sm font-medium text-foreground">
                   Name <span className="text-primary">*</span>
                 </label>
 
@@ -210,10 +196,7 @@ export function Contact() {
 
               {/* Email */}
               <div>
-                <label
-                  htmlFor="email"
-                  className="text-xs sm:text-sm font-medium text-foreground"
-                >
+                <label htmlFor="email" className="text-xs sm:text-sm font-medium text-foreground">
                   Email <span className="text-primary">*</span>
                 </label>
 
@@ -234,10 +217,7 @@ export function Contact() {
 
             {/* Subject */}
             <div className="mt-4 sm:mt-5">
-              <label
-                htmlFor="subject"
-                className="text-xs sm:text-sm font-medium text-foreground"
-              >
+              <label htmlFor="subject" className="text-xs sm:text-sm font-medium text-foreground">
                 Subject
               </label>
 
@@ -254,10 +234,7 @@ export function Contact() {
 
             {/* Message */}
             <div className="mt-4 sm:mt-5">
-              <label
-                htmlFor="message"
-                className="text-xs sm:text-sm font-medium text-foreground"
-              >
+              <label htmlFor="message" className="text-xs sm:text-sm font-medium text-foreground">
                 Message <span className="text-primary">*</span>
               </label>
 
@@ -305,10 +282,7 @@ export function Contact() {
                 disabled={sending}
                 className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-xs sm:text-sm font-medium text-primary-foreground transition-all hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 shadow-soft cursor-pointer"
               >
-                <MessageCircle
-                  className="size-4 shrink-0"
-                  aria-hidden="true"
-                />
+                <MessageCircle className="size-4 shrink-0" aria-hidden="true" />
 
                 <span>Send via WhatsApp</span>
               </button>
@@ -321,18 +295,12 @@ export function Contact() {
               >
                 {sending ? (
                   <>
-                    <Loader2
-                      className="size-4 shrink-0 animate-spin"
-                      aria-hidden="true"
-                    />
+                    <Loader2 className="size-4 shrink-0 animate-spin" aria-hidden="true" />
                     <span>Sending...</span>
                   </>
                 ) : (
                   <>
-                    <Mail
-                      className="size-4 shrink-0"
-                      aria-hidden="true"
-                    />
+                    <Mail className="size-4 shrink-0" aria-hidden="true" />
                     <span>Send via Email</span>
                   </>
                 )}
@@ -340,8 +308,7 @@ export function Contact() {
             </div>
 
             <p className="mt-3 text-[11px] sm:text-xs text-muted-foreground">
-              WhatsApp opens in a new tab. Email is delivered
-              directly to my inbox.
+              WhatsApp opens in a new tab. Email is delivered directly to my inbox.
             </p>
           </form>
         </Reveal>
@@ -352,9 +319,7 @@ export function Contact() {
           className="rounded-xl border border-border bg-card p-4 sm:p-6 md:p-8 flex flex-col justify-between"
         >
           <div>
-            <h3 className="font-display text-base sm:text-lg font-semibold">
-              Direct contact
-            </h3>
+            <h3 className="font-display text-base sm:text-lg font-semibold">Direct contact</h3>
 
             <ul className="mt-4 sm:mt-5 space-y-3.5 sm:space-y-4 text-xs sm:text-sm">
               {/* Email */}
@@ -363,10 +328,7 @@ export function Contact() {
                   className="inline-flex items-center gap-2.5 sm:gap-3 text-muted-foreground transition-colors hover:text-foreground break-all"
                   href={`mailto:${PERSONAL_INFO.email}`}
                 >
-                  <Mail
-                    className="size-4 text-primary shrink-0"
-                    aria-hidden="true"
-                  />
+                  <Mail className="size-4 text-primary shrink-0" aria-hidden="true" />
 
                   <span>{PERSONAL_INFO.email}</span>
                 </a>
@@ -380,10 +342,7 @@ export function Contact() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Phone
-                    className="size-4 text-primary shrink-0"
-                    aria-hidden="true"
-                  />
+                  <Phone className="size-4 text-primary shrink-0" aria-hidden="true" />
 
                   <span>{PERSONAL_INFO.phone}</span>
                 </a>
@@ -391,10 +350,7 @@ export function Contact() {
 
               {/* Location */}
               <li className="inline-flex items-center gap-2.5 sm:gap-3 text-muted-foreground">
-                <MapPin
-                  className="size-4 text-primary shrink-0"
-                  aria-hidden="true"
-                />
+                <MapPin className="size-4 text-primary shrink-0" aria-hidden="true" />
 
                 <span>{PERSONAL_INFO.location}</span>
               </li>
@@ -411,10 +367,7 @@ export function Contact() {
               aria-label="GitHub profile"
               className="flex size-10 sm:size-11 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
-              <Github
-                className="size-4 shrink-0"
-                aria-hidden="true"
-              />
+              <Github className="size-4 shrink-0" aria-hidden="true" />
             </a>
 
             {/* LinkedIn */}
@@ -425,10 +378,7 @@ export function Contact() {
               aria-label="LinkedIn profile"
               className="flex size-10 sm:size-11 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
-              <Linkedin
-                className="size-4 shrink-0"
-                aria-hidden="true"
-              />
+              <Linkedin className="size-4 shrink-0" aria-hidden="true" />
             </a>
 
             {/* LeetCode */}

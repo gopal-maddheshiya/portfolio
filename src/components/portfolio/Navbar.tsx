@@ -37,7 +37,10 @@ export function Navbar() {
         scrolled ? "shadow-soft bg-background/98" : "bg-background/90",
       )}
     >
-      <nav aria-label="Main Navigation" className="container-page flex h-16 items-center justify-between gap-3 sm:gap-4">
+      <nav
+        aria-label="Main Navigation"
+        className="container-page flex h-16 items-center justify-between gap-3 sm:gap-4"
+      >
         {/* Brand Logo & Name */}
         <a
           href="#top"
@@ -147,9 +150,7 @@ export function Navbar() {
                     )}
                   >
                     <span>{link.label}</span>
-                    {isActive ? (
-                      <span className="size-1.5 rounded-full bg-primary" />
-                    ) : null}
+                    {isActive ? <span className="size-1.5 rounded-full bg-primary" /> : null}
                   </a>
                 </li>
               );

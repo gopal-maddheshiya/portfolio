@@ -5,7 +5,10 @@ import { Reveal } from "./Reveal";
 
 export function ResumeCTA() {
   return (
-    <section id="resume" className="scroll-mt-20 sm:scroll-mt-24 border-t border-border py-12 sm:py-16 lg:py-20">
+    <section
+      id="resume"
+      className="scroll-mt-20 sm:scroll-mt-24 border-t border-border py-12 sm:py-16 lg:py-20"
+    >
       <div className="container-page">
         <Reveal className="rounded-2xl border border-border bg-card p-6 sm:p-8 md:p-12 shadow-soft">
           <div className="grid gap-8 lg:grid-cols-12 lg:items-center">
@@ -53,7 +56,10 @@ export function ResumeCTA() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-border-strong bg-secondary/60 px-5 py-3 text-xs sm:text-sm font-medium text-foreground transition-all hover:bg-secondary active:scale-[0.98] cursor-pointer"
               >
-                <ExternalLink className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                <ExternalLink
+                  className="size-4 shrink-0 text-muted-foreground"
+                  aria-hidden="true"
+                />
                 <span>View in Browser</span>
               </a>
             </div>

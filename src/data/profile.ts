@@ -26,7 +26,12 @@ export const HIGHLIGHTS = [
   { label: "Java + DSA", detail: "Daily problem solving", section: "dsa", icon: "code" },
   { label: "50+ Problems", detail: "Solved on LeetCode", section: "dsa", icon: "trophy" },
   { label: "MERN Stack", detail: "React · Node · Mongo", section: "projects", icon: "db" },
-  { label: "Verified Credentials", detail: "SRMU & Web Certificates", section: "certifications", icon: "award" },
+  {
+    label: "Verified Credentials",
+    detail: "SRMU & Web Certificates",
+    section: "certifications",
+    icon: "award",
+  },
   { label: "Summer 2026", detail: "Open to SWE Roles", section: "contact", icon: "sparkles" },
 ];
 
@@ -207,42 +212,48 @@ export const JOURNEY = [
   {
     phase: "01",
     title: "Java Fundamentals & OOP",
-    detail: "Object-oriented principles, classes, inheritance, collections framework, and clean code structure.",
+    detail:
+      "Object-oriented principles, classes, inheritance, collections framework, and clean code structure.",
     status: "done" as const,
     tags: ["Java", "OOP", "Collections"],
   },
   {
     phase: "02",
     title: "Core Data Structures",
-    detail: "Arrays, strings, recursion, sorting algorithms, and searching techniques with Big-O complexity analysis.",
+    detail:
+      "Arrays, strings, recursion, sorting algorithms, and searching techniques with Big-O complexity analysis.",
     status: "done" as const,
     tags: ["Arrays", "Recursion", "Big-O"],
   },
   {
     phase: "03",
     title: "Daily LeetCode Problem Solving",
-    detail: "50+ problems solved in Java, mastering two-pointer, sliding window, and recursion patterns.",
+    detail:
+      "50+ problems solved in Java, mastering two-pointer, sliding window, and recursion patterns.",
     status: "active" as const,
     tags: ["LeetCode", "Java", "Algorithms"],
   },
   {
     phase: "04",
     title: "Full-Stack Web Development",
-    detail: "Building end-to-end applications with React interfaces, Express REST APIs, and MongoDB persistence.",
+    detail:
+      "Building end-to-end applications with React interfaces, Express REST APIs, and MongoDB persistence.",
     status: "active" as const,
     tags: ["React", "Node.js", "MongoDB"],
   },
   {
     phase: "05",
     title: "Trees, Graphs & Advanced Patterns",
-    detail: "Currently practicing binary search trees, tree traversals, graph algorithms (BFS/DFS), and dynamic programming.",
+    detail:
+      "Currently practicing binary search trees, tree traversals, graph algorithms (BFS/DFS), and dynamic programming.",
     status: "next" as const,
     tags: ["Trees", "Graphs", "DP"],
   },
   {
     phase: "06",
     title: "System Fundamentals & Architecture",
-    detail: "Deepening understanding of database indexing, REST design patterns, and deployment pipelines.",
+    detail:
+      "Deepening understanding of database indexing, REST design patterns, and deployment pipelines.",
     status: "next" as const,
     tags: ["System Basics", "Databases", "APIs"],
   },

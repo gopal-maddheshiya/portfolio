@@ -1,12 +1,4 @@
-import {
-  ArrowUpRight,
-  Code,
-  Code2,
-  Github,
-  Linkedin,
-  Terminal,
-  Trophy,
-} from "lucide-react";
+import { ArrowUpRight, Code, Code2, Github, Linkedin, Terminal, Trophy } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { CODING_PROFILES, PERSONAL_INFO } from "@/data/profile";
@@ -99,9 +91,7 @@ export function Profiles() {
                   {profile.name}
                 </h3>
                 {profile.handle ? (
-                  <p className="font-mono text-xs text-muted-foreground">
-                    @{profile.handle}
-                  </p>
+                  <p className="font-mono text-xs text-muted-foreground">@{profile.handle}</p>
                 ) : null}
 
                 {/* Description */}

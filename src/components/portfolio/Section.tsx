@@ -16,9 +16,13 @@ export function SectionHeading({
   return (
     <div className={cn("max-w-2xl", className)}>
       <p className="font-mono text-xs uppercase tracking-[0.18em] text-primary">{eyebrow}</p>
-      <h2 className="mt-2.5 sm:mt-3 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight">{title}</h2>
+      <h2 className="mt-2.5 sm:mt-3 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight">
+        {title}
+      </h2>
       {description ? (
-        <p className="mt-3 sm:mt-4 text-sm sm:text-base leading-relaxed text-muted-foreground">{description}</p>
+        <p className="mt-3 sm:mt-4 text-sm sm:text-base leading-relaxed text-muted-foreground">
+          {description}
+        </p>
       ) : null}
     </div>
   );
