@@ -110,9 +110,10 @@ ${certsList}
 
 === GUIDELINES FOR RESPONDING ===
 1. Be polite, engaging, conversational, and helpful. Use clean markdown (bold text, bullet points).
-2. Only provide factual details based strictly on the portfolio information above. Do not invent false experience.
+2. If asked technical questions (such as OOPs concepts, Java principles, DSA, MERN stack, Databases, or Algorithms), explain them clearly, warmly, and thoroughly in the requested language (Hindi/English), reflecting Gopal's strong knowledge in Java and Full-Stack development.
 3. If asked about hiring or internships, emphasize that Gopal is open for Summer 2026 roles and invite them to reach out via Email (${PERSONAL_INFO.email}), WhatsApp (+${PERSONAL_INFO.phone}), or check out his resume.
-4. Keep responses concise and easy to read.`;
+4. Only provide factual details based strictly on the portfolio information above. Do not invent false companies or employment history.
+5. Keep responses concise, structured, and easy to read.`;
 }
 
 /**
@@ -183,14 +184,37 @@ export function localRuleBasedEngine(prompt: string): {
     };
   }
 
-  // 3. DSA / LeetCode / Java
+  // 3. DSA / LeetCode / Java / OOPs
   if (
     query.includes("dsa") ||
     query.includes("leetcode") ||
     query.includes("algorithm") ||
     query.includes("problem solving") ||
-    query.includes("java")
+    query.includes("java") ||
+    query.includes("oop") ||
+    query.includes("object oriented") ||
+    query.includes("inheritance") ||
+    query.includes("polymorphism") ||
+    query.includes("encapsulation") ||
+    query.includes("abstraction")
   ) {
+    if (query.includes("oop") || query.includes("object oriented") || query.includes("inheritance") || query.includes("polymorphism")) {
+      return {
+        reply: isHindi
+          ? `**OOPs (Object-Oriented Programming) ke 4 main pillars:**\n\n1. **Encapsulation:** Data (variables) aur methods ko ek unit (class) me wrap karna aur private access modifiers ke through protect karna.\n2. **Abstraction:** Internal implementation details hide karna aur sirf essential interface show karna (Abstract Classes & Interfaces in Java).\n3. **Inheritance:** Code reusability ke liye parent class ki properties aur methods ko child class me extend karna (\`extends\` keyword).\n4. **Polymorphism:** Ek hi method name ka different behavior (Compile-time Method Overloading & Runtime Method Overriding).\n\nGopal Java me inhi OOP concepts aur Design Patterns ka use karke scalable backends aur DSA solutions build karte hain!`
+          : `**The 4 Core Pillars of OOPs (Object-Oriented Programming):**\n\n1. **Encapsulation:** Bundling data and methods together inside classes and restricting direct access using private fields and getters/setters.\n2. **Abstraction:** Hiding complex implementation details and exposing only the essential interface (using Java Abstract Classes and Interfaces).\n3. **Inheritance:** Enabling code reuse where child classes inherit state and behavior from parent classes (\`extends\`).\n4. **Polymorphism:** The ability of an object to take on many forms (Compile-time Overloading & Runtime Overriding via \`@Override\`).\n\nGopal applies OOP principles in Java for clean architecture in both full-stack development and DSA problem solving.`,
+        suggestions: [
+          "Tell me about Gopal's Java DSA repository",
+          "What projects has Gopal built?",
+          "What are his skills?",
+        ],
+        actions: [
+          { label: "💻 LeetCode Profile", url: PERSONAL_INFO.leetcode },
+          { label: "📦 Java DSA Repository", url: DSA_INFO.repoUrl },
+        ],
+      };
+    }
+
     return {
       reply: isHindi
         ? `Gopal **Java** me active DSA problem solver hai aur unhone LeetCode par **${DSA_INFO.problemsSolved} questions** solve kiye hain.\n\n- **Topics:** ${DSA_INFO.topics.join(", ")}\n- **GitHub Repo:** [${DSA_INFO.repoName}](${DSA_INFO.repoUrl})\n- **Profiles:** [LeetCode](${PERSONAL_INFO.leetcode})`
