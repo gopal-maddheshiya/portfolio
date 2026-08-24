@@ -109,11 +109,11 @@ ${educationList}
 ${certsList}
 
 === GUIDELINES FOR RESPONDING ===
-1. Be polite, engaging, conversational, and helpful. Use clean markdown (bold text, bullet points).
+1. CRITICAL: NEVER say "Hello, I am Ask Gopal..." or re-introduce yourself repeatedly in every response. The user already knows who you are from the chat header. Jump directly into answering the user's question!
 2. If asked technical questions (such as OOPs concepts, Java principles, DSA, MERN stack, Databases, or Algorithms), explain them clearly, warmly, and thoroughly in the requested language (Hindi/English), reflecting Gopal's strong knowledge in Java and Full-Stack development.
 3. If asked about hiring or internships, emphasize that Gopal is open for Summer 2026 roles and invite them to reach out via Email (${PERSONAL_INFO.email}), WhatsApp (+${PERSONAL_INFO.phone}), or check out his resume.
 4. Only provide factual details based strictly on the portfolio information above. Do not invent false companies or employment history.
-5. Keep responses concise, structured, and easy to read.`;
+5. Be natural, engaging, structured, and concise. Use clean markdown (bold text, bullet points).`;
 }
 
 /**
@@ -293,11 +293,11 @@ export function localRuleBasedEngine(prompt: string): {
     };
   }
 
-  // Default overview
+  // Default overview / general query
   return {
     reply: isHindi
-      ? `Namaste! Main **Ask Gopal**, Gopal Maddheshiya ka AI assistant hoon.\n\nGopal **SRMU me B.Tech CSE (2024–2028, CGPA 7.62)** ke student hain jo **Java & DSA** aur **Full-Stack MERN** par focus karte hain. Wo **Summer 2026 roles** ke liye open hain.\n\nAapko Gopal ke baare me kya janna hai?`
-      : `Hello! I'm **Ask Gopal**, the assistant for Gopal Maddheshiya.\n\nGopal is a **B.Tech Computer Science student at SRMU** (CGPA 7.62, 2024–2028) focused on **Java & DSA** (50+ LeetCode problems solved) and **Full-Stack MERN development** (React, Node.js, Express, MongoDB).\n\nHe is open to **Summer 2026 Software Engineering roles and internships**.\n\nHow can I help you today?`,
+      ? `Gopal **SRMU me B.Tech CSE (2024–2028, CGPA 7.62)** ke student hain jo **Java, DSA (50+ LeetCode)** aur **Full-Stack MERN** development par focus karte hain. Wo **Summer 2026 internships** ke liye actively open hain.\n\nAap Gopal ke projects, technical skills, DSA problem solving, ya direct contact ke baare me puchh sakte hain!`
+      : `Gopal is a **B.Tech Computer Science student at SRMU** (CGPA 7.62, 2024–2028) skilled in **Java, DSA (50+ LeetCode problems solved)**, and **Full-Stack MERN development** (React, Node.js, Express, MongoDB).\n\nHe is open to **Summer 2026 Software Engineering internships and full-stack roles**. Feel free to ask about his projects, coding journey, or skills!`,
     suggestions: [
       "What projects has Gopal built?",
       "Tell me about his DSA background",
