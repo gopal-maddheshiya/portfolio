@@ -133,16 +133,22 @@ export async function callGeminiApi(
     if (contents.length === 0 && m.role !== "user") continue;
 
     const role: "user" | "model" = m.role === "assistant" ? "model" : "user";
-
-    if (contents.length > 0 && contents[contents.length - 1].role === role) {
-      contents[contents.length - 1].parts[0].text += `\n${m.content}`;
+    const lastItem = contents[contents.length - 1];
+    if (lastItem && lastItem.role === role) {
+      const part = lastItem.parts[0];
+      if (part) {
+        part.text += `\n${m.content}`;
+      } else {
+        lastItem.parts.push({ text: m.content });
+      }
     } else {
       contents.push({ role, parts: [{ text: m.content }] });
     }
   }
 
   // Ensure last turn in history is not 'user' so we can append current userPrompt
-  if (contents.length > 0 && contents[contents.length - 1].role === "user") {
+  const lastTurn = contents[contents.length - 1];
+  if (lastTurn && lastTurn.role === "user") {
     contents.pop();
   }
 
@@ -269,13 +275,8 @@ export async function processAiChatRequest(
     console.error("Gemini API call failed:", err);
     return {
       reply: `Sorry, there was an issue communicating with Gemini AI. Error: ${err instanceof Error ? err.message : String(err)}`,
-      suggestions: [
-        "What projects has Gopal built?",
-        "Tell me about his DSA skills",
-      ],
-      actions: [
-        { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" },
-      ],
+      suggestions: ["What projects has Gopal built?", "Tell me about his DSA skills"],
+      actions: [{ label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" }],
     };
   }
 }
