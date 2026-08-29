@@ -4,8 +4,8 @@ import weatherImage from "@/assets/weather.png";
 
 export const PERSONAL_INFO = {
   name: "Gopal Maddheshiya",
-  role: "Software Engineer",
-  subtitle: "Java & MERN Stack Developer · DSA & API Integration",
+  role: "B.Tech CSE Student | Java & Full-Stack Developer",
+  subtitle: "Java & Full-Stack Developer · DSA & API Integration",
   location: "Maharajganj, Uttar Pradesh, India",
   email: "gopalmaddheshiya138@gmail.com",
   phone: "+91 6388354988",
@@ -18,14 +18,13 @@ export const PERSONAL_INFO = {
   linkedin: "https://www.linkedin.com/in/gopal-maddheshiya",
   resume: "/gopal-cv.pdf",
   siteDescription:
-    "B.Tech CSE student focused on Java, Data Structures & Algorithms and full-stack web development with the MERN stack.",
+    "Computer Science student focused on Java, Data Structures & Algorithms and full-stack web development with React, Node.js and MongoDB.",
 } as const;
 
 export const HIGHLIGHTS = [
   { label: "B.Tech CSE", detail: "2024–2028 · CGPA 7.62", section: "about", icon: "grad" },
-  { label: "Java + DSA", detail: "Daily problem solving", section: "dsa", icon: "code" },
-  { label: "50+ Problems", detail: "Solved on LeetCode", section: "dsa", icon: "trophy" },
-  { label: "MERN Stack", detail: "React · Node · Mongo", section: "projects", icon: "db" },
+  { label: "Java & DSA", detail: "Active LeetCode Practice", section: "dsa", icon: "code" },
+  { label: "Full-Stack Dev", detail: "React · Node · Mongo", section: "projects", icon: "db" },
   {
     label: "Verified Credentials",
     detail: "SRMU & Web Certificates",
@@ -36,11 +35,11 @@ export const HIGHLIGHTS = [
 ];
 
 export const FOCUS_AREAS = [
-  "Advanced Java & DSA",
-  "Problem Solving",
-  "Web Development",
-  "Building Projects",
-  "Software Engineering Fundamentals",
+  "Java & Data Structures",
+  "REST API Development",
+  "MongoDB & Databases",
+  "Object-Oriented Design",
+  "Full-Stack Web Dev",
 ];
 
 export const SKILL_GROUPS = [
@@ -66,7 +65,7 @@ export const SKILL_GROUPS = [
   },
   {
     title: "Developer Tools",
-    skills: ["Git", "GitHub", "VS Code", "IntelliJ IDEA", "Antigravity", "Postman", "LeetCode"],
+    skills: ["Git", "GitHub", "VS Code", "IntelliJ IDEA", "Postman", "LeetCode"],
     primary: false,
   },
   {
@@ -91,38 +90,20 @@ export type Project = {
 
 export const PROJECTS: Project[] = [
   {
-    title: "Weather Application",
+    title: "Node.js & MongoDB Message API",
     year: "2025",
     summary:
-      "A responsive weather app that answers “what's the weather where I am, right now?” in a single interaction.",
+      "A RESTful message API built with Node.js, Express.js, MongoDB and Mongoose, implementing complete CRUD operations with persistent cloud database storage.",
     problem:
-      "Checking weather across multiple saved cities usually means repeated searches. This app keeps favourites and location detection one tap away.",
-    technologies: ["HTML", "CSS", "JavaScript", "OpenWeatherMap API"],
+      "Built to understand how persistent data flows across the web stack — connecting Express REST endpoints with Mongoose schema modeling and MongoDB Atlas.",
+    technologies: ["Node.js", "Express.js", "MongoDB", "Mongoose", "JavaScript", "HTML/CSS"],
     features: [
-      "Search weather by city name",
-      "Current location detection",
-      "Celsius / Fahrenheit toggle",
-      "Favourite locations & refresh",
-      "3-day forecast",
-      "Fully responsive layout",
-    ],
-    image: weatherImage,
-    githubUrl: "https://github.com/gopal-maddheshiya/weather-app",
-    liveUrl: "https://gopal-maddheshiya.github.io/weather-app/",
-    featured: true,
-  },
-  {
-    title: "Node Chat API",
-    year: "2025",
-    summary: "A chat-based web application backed by an Express REST API and MongoDB persistence.",
-    problem:
-      "Built to understand how message data flows end to end — from UI events to API routes to database documents.",
-    technologies: ["Node.js", "Express.js", "MongoDB", "JavaScript", "HTML/CSS"],
-    features: [
-      "Manual sender / receiver selection",
-      "CRUD operations on messages",
-      "Dynamic UI rendering from API data",
-      "MongoDB-backed persistence",
+      "RESTful API endpoints",
+      "Complete CRUD operations",
+      "MongoDB database persistence",
+      "Mongoose data modeling",
+      "Sender/receiver/message data handling",
+      "Deployed on Render",
     ],
     image: chatImage,
     githubUrl: "https://github.com/gopal-maddheshiya/node-chat-api",
@@ -130,17 +111,43 @@ export const PROJECTS: Project[] = [
     featured: true,
   },
   {
-    title: "Job Card UI (React)",
+    title: "Weather Forecast Web App",
+    year: "2025",
+    summary:
+      "A client-side weather application integrating the OpenWeatherMap API with asynchronous JavaScript, browser geolocation, temperature conversion and responsive UI.",
+    problem:
+      "Checking current weather and multi-day forecasts seamlessly across cities with instant geolocation detection and unit conversion.",
+    technologies: ["JavaScript", "HTML5", "CSS3", "OpenWeatherMap API", "Geolocation API"],
+    features: [
+      "OpenWeatherMap REST API integration",
+      "Async/await data fetching",
+      "Browser Geolocation API",
+      "Celsius/Fahrenheit conversion",
+      "Dynamic weather rendering",
+      "Error handling",
+      "Responsive UI",
+      "GitHub Pages deployment",
+    ],
+    image: weatherImage,
+    githubUrl: "https://github.com/gopal-maddheshiya/weather-app",
+    liveUrl: "https://gopal-maddheshiya.github.io/weather-app/",
+    featured: true,
+  },
+  {
+    title: "Job Listing Cards — React",
     year: "2026",
     summary:
-      "An interactive React interface for comparing job roles and salary details side by side.",
+      "A React component practice project focused on reusable components, props-driven rendering and responsive card layouts.",
     problem:
-      "Comparing roles across tabs is tedious; this UI renders roles as comparable cards from a single data source.",
-    technologies: ["React.js", "JavaScript", "CSS"],
+      "Practicing modular React component composition, structured prop passing, and data-driven rendering of dynamic role cards.",
+    technologies: ["React.js", "JavaScript", "CSS3"],
     features: [
-      "Reusable dynamic components",
-      "Data-driven rendering",
-      "Role and salary comparison view",
+      "Reusable React components",
+      "Props-driven rendering",
+      "Structured job listing data",
+      "Modular component styling",
+      "Responsive card layout",
+      "Render deployment",
     ],
     image: jobsImage,
     githubUrl: "https://github.com/gopal-maddheshiya/react-learning/tree/main/04-cards-project",
@@ -160,8 +167,8 @@ export const DSA_INFO = {
     "Recursion",
     "Sorting",
     "Searching",
-    "Trees (learning)",
-    "Graphs (learning)",
+    "Binary Trees",
+    "Two Pointers",
   ],
   notes: [
     "Solutions organised by topic and pattern",
@@ -199,13 +206,6 @@ export const CODING_PROFILES = [
     description: "Problem solving challenges and skills badges.",
     icon: "trophy" as const,
   },
-  {
-    name: "Codeforces",
-    url: "",
-    username: "",
-    description: "",
-    icon: "braces" as const,
-  },
 ] as const;
 
 export const JOURNEY = [
@@ -229,7 +229,7 @@ export const JOURNEY = [
     phase: "03",
     title: "Daily LeetCode Problem Solving",
     detail:
-      "50+ problems solved in Java, mastering two-pointer, sliding window, and recursion patterns.",
+      "Practicing Java problem solving with arrays, strings, recursion and common problem-solving patterns.",
     status: "active" as const,
     tags: ["LeetCode", "Java", "Algorithms"],
   },

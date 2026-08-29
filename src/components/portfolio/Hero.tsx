@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Code2, Download, Github, Linkedin, MapPin } from "lucide-react";
+import { ArrowRight, Code2, FileText, Github, Linkedin, MapPin } from "lucide-react";
 
 import profilePhoto from "@/assets/gopal-profile.jpg";
 import { PERSONAL_INFO } from "@/data/profile";
 
 const TYPING_ROLES = [
-  "Software Engineer",
+  "Aspiring Software Engineer",
   "Full-Stack Developer",
   "Java & DSA Developer",
   "Problem Solver",
@@ -60,9 +60,9 @@ export function Hero() {
       {/* Background grid */}
       <div aria-hidden="true" className="grid-backdrop pointer-events-none absolute inset-0" />
 
-      <div className="container-page relative grid gap-10 sm:gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+      <div className="container-page relative grid gap-10 sm:gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-center">
         {/* Left Column: Intro & Call to Actions */}
-        <div className="flex flex-col items-start">
+        <div className="flex flex-col items-start min-w-0">
           {/* Greeting Badge */}
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 font-mono text-xs text-muted-foreground">
             <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
@@ -107,8 +107,8 @@ export function Hero() {
               rel="noopener noreferrer"
               className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-md border border-border-strong bg-card px-5 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary active:scale-[0.99] cursor-pointer"
             >
-              <Download className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-              <span>Download resume</span>
+              <FileText className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <span>View Resume</span>
             </a>
           </div>
 
@@ -151,8 +151,8 @@ export function Hero() {
         </div>
 
         {/* Right Column: Clean Profile Photo with Online Status Badge */}
-        <div className="flex justify-center lg:justify-end">
-          <div className="relative group">
+        <div className="flex justify-center lg:justify-end min-w-0">
+          <div className="relative group shrink-0">
             <div className="relative overflow-hidden rounded-2xl border-2 border-border bg-card shadow-soft">
               <img
                 src={profilePhoto}
@@ -168,7 +168,9 @@ export function Hero() {
                   <p className="font-display text-sm sm:text-base font-semibold text-foreground">
                     Gopal Maddheshiya
                   </p>
-                  <p className="text-xs text-muted-foreground">Java &amp; MERN Developer</p>
+                  <p className="text-xs text-muted-foreground">
+                    Java &amp; Full-Stack Developer
+                  </p>
                 </div>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-2.5 py-1 text-[11px] font-medium text-primary-foreground shadow-xs">
                   <span className="relative flex size-2">

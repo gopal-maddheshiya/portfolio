@@ -33,7 +33,9 @@ export function DSA() {
               <p className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
                 {DSA_INFO.problemsSolved}
               </p>
-              <p className="text-xs sm:text-sm text-muted-foreground">Problems Solved Daily</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                LeetCode Problems Solved
+              </p>
             </div>
 
             <p className="mt-3 text-xs sm:text-sm leading-relaxed text-muted-foreground">

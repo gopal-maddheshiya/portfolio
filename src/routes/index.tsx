@@ -16,7 +16,7 @@ import { Skills } from "@/components/portfolio/Skills";
 import { GopalAIAssistant } from "@/components/ai/GopalAIAssistant";
 import { PERSONAL_INFO } from "@/data/profile";
 
-const TITLE = "Gopal Maddheshiya | Software Engineer & Full-Stack Developer";
+const TITLE = "Gopal Maddheshiya | B.Tech CSE Student | Java & Full-Stack Developer";
 const DESCRIPTION =
   "Portfolio of Gopal Maddheshiya, a Computer Science Engineering student focused on Java, Data Structures & Algorithms and full-stack web development with React, Node.js and MongoDB.";
 

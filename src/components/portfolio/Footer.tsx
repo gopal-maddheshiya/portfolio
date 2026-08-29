@@ -9,7 +9,7 @@ export function Footer() {
         <div>
           <p className="font-display text-base font-semibold">{PERSONAL_INFO.name}</p>
           <p className="mt-1 max-w-xs text-xs sm:text-sm text-muted-foreground">
-            Software Engineer — Java, DSA and full-stack web development.
+            B.Tech CSE Student | Java &amp; Full-Stack Developer.
           </p>
         </div>
 

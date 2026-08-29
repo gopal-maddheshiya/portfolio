@@ -59,9 +59,9 @@ export function About() {
                 <div className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Cpu className="size-4" />
                 </div>
-                <h4 className="mt-2 text-xs font-semibold text-foreground">MERN Stack</h4>
+                <h4 className="mt-2 text-xs font-semibold text-foreground">Full-Stack Dev</h4>
                 <p className="mt-1 text-[11px] text-muted-foreground leading-snug">
-                  End-to-end full stack web applications.
+                  End-to-end web apps with React, Node.js, Express &amp; MongoDB.
                 </p>
               </div>
 
@@ -132,13 +132,13 @@ export function About() {
               </div>
               <div className="rounded-xl border border-border/80 bg-surface/60 p-3">
                 <p className="text-[11px] font-mono text-muted-foreground">DSA Practice</p>
-                <p className="mt-0.5 text-sm font-semibold text-foreground">50+ Solved</p>
-                <p className="text-[11px] font-mono text-muted-foreground mt-0.5">LeetCode Java</p>
+                <p className="mt-0.5 text-sm font-semibold text-foreground">Java · LeetCode</p>
+                <p className="text-[11px] font-mono text-primary mt-0.5">Active Practice</p>
               </div>
               <div className="rounded-xl border border-border/80 bg-surface/60 p-3">
                 <p className="text-[11px] font-mono text-muted-foreground">Primary Stack</p>
-                <p className="mt-0.5 text-sm font-semibold text-foreground">Java &amp; MERN</p>
-                <p className="text-[11px] font-mono text-muted-foreground mt-0.5">Full-Stack</p>
+                <p className="mt-0.5 text-sm font-semibold text-foreground">Java &amp; Full-Stack</p>
+                <p className="text-[11px] font-mono text-muted-foreground mt-0.5">React · Node · Mongo</p>
               </div>
               <div className="rounded-xl border border-border/80 bg-surface/60 p-3">
                 <p className="text-[11px] font-mono text-muted-foreground">Graduation</p>

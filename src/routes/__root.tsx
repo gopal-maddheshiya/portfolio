@@ -74,7 +74,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Gopal Maddheshiya | Software Engineer & Full-Stack Developer" },
+      { title: "Gopal Maddheshiya | B.Tech CSE Student | Java & Full-Stack Developer" },
       {
         name: "description",
         content: "B.Tech CSE student focused on Java, DSA and full-stack web development.",
