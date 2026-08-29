@@ -171,7 +171,10 @@ export function Highlights() {
         >
           {MARQUEE_ITEMS.map((item, index) => {
             const Icon = (item.icon && ICONS_MAP[item.icon]) || Code2;
-            const isOpportunity = item.label.includes("Summer");
+            const isOpportunity =
+              item.section === "contact" ||
+              item.icon === "sparkles" ||
+              item.label.includes("Opportunit");
 
             return (
               <a

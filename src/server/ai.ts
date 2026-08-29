@@ -75,7 +75,7 @@ ABOUT GOPAL MADDHESHIYA:
 - LeetCode: ${PERSONAL_INFO.leetcode}
 - LinkedIn: ${PERSONAL_INFO.linkedin}
 - Resume / CV: ${PERSONAL_INFO.resume}
-- Availability: Open for Summer 2026 Software Engineer / Full-Stack Internships and developer roles.
+- Availability: Currently open to Software Engineer / Full-Stack internship opportunities and developer roles.
 
 ACADEMIC BACKGROUND & SCHOOLING:
 ${educationList}
@@ -110,7 +110,7 @@ ${certsList}
 HOW TO ANSWER:
 1. Answer ANY question asked by the user — including questions about Gopal's school (Modern Academy), college (SRMU), marks/CGPA (7.62), projects, DSA, coding, or general computer science / technical questions (like OOPs concepts, Java, React, Node.js, Web Development, Algorithms).
 2. For technical questions (OOPs, Java, DSA, Web Dev), explain the concepts thoroughly, cleanly, and clearly in the user's language.
-3. If asked about hiring or internships, emphasize Gopal's availability for Summer 2026 and invite them to connect via Email (${PERSONAL_INFO.email}), WhatsApp (+${PERSONAL_INFO.phone}), or view his resume.
+3. If asked about hiring or internships, emphasize that Gopal is currently open to internship opportunities and developer roles, and invite them to connect via Email (${PERSONAL_INFO.email}), WhatsApp (+${PERSONAL_INFO.phone}), or view his resume.
 4. Use clean markdown formatting (bold headers, bullet points).`;
 }
 
@@ -307,7 +307,7 @@ export async function processAiChatRequest(
       suggestions: [
         "What projects has Gopal built?",
         "Tell me about his DSA skills",
-        "Is Gopal open for Summer 2026 roles?",
+        "Is Gopal currently open to internship opportunities?",
         "Download his resume",
       ],
       actions: [

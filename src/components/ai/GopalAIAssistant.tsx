@@ -21,7 +21,7 @@ import { AIChatMessage } from "./AIChatMessage";
 const INITIAL_SUGGESTIONS = [
   "What full-stack projects has Gopal built?",
   "Tell me about Gopal's DSA background",
-  "Is Gopal available for Summer 2026 roles?",
+  "Is Gopal currently open to internship opportunities?",
   "What are Gopal's primary skills?",
   "How can I contact Gopal directly?",
   "Download Gopal's Resume",
@@ -29,7 +29,7 @@ const INITIAL_SUGGESTIONS = [
 
 const WELCOME_MESSAGE: ChatMessage = {
   role: "assistant",
-  content: `Hello! I'm **Ask Gopal**, the intelligent assistant for **Gopal Maddheshiya**.\n\nI can answer questions about Gopal's **full-stack projects**, **Java & DSA problem-solving**, **academic background at SRMU**, and **Summer 2026 availability**.\n\nWhat would you like to know?`,
+  content: `Hello! I'm **Ask Gopal**, the intelligent assistant for **Gopal Maddheshiya**.\n\nI can answer questions about Gopal's **full-stack projects**, **Java & DSA problem-solving**, **academic background at SRMU**, **skills**, and **internship opportunities**.\n\nWhat would you like to know?`,
   suggestions: INITIAL_SUGGESTIONS.slice(0, 3),
   actions: [
     { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" },
@@ -225,7 +225,7 @@ export function GopalAIAssistant() {
                 </div>
                 <p className="text-[11px] text-muted-foreground mt-0.5 flex items-center gap-1.5">
                   <span className="size-1.5 rounded-full bg-emerald-500 inline-block" />
-                  <span>Trained on portfolio data</span>
+                  <span>Live Portfolio Data</span>
                 </p>
               </div>
             </div>
@@ -344,7 +344,7 @@ export function GopalAIAssistant() {
               </button>
             </form>
             <div className="mt-1.5 flex items-center justify-between text-[10px] text-muted-foreground/70 px-1 font-mono">
-              <span>Powered by Gopal's Live Portfolio Data</span>
+              <span>Gopal's Live Portfolio Data</span>
               <span className="hidden sm:inline">Press Enter ↵ to send</span>
             </div>
           </div>

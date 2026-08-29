@@ -87,7 +87,7 @@ export function About() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
                   <span className="relative inline-flex size-2 rounded-full bg-primary" />
                 </span>
-                <span>Open for Summer 2026 Opportunities</span>
+                <span>Open to Internship Opportunities</span>
               </div>
             </div>
           </Reveal>

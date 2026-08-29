@@ -32,7 +32,7 @@ export const HIGHLIGHTS = [
     section: "certifications",
     icon: "award",
   },
-  { label: "Summer 2026", detail: "Open to SWE Roles", section: "contact", icon: "sparkles" },
+  { label: "Opportunities", detail: "Open to SWE Roles", section: "contact", icon: "sparkles" },
 ];
 
 export const FOCUS_AREAS = [
