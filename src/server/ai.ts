@@ -114,20 +114,65 @@ HOW TO ANSWER:
 4. Use clean markdown formatting (bold headers, bullet points).`;
 }
 
-// Keep track of the last successfully working model to avoid trial-and-error latency
-let activeWorkingModel: string = "gemini-2.0-flash";
+let cachedModels: string[] | null = null;
 
-// Curated list of fastest production Gemini models in priority order
-const FAST_MODELS = [
-  "gemini-2.0-flash",
-  "gemini-1.5-flash",
-  "gemini-2.0-flash-lite",
-  "gemini-1.5-pro",
-  "gemini-3.7-flash",
-];
+async function getSupportedModels(apiKey: string): Promise<string[]> {
+  if (cachedModels && cachedModels.length > 0) {
+    return cachedModels;
+  }
+
+  // Only top-level ultra-fast Flash models
+  const fallbackList = [
+    "gemini-3.7-flash",
+    "gemini-3.7-flash-preview",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+  ];
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`,
+    );
+    if (res.ok) {
+      const data = (await res.json()) as {
+        models?: { name?: string; supportedGenerationMethods?: string[] }[];
+      };
+      const valid = (data.models || [])
+        .filter(
+          (m) =>
+            m.name &&
+            Array.isArray(m.supportedGenerationMethods) &&
+            m.supportedGenerationMethods.includes("generateContent") &&
+            m.name.includes("flash"), // Only keep fast Flash models
+        )
+        .map((m) => (m.name ? m.name.replace(/^models\//, "") : ""))
+        .filter(Boolean);
+
+      if (valid.length > 0) {
+        // Priority: 3.7 Flash -> 2.0 Flash -> 1.5 Flash
+        valid.sort((a, b) => {
+          const getScore = (name: string) => {
+            if (name.includes("3.7") && name.includes("flash")) return 100;
+            if (name.includes("3.7")) return 90;
+            if (name.includes("2.0") && name.includes("flash")) return 80;
+            if (name.includes("1.5") && name.includes("flash")) return 70;
+            return 50;
+          };
+          return getScore(b) - getScore(a);
+        });
+        cachedModels = valid;
+        return valid;
+      }
+    }
+  } catch (err) {
+    console.warn("Could not query dynamic model list from Google AI Studio:", err);
+  }
+
+  return fallbackList;
+}
 
 /**
- * Calls the Google Gemini API directly with ultra-low latency.
+ * Calls the Google Gemini API with dynamic model discovery.
  */
 export async function callGeminiApi(
   apiKey: string,
@@ -158,50 +203,49 @@ export async function callGeminiApi(
     }
   }
 
-  // Ensure last turn in history is not 'user' so we can append current userPrompt
+  // Ensure current turn is added properly to alternating contents
   const lastTurn = contents[contents.length - 1];
   if (lastTurn && lastTurn.role === "user") {
-    contents.pop();
+    const part = lastTurn.parts[0];
+    if (part) {
+      part.text += `\n${userPrompt}`;
+    } else {
+      lastTurn.parts.push({ text: userPrompt });
+    }
+  } else {
+    contents.push({
+      role: "user",
+      parts: [{ text: userPrompt }],
+    });
   }
 
-  contents.push({
-    role: "user",
-    parts: [{ text: userPrompt }],
-  });
-
-  // Put currently active working model first, then the remaining fallbacks
-  const orderedModels = [
-    activeWorkingModel,
-    ...FAST_MODELS.filter((m) => m !== activeWorkingModel),
-  ];
-
+  const modelsToTry = await getSupportedModels(apiKey);
   let lastError: Error | null = null;
 
-  for (const model of orderedModels) {
+  for (const model of modelsToTry) {
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      const bodyPayload: Record<string, unknown> = {
+        contents,
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1000,
+        },
+      };
+
+      if (!model.startsWith("gemini-pro") && !model.startsWith("gemini-1.0")) {
+        bodyPayload["systemInstruction"] = {
+          parts: [{ text: systemInstruction }],
+        };
+      }
 
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          signal: controller.signal,
-          body: JSON.stringify({
-            systemInstruction: {
-              parts: [{ text: systemInstruction }],
-            },
-            contents,
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 800,
-            },
-          }),
+          body: JSON.stringify(bodyPayload),
         },
       );
-
-      clearTimeout(timeoutId);
 
       if (response.ok) {
         const data = (await response.json()) as {
@@ -209,17 +253,19 @@ export async function callGeminiApi(
         };
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
         if (text) {
-          // Lock in this model as our active working model for fast subsequent requests
-          activeWorkingModel = model;
+          // Promote working model to front of cache
+          if (cachedModels) {
+            cachedModels = [model, ...cachedModels.filter((m) => m !== model)];
+          }
           return text;
         }
       }
 
       const errorText = await response.text();
-      console.warn(`Model ${model} returned status ${response.status}:`, errorText);
-      lastError = new Error(`Model ${model} failed (${response.status})`);
+      console.warn(`Model ${model} returned ${response.status}:`, errorText);
+      lastError = new Error(`Model ${model} failed (${response.status}): ${errorText}`);
     } catch (err) {
-      console.warn(`Error or timeout on model ${model}:`, err);
+      console.warn(`Error connecting to model ${model}:`, err);
       lastError = err instanceof Error ? err : new Error(String(err));
     }
   }
@@ -299,7 +345,7 @@ export async function processAiChatRequest(
 }
 
 /**
- * Frontend client helper: Calls /api/chat server endpoint
+ * Frontend client helper: Calls /api/chat server endpoint with seamless client fallback
  */
 export async function askGopalAi({
   data,
@@ -334,6 +380,39 @@ export async function askGopalAi({
     }
   } catch (err) {
     console.error("Server /api/chat request failed:", err);
+  }
+
+  // Client-side fallback if /api/chat is not reachable in current deployment
+  const clientKey =
+    typeof import.meta !== "undefined" && import.meta.env
+      ? (import.meta.env["VITE_GEMINI_API_KEY"] as string) ||
+        (import.meta.env["GEMINI_API_KEY"] as string) ||
+        ""
+      : "";
+
+  if (clientKey) {
+    try {
+      const reply = await callGeminiApi(clientKey, history ?? [], message);
+      return {
+        reply,
+        suggestions: [
+          "What projects has Gopal built?",
+          "Tell me about his DSA skills",
+          "Is Gopal currently open to internship opportunities?",
+          "Download his resume",
+        ],
+        actions: [
+          { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" as const },
+          {
+            label: "💬 Message on WhatsApp",
+            url: `https://wa.me/${PERSONAL_INFO.whatsapp}`,
+            action: "whatsapp" as const,
+          },
+        ],
+      };
+    } catch (clientErr) {
+      console.error("Client fallback API call failed:", clientErr);
+    }
   }
 
   return {
