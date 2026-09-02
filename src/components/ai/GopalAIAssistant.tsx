@@ -15,7 +15,7 @@ import {
 
 import { PERSONAL_INFO } from "@/data/profile";
 import { cn } from "@/lib/utils";
-import { askGopalAi, type ChatMessage } from "@/server/ai";
+import { askGopalAiStream, type ChatMessage } from "@/server/ai";
 import { AIChatMessage } from "./AIChatMessage";
 
 const INITIAL_SUGGESTIONS = [
@@ -82,46 +82,80 @@ export function GopalAIAssistant() {
       timestamp: Date.now(),
     };
 
-    setMessages((prev) => [...prev, userMsg]);
+    const initialAssistantMsg: ChatMessage = {
+      role: "assistant",
+      content: "",
+      timestamp: Date.now(),
+    };
+
+    const previousHistory = messages.filter((m) => m.content.length > 0).slice(-6);
+
+    setMessages((prev) => [...prev, userMsg, initialAssistantMsg]);
     setLoading(true);
 
     try {
-      const res = await askGopalAi({
-        data: {
-          message: query,
-          history: messages.slice(-6),
+      await askGopalAiStream({
+        message: query,
+        history: previousHistory,
+        onChunk: (chunk) => {
+          setMessages((prev) => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+            if (last && last.role === "assistant") {
+              next[next.length - 1] = {
+                ...last,
+                content: last.content + chunk,
+              };
+            }
+            return next;
+          });
+        },
+        onComplete: ({ suggestions, actions }) => {
+          setMessages((prev) => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+            if (last && last.role === "assistant") {
+              next[next.length - 1] = {
+                ...last,
+                suggestions,
+                actions,
+              };
+            }
+            return next;
+          });
+          setLoading(false);
+          if (!isOpen) {
+            setHasUnread(true);
+          }
+        },
+        onError: (err) => {
+          console.error("AI assistant stream error:", err);
+          setMessages((prev) => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+            if (last && last.role === "assistant") {
+              next[next.length - 1] = {
+                ...last,
+                content:
+                  last.content ||
+                  "I apologize, but I encountered a momentary issue processing your request. Please feel free to try again or reach out to Gopal directly at [gopalmaddheshiya138@gmail.com](mailto:gopalmaddheshiya138@gmail.com).",
+                actions: [
+                  {
+                    label: "💬 Message on WhatsApp",
+                    url: `https://wa.me/${PERSONAL_INFO.whatsapp}`,
+                    action: "whatsapp",
+                  },
+                  { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" },
+                ],
+              };
+            }
+            return next;
+          });
+          setLoading(false);
         },
       });
-
-      const assistantMsg: ChatMessage = {
-        role: "assistant",
-        content: res.reply,
-        suggestions: res.suggestions,
-        actions: res.actions,
-        timestamp: Date.now(),
-      };
-
-      setMessages((prev) => [...prev, assistantMsg]);
-      if (!isOpen) {
-        setHasUnread(true);
-      }
     } catch (err) {
       console.error("Failed to query AI assistant:", err);
-      const errorMsg: ChatMessage = {
-        role: "assistant",
-        content:
-          "I apologize, but I encountered a momentary issue processing your request. Please feel free to try again or reach out to Gopal directly at [gopalmaddheshiya138@gmail.com](mailto:gopalmaddheshiya138@gmail.com).",
-        actions: [
-          {
-            label: "💬 Message on WhatsApp",
-            url: `https://wa.me/${PERSONAL_INFO.whatsapp}`,
-            action: "whatsapp",
-          },
-          { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" },
-        ],
-      };
-      setMessages((prev) => [...prev, errorMsg]);
-    } finally {
       setLoading(false);
     }
   };
@@ -265,31 +299,33 @@ export function GopalAIAssistant() {
             </div>
           </div>
 
-          {/* Chat Messages Body */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-sm">
-            {messages.map((msg, index) => (
-              <AIChatMessage
-                key={index}
-                message={msg}
-                onActionClick={handleActionClick}
-                onSuggestionClick={(sug) => handleSendMessage(sug)}
-              />
-            ))}
+            {/* Chat Messages Body */}
+            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-sm">
+              {messages
+                .filter((msg) => msg.content.length > 0)
+                .map((msg, index) => (
+                  <AIChatMessage
+                    key={index}
+                    message={msg}
+                    onActionClick={handleActionClick}
+                    onSuggestionClick={(sug) => handleSendMessage(sug)}
+                  />
+                ))}
 
-            {/* Typing indicator */}
-            {loading && (
-              <div className="flex items-center gap-3 max-w-[80%]">
-                <div className="size-7 sm:size-8 rounded-lg bg-primary text-primary-foreground font-bold flex items-center justify-center shrink-0">
-                  <Bot className="size-4" />
+              {/* Typing indicator: only shown before the first chunk arrives */}
+              {loading && !messages[messages.length - 1]?.content && (
+                <div className="flex items-center gap-3 max-w-[80%]">
+                  <div className="size-7 sm:size-8 rounded-lg bg-primary text-primary-foreground font-bold flex items-center justify-center shrink-0">
+                    <Bot className="size-4" />
+                  </div>
+                  <div className="rounded-2xl rounded-tl-xs border border-border bg-card px-4 py-3 text-card-foreground shadow-xs flex items-center gap-1.5">
+                    <span className="size-2 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
+                    <span className="size-2 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
+                    <span className="size-2 rounded-full bg-primary animate-bounce" />
+                  </div>
                 </div>
-                <div className="rounded-2xl rounded-tl-xs border border-border bg-card px-4 py-3 text-card-foreground shadow-xs flex items-center gap-1.5">
-                  <span className="size-2 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
-                  <span className="size-2 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
-                  <span className="size-2 rounded-full bg-primary animate-bounce" />
-                </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
           {/* Quick suggestions pills when only welcome message exists */}
           {messages.length === 1 && (

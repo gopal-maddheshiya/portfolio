@@ -2,7 +2,7 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
-import { processAiChatRequest } from "./server/ai";
+import { handleAiChatStream, processAiChatRequest } from "./server/ai";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -54,6 +54,7 @@ export default {
           const body = (await request.json()) as {
             message?: string;
             history?: unknown[];
+            stream?: boolean;
           };
           const message = typeof body.message === "string" ? body.message : "";
           const history = Array.isArray(body.history) ? (body.history as never) : [];
@@ -61,6 +62,10 @@ export default {
             string,
             unknown
           >;
+
+          if (body.stream !== false) {
+            return await handleAiChatStream(message, history, serverEnv);
+          }
 
           const result = await processAiChatRequest(message, history, serverEnv);
           return new Response(JSON.stringify(result), {
