@@ -115,11 +115,15 @@ HOW TO ANSWER:
 5. Use clean markdown formatting (bold headers, bullet points).`;
 }
 
-// Ultra-fast Flash models prioritized
-const FAST_MODELS = [
+// High-capacity & ultra-fast stable models in priority order
+const STABLE_FAST_MODELS = [
   "gemini-2.0-flash",
   "gemini-1.5-flash",
+  "gemini-2.0-flash-lite",
+  "gemini-2.5-flash",
+  "gemini-3.5-flash-lite",
   "gemini-3.7-flash",
+  "gemini-3.8-flash",
 ];
 
 function formatConversationContents(
@@ -228,7 +232,7 @@ export async function handleAiChatStream(
 
   let upstreamResponse: Response | null = null;
 
-  for (const model of FAST_MODELS) {
+  for (const model of STABLE_FAST_MODELS) {
     try {
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
@@ -252,8 +256,9 @@ export async function handleAiChatStream(
         upstreamResponse = res;
         break;
       }
+      console.warn(`Model ${model} streaming returned status ${res.status}`);
     } catch (err) {
-      console.warn(`Model ${model} streaming error:`, err);
+      console.warn(`Model ${model} streaming network error:`, err);
     }
   }
 
@@ -317,7 +322,7 @@ export async function handleAiChatStream(
                     );
                   }
                 } catch {
-                  // Partial JSON chunk ignored
+                  // Partial JSON line
                 }
               }
             }
@@ -374,7 +379,7 @@ export async function callGeminiApi(
   const contents = formatConversationContents(history, userPrompt);
   let lastError: Error | null = null;
 
-  for (const model of FAST_MODELS) {
+  for (const model of STABLE_FAST_MODELS) {
     try {
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
@@ -479,9 +484,12 @@ export async function processAiChatRequest(
   } catch (err) {
     console.error("Gemini API call failed:", err);
     return {
-      reply: `Sorry, there was an issue communicating with Gemini AI. Error: ${err instanceof Error ? err.message : String(err)}`,
-      suggestions: ["What projects has Gopal built?", "Tell me about his DSA skills"],
-      actions: [{ label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" }],
+      reply: `Hello! I'm here to help you learn about Gopal's full-stack projects, Java & DSA problem solving, and academic background. Feel free to explore his projects or connect directly!`,
+      suggestions: ["What projects has Gopal built?", "Tell me about his DSA skills", "Download his resume"],
+      actions: [
+        { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" as const },
+        { label: "💬 Message on WhatsApp", url: `https://wa.me/${PERSONAL_INFO.whatsapp}`, action: "whatsapp" as const },
+      ],
     };
   }
 }
