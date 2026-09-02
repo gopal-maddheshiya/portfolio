@@ -114,72 +114,20 @@ HOW TO ANSWER:
 4. Use clean markdown formatting (bold headers, bullet points).`;
 }
 
-let cachedModels: string[] | null = null;
+// Keep track of the last successfully working model to avoid trial-and-error latency
+let activeWorkingModel: string = "gemini-2.0-flash";
 
-async function getSupportedModels(apiKey: string): Promise<string[]> {
-  if (cachedModels && cachedModels.length > 0) {
-    return cachedModels;
-  }
-
-  const fallbackList = [
-    "gemini-3.7-flash",
-    "gemini-3.7-flash-preview",
-    "gemini-2.0-flash",
-    "gemini-2.0-flash-001",
-    "gemini-1.5-flash",
-    "gemini-1.5-flash-8b",
-    "gemini-1.5-pro",
-    "gemini-2.0-flash-lite-preview-02-05",
-    "gemini-pro",
-  ];
-
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`,
-    );
-    if (res.ok) {
-      const data = (await res.json()) as {
-        models?: { name?: string; supportedGenerationMethods?: string[] }[];
-      };
-      const valid = (data.models || [])
-        .filter(
-          (m) =>
-            m.name &&
-            Array.isArray(m.supportedGenerationMethods) &&
-            m.supportedGenerationMethods.includes("generateContent"),
-        )
-        .map((m) => (m.name ? m.name.replace(/^models\//, "") : ""))
-        .filter(Boolean);
-
-      if (valid.length > 0) {
-        // Prioritize Gemini 3.7 Flash first, then 2.0 Flash, then 1.5 Flash
-        valid.sort((a, b) => {
-          const getScore = (name: string) => {
-            if (name.includes("3.7") && name.includes("flash")) return 100;
-            if (name.includes("3.7")) return 90;
-            if (name.includes("2.0") && name.includes("flash")) return 80;
-            if (name.includes("2.5") && name.includes("flash")) return 75;
-            if (name.includes("1.5") && name.includes("flash")) return 60;
-            if (name.includes("flash")) return 50;
-            if (name.includes("2.0")) return 40;
-            if (name.includes("1.5")) return 30;
-            return 10;
-          };
-          return getScore(b) - getScore(a);
-        });
-        cachedModels = valid;
-        return valid;
-      }
-    }
-  } catch (err) {
-    console.warn("Could not query model list from Google AI Studio:", err);
-  }
-
-  return fallbackList;
-}
+// Curated list of fastest production Gemini models in priority order
+const FAST_MODELS = [
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
+  "gemini-2.0-flash-lite",
+  "gemini-1.5-pro",
+  "gemini-3.7-flash",
+];
 
 /**
- * Calls the Google Gemini API with dynamic model discovery.
+ * Calls the Google Gemini API directly with ultra-low latency.
  */
 export async function callGeminiApi(
   apiKey: string,
@@ -221,16 +169,25 @@ export async function callGeminiApi(
     parts: [{ text: userPrompt }],
   });
 
-  const modelsToTry = await getSupportedModels(apiKey);
+  // Put currently active working model first, then the remaining fallbacks
+  const orderedModels = [
+    activeWorkingModel,
+    ...FAST_MODELS.filter((m) => m !== activeWorkingModel),
+  ];
+
   let lastError: Error | null = null;
 
-  for (const model of modelsToTry) {
+  for (const model of orderedModels) {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
           body: JSON.stringify({
             systemInstruction: {
               parts: [{ text: systemInstruction }],
@@ -238,11 +195,13 @@ export async function callGeminiApi(
             contents,
             generationConfig: {
               temperature: 0.7,
-              maxOutputTokens: 1000,
+              maxOutputTokens: 800,
             },
           }),
         },
       );
+
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         const data = (await response.json()) as {
@@ -250,19 +209,17 @@ export async function callGeminiApi(
         };
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
         if (text) {
-          // Promote working model to front of cache
-          if (cachedModels) {
-            cachedModels = [model, ...cachedModels.filter((m) => m !== model)];
-          }
+          // Lock in this model as our active working model for fast subsequent requests
+          activeWorkingModel = model;
           return text;
         }
       }
 
       const errorText = await response.text();
-      console.warn(`Model ${model} returned ${response.status}:`, errorText);
-      lastError = new Error(`Model ${model} failed (${response.status}): ${errorText}`);
+      console.warn(`Model ${model} returned status ${response.status}:`, errorText);
+      lastError = new Error(`Model ${model} failed (${response.status})`);
     } catch (err) {
-      console.warn(`Error connecting to model ${model}:`, err);
+      console.warn(`Error or timeout on model ${model}:`, err);
       lastError = err instanceof Error ? err : new Error(String(err));
     }
   }
