@@ -17,6 +17,8 @@ export const PERSONAL_INFO = {
   leetcodeUsername: "gopal-maddheshiya",
   linkedin: "https://www.linkedin.com/in/gopal-maddheshiya",
   resume: "/gopal-cv.pdf",
+  siteUrl: "https://gopal-maddheshiya.vercel.app",
+  ogImage: "https://gopal-maddheshiya.vercel.app/og-image.png",
   siteDescription:
     "Computer Science student focused on Java, Data Structures & Algorithms and full-stack web development with React, Node.js and MongoDB.",
 } as const;
