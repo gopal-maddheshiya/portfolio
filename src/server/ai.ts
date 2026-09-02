@@ -122,7 +122,10 @@ async function getSupportedModels(apiKey: string): Promise<string[]> {
   }
 
   const fallbackList = [
+    "gemini-3.7-flash",
+    "gemini-3.7-flash-preview",
     "gemini-2.0-flash",
+    "gemini-2.0-flash-001",
     "gemini-1.5-flash",
     "gemini-1.5-flash-8b",
     "gemini-1.5-pro",
@@ -149,11 +152,20 @@ async function getSupportedModels(apiKey: string): Promise<string[]> {
         .filter(Boolean);
 
       if (valid.length > 0) {
-        // Prioritize fastest flash models first
+        // Prioritize Gemini 3.7 Flash first, then 2.0 Flash, then 1.5 Flash
         valid.sort((a, b) => {
-          const aFlash = a.includes("flash") ? -1 : 1;
-          const bFlash = b.includes("flash") ? -1 : 1;
-          return aFlash - bFlash;
+          const getScore = (name: string) => {
+            if (name.includes("3.7") && name.includes("flash")) return 100;
+            if (name.includes("3.7")) return 90;
+            if (name.includes("2.0") && name.includes("flash")) return 80;
+            if (name.includes("2.5") && name.includes("flash")) return 75;
+            if (name.includes("1.5") && name.includes("flash")) return 60;
+            if (name.includes("flash")) return 50;
+            if (name.includes("2.0")) return 40;
+            if (name.includes("1.5")) return 30;
+            return 10;
+          };
+          return getScore(b) - getScore(a);
         });
         cachedModels = valid;
         return valid;
