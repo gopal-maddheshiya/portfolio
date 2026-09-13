@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import {
   DEFAULT_PORTFOLIO_DATA,
@@ -28,6 +28,11 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
+  // Track whether the user has unsaved local edits.
+  // When dirty, skip ALL remote overwrites (realtime, broadcast, focus refresh)
+  // so that file-picker blur/re-focus cycles don't wipe out admin work.
+  const isDirtyRef = useRef<boolean>(false);
+
   const loadData = useCallback(async (silent = false) => {
     try {
       if (!silent) setIsLoading(true);
@@ -55,6 +60,11 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           filter: `id=eq.${RECORD_ID}`,
         },
         (payload) => {
+          // Skip remote overwrite while admin has unsaved changes
+          if (isDirtyRef.current) {
+            console.log("⚡ [Realtime Sync] Skipped — local unsaved edits present");
+            return;
+          }
           console.log("⚡ [Realtime Sync] Supabase update received:", payload);
           if (payload.new && typeof payload.new === "object" && "content" in payload.new) {
             const raw = payload.new as { content?: unknown; updated_at?: string };
@@ -76,6 +86,11 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         broadcast = new BroadcastChannel("gopal_portfolio_tab_sync");
         broadcast.onmessage = (event) => {
           if (event.data?.type === "PORTFOLIO_SAVED" && event.data?.payload) {
+            // Skip if admin is actively editing (dirty state)
+            if (isDirtyRef.current) {
+              console.log("⚡ [Cross-Tab Sync] Skipped — local unsaved edits present");
+              return;
+            }
             console.log("⚡ [Cross-Tab Sync] Instant sync received from Admin Studio");
             setData(parsePortfolioContent(event.data.payload, new Date().toISOString()));
           }
@@ -86,7 +101,12 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     }
 
     // 3. Tab Focus / Visibility Auto-Refresh
+    //    Skip when dirty so file-picker blur→focus doesn't wipe unsaved edits
     const handleVisibility = () => {
+      if (isDirtyRef.current) {
+        console.log("⚡ [Focus Refresh] Skipped — local unsaved edits present");
+        return;
+      }
       if (typeof document !== "undefined" && document.visibilityState === "visible") {
         loadData(true);
       }
@@ -112,6 +132,8 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   const updateData = (
     updater: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData)
   ) => {
+    // Mark as dirty — prevents remote sync from overwriting local edits
+    isDirtyRef.current = true;
     if (typeof updater === "function") {
       setData((prev) => updater(prev));
     } else {
@@ -128,6 +150,8 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         toast.success("Portfolio changes saved live!");
         const updated = { ...dataToSave, updatedAt: new Date().toISOString() };
         setData(updated);
+        // Clear dirty flag — remote sync can resume now
+        isDirtyRef.current = false;
 
         // Notify all open tabs instantly in < 5ms without page reload
         if (typeof window !== "undefined" && "BroadcastChannel" in window) {
@@ -156,6 +180,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
 
   const resetToDefaults = () => {
     setData(DEFAULT_PORTFOLIO_DATA);
+    isDirtyRef.current = false;
     toast.info("Reset to default profile values. Click 'Save' to persist.");
   };
 
