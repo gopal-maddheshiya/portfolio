@@ -30,100 +30,74 @@ export type ChatMessage = {
  */
 function generateSystemContext(): string {
   const skillsList = SKILL_GROUPS.map(
-    (g) => `${g.title} (${g.primary ? "Primary Focus" : "Secondary"}): ${g.skills.join(", ")}`,
+    (g) => `${g.title}: ${g.skills.join(", ")}`,
   ).join("\n- ");
 
   const projectsList = PROJECTS.map(
     (p, i) =>
-      `Project ${i + 1}: ${p.title} (${p.year})\n  Summary: ${p.summary}\n  Problem/Goal: ${p.problem}\n  Technologies: ${p.technologies.join(", ")}\n  Key Features: ${p.features.join("; ")}\n  GitHub: ${p.githubUrl}${p.liveUrl ? `\n  Live Demo: ${p.liveUrl}` : ""}`,
+      `Project ${i + 1}: ${p.title} (${p.year})\n  Summary: ${p.summary}\n  Technologies: ${p.technologies.join(", ")}\n  Key Highlights: ${p.features.slice(0, 3).join("; ")}\n  GitHub: ${p.githubUrl}${p.liveUrl ? `\n  Live Demo: ${p.liveUrl}` : ""}`,
   ).join("\n\n");
-
-  const journeyList = JOURNEY.map(
-    (j) =>
-      `Phase ${j.phase}: ${j.title} [Status: ${j.status}] - ${j.detail} (Tags: ${j.tags.join(", ")})`,
-  ).join("\n- ");
 
   const educationList = EDUCATION.map(
     (e) => `- ${e.title}: ${e.org} (${e.period})${e.detail ? ` [${e.detail}]` : ""}`,
   ).join("\n");
 
   const certsList = CERTIFICATIONS.map(
-    (c) => `- ${c.title} by ${c.org} (${c.period}) - ${c.detail} (Skills: ${c.skills.join(", ")})`,
+    (c) => `- ${c.title} by ${c.org} (${c.period}) - ${c.skills.join(", ")}`,
   ).join("\n");
 
-  const profilesList = CODING_PROFILES.filter((cp) => cp.url)
-    .map((cp) => `- ${cp.name}: ${cp.url} (@${cp.username}) - ${cp.description}`)
-    .join("\n");
-
-  return `You are Ask Gopal, the official AI assistant for Gopal Maddheshiya's personal portfolio.
-You are powered by Google Gemini AI and represent Gopal directly.
+  return `You are Ask Gopal, the official and intelligent AI representative for Gopal Maddheshiya's developer portfolio.
+You provide instant, accurate, well-structured, and helpful answers about Gopal's projects, technical skills, education, and experience.
 
 LANGUAGE & TONE RULES:
-- ALWAYS respond in the SAME language the user writes in! If user writes in Hindi or Hinglish, respond in natural, fluent Hindi/Hinglish! If in English, reply in professional English.
-- NEVER start every message by re-introducing yourself ("Hello I am Ask Gopal..."). The user already knows. Jump directly into answering the user's question!
-- Be conversational, friendly, intelligent, helpful, and concise.
+- ALWAYS match the user's language! If the user asks in Hindi or Hinglish, respond in natural, friendly Hindi/Hinglish! If in English, reply in crisp, professional English.
+- NEVER start every message with repetitive self-introductions ("Hello, I am Ask Gopal..."). Jump straight into answering the user's question directly!
+- Be enthusiastic, confident, polite, and articulate.
 
-ABOUT GOPAL MADDHESHIYA:
+KEY FACTS ABOUT GOPAL MADDHESHIYA:
 - Full Name: ${PERSONAL_INFO.name}
-- Current Role: ${PERSONAL_INFO.role} (${PERSONAL_INFO.subtitle})
-- Location: ${PERSONAL_INFO.location}
-- College / University: B.Tech in Computer Science & Engineering (2024–2028) at Shri Ramswaroop Memorial University (SRMU), Current CGPA: 7.62
+- Role: ${PERSONAL_INFO.role} (${PERSONAL_INFO.subtitle})
+- College / Degree: B.Tech in Computer Science & Engineering (2024–2028) at Shri Ramswaroop Memorial University (SRMU), Current CGPA: 7.62
 - Schooling: Modern Academy (Class X in 2021, Class XII in 2024)
+- Location: ${PERSONAL_INFO.location}
 - Email: ${PERSONAL_INFO.email}
 - WhatsApp / Phone: +${PERSONAL_INFO.whatsapp}
 - GitHub: ${PERSONAL_INFO.github}
-- LeetCode: ${PERSONAL_INFO.leetcode}
+- LeetCode: ${PERSONAL_INFO.leetcode} (174+ Problems Solved in Java)
 - LinkedIn: ${PERSONAL_INFO.linkedin}
-- Resume / CV: ${PERSONAL_INFO.resume}
-- Availability: Currently open to Software Engineer / Full-Stack internship opportunities and developer roles.
+- Resume: ${PERSONAL_INFO.resume}
+- Availability: Open for Software Engineering & Full-Stack Web Development internships and opportunities.
 
-ACADEMIC BACKGROUND & SCHOOLING:
+ACADEMIC BACKGROUND:
 ${educationList}
 
-KEY HIGHLIGHTS:
-${HIGHLIGHTS.map((h) => `- ${h.label}: ${h.detail}`).join("\n")}
-
-CORE TECHNICAL SKILLS:
+CORE SKILLS:
 - ${skillsList}
-
-CURRENT FOCUS AREAS:
-- ${FOCUS_AREAS.join("\n- ")}
 
 FEATURED PROJECTS:
 ${projectsList}
 
 DATA STRUCTURES & ALGORITHMS (DSA):
-- Problems Solved: ${DSA_INFO.problemsSolved} on LeetCode using ${DSA_INFO.language}
-- Repository: ${DSA_INFO.repoName} (${DSA_INFO.repoUrl})
-- Topics Practiced: ${DSA_INFO.topics.join(", ")}
-- Methodology: ${DSA_INFO.notes.join("; ")}
-
-CODING PROFILES:
-${profilesList}
-
-JOURNEY / ROADMAP:
-- ${journeyList}
+- 174+ LeetCode problems solved primarily in Java (Arrays, Strings, HashMaps, Trees, Graphs, Dynamic Programming).
+- GitHub DSA Repo: ${DSA_INFO.repoName} (${DSA_INFO.repoUrl})
 
 CERTIFICATIONS:
 ${certsList}
 
-HOW TO ANSWER:
-1. Answer ANY question asked by the user — including questions about Gopal's school (Modern Academy), college (SRMU), marks/CGPA (7.62), projects, DSA, coding, or general computer science / technical questions (like OOPs concepts, Java, React, Node.js, Web Development, Algorithms).
-2. For technical questions (OOPs, Java, DSA, Web Dev), explain the concepts thoroughly, cleanly, and clearly in the user's language.
-3. If asked about hiring or internships, emphasize that Gopal is currently open to internship opportunities and developer roles, and invite them to connect via Email (${PERSONAL_INFO.email}), WhatsApp (+${PERSONAL_INFO.whatsapp}), or view his resume.
-4. CRISP & FAST RESPONSES: Be direct and conversational. Keep general responses concise (2 to 4 sentences or clean bullet points) unless the user asks for in-depth details.
-5. Use clean markdown formatting (bold headers, bullet points).`;
+RESPONSE FORMATTING GUIDELINES:
+1. Keep answers structured, easy to skim, and visually engaging. Use short paragraphs, bold keywords, and clean bullet points.
+2. For coding/technical questions (e.g., Java OOPs, React hooks, DSA logic, REST APIs), explain concepts clearly with brief code snippets or bulleted steps when helpful.
+3. For recruitment/internship inquiries, highlight Gopal's strong problem-solving mindset, fast learning ability, and full-stack project experience, and invite them to connect via WhatsApp or Email.
+4. Keep answers concise (2 to 4 short paragraphs or bulleted lists) so visitors get fast, crisp insights without information overload.`;
 }
 
-// High-capacity & ultra-fast stable models in priority order
+// Ultra-fast Gemini models in order of priority
 const STABLE_FAST_MODELS = [
   "gemini-2.0-flash",
-  "gemini-1.5-flash",
   "gemini-2.0-flash-lite",
+  "gemini-1.5-flash",
   "gemini-2.5-flash",
   "gemini-3.5-flash-lite",
-  "gemini-3.7-flash",
-  "gemini-3.8-flash",
 ];
 
 function formatConversationContents(
@@ -194,7 +168,7 @@ export async function handleAiChatStream(
         controller.enqueue(
           encoder.encode(
             `data: ${JSON.stringify({
-              chunk: "Gemini API key is not configured in Vercel environment variables. Please add `GEMINI_API_KEY` in your Vercel project settings.",
+              chunk: "AI service is currently initializing. In the meantime, you can explore Gopal's projects or download his resume below!",
             })}\n\n`,
           ),
         );
@@ -445,7 +419,7 @@ export async function processAiChatRequest(
 
   if (!apiKey) {
     return {
-      reply: `Gemini API key is not configured in Vercel environment variables. Please add \`GEMINI_API_KEY\` in your Vercel project settings to enable live AI responses.`,
+      reply: `Hello! I'm here to help you learn about Gopal's full-stack projects, Java & DSA problem solving, and academic background. Feel free to explore his projects or connect directly!`,
       suggestions: [
         "What projects has Gopal built?",
         "Tell me about his DSA skills",

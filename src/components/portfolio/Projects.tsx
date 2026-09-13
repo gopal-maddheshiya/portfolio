@@ -83,19 +83,28 @@ function ProjectVisual({
       </div>
 
       {/* Image frame without extra margins */}
-      <div className="group/image relative aspect-[16/10] sm:aspect-[16/9] w-full overflow-hidden bg-muted/20">
+      <div className="group/image relative aspect-[16/10] sm:aspect-[16/9] w-full overflow-hidden bg-muted/30 dark:bg-card/80 flex items-center justify-center">
         {image ? (
           <>
+            {/* Ambient blurred backdrop for seamless edge-to-edge aesthetics on any aspect ratio */}
+            <img
+              src={image}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full object-cover blur-md opacity-30 dark:opacity-20 scale-110 pointer-events-none"
+            />
+
+            {/* Main sharp screenshot with full width/height visibility (no side cropping) */}
             <img
               src={image}
               alt={`${title} project preview`}
               loading="lazy"
               width={900}
               height={500}
-              className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover/image:scale-105"
+              className="relative z-10 h-full w-full object-contain object-center transition-transform duration-500 ease-out group-hover/image:scale-[1.02]"
             />
             {liveUrl ? (
-              <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-[2px] opacity-0 transition-opacity duration-300 group-hover/image:opacity-100">
+              <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/60 backdrop-blur-[2px] opacity-0 transition-opacity duration-300 group-hover/image:opacity-100">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-lift">
                   <span>View Live Project</span>
                   <ArrowUpRight className="size-3.5" />

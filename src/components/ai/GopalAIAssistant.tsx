@@ -1,46 +1,31 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  ArrowUp,
   Bot,
-  ChevronDown,
-  CornerDownLeft,
   Loader2,
   Maximize2,
   Minimize2,
-  RefreshCw,
-  Send,
+  RotateCcw,
   Sparkles,
-  User,
   X,
 } from "lucide-react";
 
 import { PERSONAL_INFO } from "@/data/profile";
 import { usePortfolio } from "@/context/PortfolioContext";
 import { cn } from "@/lib/utils";
-import { askGopalAiStream, type ChatMessage } from "@/server/ai";
+import { askGopalAiStream, type ChatAction, type ChatMessage } from "@/server/ai";
 import { AIChatMessage } from "./AIChatMessage";
 
 const INITIAL_SUGGESTIONS = [
-  "What full-stack projects has Gopal built?",
-  "Tell me about Gopal's DSA background",
-  "Is Gopal currently open to internship opportunities?",
-  "What are Gopal's primary skills?",
-  "How can I contact Gopal directly?",
-  "Download Gopal's Resume",
+  "What projects has Gopal built?",
+  "Tell me about his DSA skills",
+  "Download Resume",
 ];
 
-const createWelcomeMessage = (resumeUrl: string, whatsapp: string): ChatMessage => ({
+const createWelcomeMessage = (): ChatMessage => ({
   role: "assistant",
-  content: `Hello! I'm **Ask Gopal**, the intelligent assistant for **Gopal Maddheshiya**.\n\nI can answer questions about Gopal's **full-stack projects**, **Java & DSA problem-solving**, **academic background at SRMU**, **skills**, and **internship opportunities**.\n\nWhat would you like to know?`,
-  suggestions: INITIAL_SUGGESTIONS.slice(0, 3),
-  actions: [
-    { label: "📄 Download Resume", url: resumeUrl, action: "resume" },
-    { label: "🚀 View Projects", action: "projects" },
-    {
-      label: "💬 Message on WhatsApp",
-      url: `https://wa.me/${whatsapp}`,
-      action: "whatsapp",
-    },
-  ],
+  content: `Hello! I'm **Ask Gopal**, Gopal Maddheshiya's portfolio assistant.\n\nFeel free to ask me anything about his projects, skills, DSA problem solving, or background!`,
+  suggestions: INITIAL_SUGGESTIONS,
 });
 
 export function GopalAIAssistant() {
@@ -49,33 +34,105 @@ export function GopalAIAssistant() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>(() => [
-    createWelcomeMessage(info.resume, info.whatsapp || PERSONAL_INFO.whatsapp),
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [createWelcomeMessage()]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-scroll to bottom when messages change
-  useEffect(() => {
-    if (isOpen && scrollRef.current) {
+  // Buffer queue for silky-smooth typewriter streaming
+  const bufferQueueRef = useRef<string>("");
+  const typingTimerRef = useRef<number | null>(null);
+  const pendingCompletionRef = useRef<{
+    suggestions: string[];
+    actions?: ChatAction[] | undefined;
+  } | null>(null);
+
+  // Auto-scroll to bottom smoothly
+  const scrollToBottom = () => {
+    if (scrollRef.current) {
       scrollRef.current.scrollTo({
         top: scrollRef.current.scrollHeight,
         behavior: "smooth",
       });
     }
-  }, [messages, loading, isOpen]);
+  };
 
-  // Focus input on open
+  useEffect(() => {
+    if (isOpen) {
+      scrollToBottom();
+    }
+  }, [messages, isStreaming, loading, isOpen]);
+
+  // Focus input when chat opens
   useEffect(() => {
     if (isOpen) {
       setHasUnread(false);
       setTimeout(() => inputRef.current?.focus(), 150);
     }
   }, [isOpen]);
+
+  // Typewriter ticker loop
+  useEffect(() => {
+    const drainBuffer = () => {
+      if (bufferQueueRef.current.length > 0) {
+        // Adaptive speed: type faster if large buffer accumulates
+        const queueLen = bufferQueueRef.current.length;
+        const chunkSize = queueLen > 50 ? 6 : queueLen > 20 ? 3 : queueLen > 8 ? 2 : 1;
+        const nextChars = bufferQueueRef.current.slice(0, chunkSize);
+        bufferQueueRef.current = bufferQueueRef.current.slice(chunkSize);
+
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (last && last.role === "assistant") {
+            next[next.length - 1] = {
+              ...last,
+              content: last.content + nextChars,
+            };
+          }
+          return next;
+        });
+
+        // Trigger fast micro-interval for next char
+        typingTimerRef.current = window.setTimeout(drainBuffer, 12);
+      } else if (pendingCompletionRef.current) {
+        // Buffer is empty, apply pending completions (suggestions, actions)
+        const comp = pendingCompletionRef.current;
+        pendingCompletionRef.current = null;
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (last && last.role === "assistant") {
+            next[next.length - 1] = {
+              ...last,
+              suggestions: comp.suggestions,
+              actions: comp.actions,
+            };
+          }
+          return next;
+        });
+        setIsStreaming(false);
+        setLoading(false);
+      }
+    };
+
+    if (isStreaming) {
+      if (!typingTimerRef.current) {
+        typingTimerRef.current = window.setTimeout(drainBuffer, 10);
+      }
+    }
+
+    return () => {
+      if (typingTimerRef.current) {
+        clearTimeout(typingTimerRef.current);
+        typingTimerRef.current = null;
+      }
+    };
+  }, [isStreaming]);
 
   const handleSendMessage = async (textToSend?: string) => {
     const query = (textToSend || input).trim();
@@ -96,8 +153,12 @@ export function GopalAIAssistant() {
 
     const previousHistory = messages.filter((m) => m.content.length > 0).slice(-6);
 
+    bufferQueueRef.current = "";
+    pendingCompletionRef.current = null;
+
     setMessages((prev) => [...prev, userMsg, initialAssistantMsg]);
     setLoading(true);
+    setIsStreaming(true);
 
     try {
       await askGopalAiStream({
@@ -106,64 +167,41 @@ export function GopalAIAssistant() {
         resumeUrl: info.resume,
         whatsappNumber: info.whatsapp,
         onChunk: (chunk) => {
-          setMessages((prev) => {
-            const next = [...prev];
-            const last = next[next.length - 1];
-            if (last && last.role === "assistant") {
-              next[next.length - 1] = {
-                ...last,
-                content: last.content + chunk,
-              };
-            }
-            return next;
-          });
+          bufferQueueRef.current += chunk;
+          if (!typingTimerRef.current) {
+            typingTimerRef.current = window.setTimeout(() => {
+              typingTimerRef.current = null;
+            }, 0);
+          }
         },
         onComplete: ({ suggestions, actions }) => {
-          setMessages((prev) => {
-            const next = [...prev];
-            const last = next[next.length - 1];
-            if (last && last.role === "assistant") {
-              next[next.length - 1] = {
-                ...last,
-                suggestions,
-                actions,
-              };
-            }
-            return next;
-          });
-          setLoading(false);
+          pendingCompletionRef.current = { suggestions, actions };
           if (!isOpen) {
             setHasUnread(true);
           }
         },
         onError: (err) => {
           console.error("AI assistant stream error:", err);
-          setMessages((prev) => {
-            const next = [...prev];
-            const last = next[next.length - 1];
-            if (last && last.role === "assistant") {
-              next[next.length - 1] = {
-                ...last,
-                content:
-                  last.content ||
-                  `I apologize, but I encountered a momentary issue processing your request. Please feel free to try again or reach out to Gopal directly at [${info.email}](mailto:${info.email}).`,
-                actions: [
-                  {
-                    label: "💬 Message on WhatsApp",
-                    url: `https://wa.me/${info.whatsapp || PERSONAL_INFO.whatsapp}`,
-                    action: "whatsapp",
-                  },
-                  { label: "📄 Download Resume", url: info.resume, action: "resume" },
-                ],
-              };
-            }
-            return next;
-          });
-          setLoading(false);
+          bufferQueueRef.current +=
+            "\n\nI encountered a momentary connection issue. You can explore Gopal's projects or reach out directly at " +
+            info.email +
+            ".";
+          pendingCompletionRef.current = {
+            suggestions: ["What projects has Gopal built?", "Tell me about his DSA skills"],
+            actions: [
+              {
+                label: "💬 Message on WhatsApp",
+                url: `https://wa.me/${info.whatsapp || PERSONAL_INFO.whatsapp}`,
+                action: "whatsapp",
+              },
+              { label: "📄 Download Resume", url: info.resume, action: "resume" },
+            ],
+          };
         },
       });
     } catch (err) {
       console.error("Failed to query AI assistant:", err);
+      setIsStreaming(false);
       setLoading(false);
     }
   };
@@ -191,45 +229,44 @@ export function GopalAIAssistant() {
   };
 
   const handleClearHistory = () => {
-    setMessages([createWelcomeMessage(info.resume, info.whatsapp || PERSONAL_INFO.whatsapp)]);
+    bufferQueueRef.current = "";
+    pendingCompletionRef.current = null;
+    setIsStreaming(false);
+    setLoading(false);
+    setMessages([createWelcomeMessage()]);
   };
 
   return (
     <>
-      {/* Floating Trigger Button */}
+      {/* Floating Trigger Button in Bottom-Right */}
       <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
         {!isOpen && (
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            aria-label="Open Ask Gopal Portfolio Assistant"
-            className="group relative flex items-center gap-2.5 rounded-full border border-border/90 bg-card/95 px-3.5 py-2.5 sm:px-4 sm:py-3 text-foreground shadow-lift backdrop-blur-md transition-all duration-300 hover:border-primary/50 hover:bg-card hover:scale-105 active:scale-95 cursor-pointer"
+            aria-label="Open Ask Gopal AI Portfolio Assistant"
+            className="group relative flex items-center gap-2.5 rounded-full border border-border/90 bg-card/95 px-3.5 py-2.5 sm:px-4 sm:py-3 text-foreground shadow-lift backdrop-blur-xl transition-all duration-300 hover:border-primary/50 hover:bg-card hover:scale-105 active:scale-95 cursor-pointer"
           >
-            {/* Glowing / pulsating AI icon container */}
-            <div className="relative flex size-7 sm:size-8 items-center justify-center rounded-full bg-primary font-mono text-xs font-bold text-primary-foreground shadow-sm">
+            {/* Bot Avatar */}
+            <div className="flex size-7 sm:size-8 items-center justify-center rounded-full bg-primary font-mono text-xs font-bold text-primary-foreground shadow-sm">
               <Bot className="size-4 shrink-0 transition-transform group-hover:rotate-12 duration-200" />
-              <span className="absolute -top-0.5 -right-0.5 flex size-2.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
-                <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500 border border-card" />
-              </span>
             </div>
 
             <div className="flex flex-col text-left">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 <span className="font-display text-xs sm:text-sm font-bold text-foreground group-hover:text-primary transition-colors">
                   Ask Gopal
                 </span>
-                <Sparkles className="size-3 text-primary animate-pulse" />
+                <Sparkles className="size-3 text-primary" />
               </div>
               <span className="text-[10px] text-muted-foreground font-mono leading-none">
-                Live Portfolio Assistant
+                AI Assistant
               </span>
             </div>
 
             {hasUnread && (
-              <span className="absolute -top-1 -left-1 flex size-3">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-80" />
-                <span className="relative inline-flex size-3 rounded-full bg-primary" />
+              <span className="absolute -top-1 -left-1 flex size-2.5">
+                <span className="relative inline-flex size-2.5 rounded-full bg-primary" />
               </span>
             )}
           </button>
@@ -239,55 +276,51 @@ export function GopalAIAssistant() {
       {/* Expandable Chat Window */}
       {isOpen && (
         <aside
-          aria-label="Ask Gopal Portfolio Assistant Chat"
+          aria-label="Ask Gopal Portfolio Assistant Chat Window"
           className={cn(
-            "fixed z-50 flex flex-col border border-border bg-background/98 backdrop-blur-xl shadow-lift transition-all duration-300 animate-in fade-in-50 zoom-in-95",
+            "fixed z-50 flex flex-col border border-border/80 bg-background/98 backdrop-blur-2xl shadow-2xl transition-all duration-300 animate-in fade-in-50 zoom-in-95",
             // Mobile full screen drawer or fixed widget
-            "inset-x-2 bottom-2 top-16 sm:inset-auto sm:right-6 sm:bottom-6 rounded-2xl",
-            isExpanded ? "sm:w-[38rem] sm:h-[42rem]" : "sm:w-[25rem] sm:h-[35rem]",
+            "inset-x-2 bottom-2 top-14 sm:inset-auto sm:right-6 sm:bottom-6 rounded-3xl overflow-hidden",
+            isExpanded ? "sm:w-[44rem] sm:h-[44rem]" : "sm:w-[28rem] sm:h-[38rem]",
           )}
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-border/80 bg-surface/70 px-4 py-3 sm:px-5 sm:py-3.5 rounded-t-2xl">
-            <div className="flex items-center gap-3">
-              <div className="relative flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-mono text-xs font-bold shadow-xs">
-                <Bot className="size-5" />
-                <span className="absolute -bottom-0.5 -right-0.5 flex size-2.5">
-                  <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500 border border-background" />
-                </span>
+          <div className="flex items-center justify-between border-b border-border/70 bg-surface/80 px-4 py-3 sm:px-5 sm:py-3.5 backdrop-blur-md">
+            <div className="flex items-center gap-2.5">
+              <div className="flex size-8 sm:size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-mono text-xs font-bold shadow-xs">
+                <Bot className="size-4.5" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <h2 className="font-display text-sm sm:text-base font-bold text-foreground leading-none">
                     Ask Gopal
                   </h2>
-                  <span className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] font-medium text-primary uppercase">
+                  <span className="rounded bg-primary/10 px-1.5 py-0.2 font-mono text-[9px] font-medium text-primary uppercase">
                     Assistant
                   </span>
                 </div>
-                <p className="text-[11px] text-muted-foreground mt-0.5 flex items-center gap-1.5">
-                  <span className="size-1.5 rounded-full bg-emerald-500 inline-block" />
-                  <span>Live Portfolio Data</span>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Portfolio Representative
                 </p>
               </div>
             </div>
 
-            {/* Header controls */}
+            {/* Header control buttons */}
             <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={handleClearHistory}
                 title="Clear Chat History"
-                className="flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors active:scale-95 cursor-pointer"
+                className="flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-all active:scale-95 cursor-pointer"
               >
-                <RefreshCw className="size-3.5" />
+                <RotateCcw className="size-3.5" />
               </button>
 
               <button
                 type="button"
                 onClick={() => setIsExpanded(!isExpanded)}
                 title={isExpanded ? "Restore Size" : "Expand Size"}
-                className="hidden sm:flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors active:scale-95 cursor-pointer"
+                className="hidden sm:flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-all active:scale-95 cursor-pointer"
               >
                 {isExpanded ? (
                   <Minimize2 className="size-3.5" />
@@ -300,64 +333,49 @@ export function GopalAIAssistant() {
                 type="button"
                 onClick={() => setIsOpen(false)}
                 title="Close Assistant"
-                className="flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors active:scale-95 cursor-pointer"
+                className="flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-all active:scale-95 cursor-pointer"
               >
                 <X className="size-4" />
               </button>
             </div>
           </div>
 
-            {/* Chat Messages Body */}
-            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-sm">
-              {messages
-                .filter((msg) => msg.content.length > 0)
-                .map((msg, index) => (
+          {/* Chat Messages Body */}
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-sm">
+            {messages
+              .filter((msg) => msg.content.length > 0)
+              .map((msg, index) => {
+                const isLastAssistant =
+                  index === messages.length - 1 && msg.role === "assistant";
+                return (
                   <AIChatMessage
                     key={index}
                     message={msg}
+                    isStreaming={isLastAssistant && isStreaming}
                     onActionClick={handleActionClick}
                     onSuggestionClick={(sug) => handleSendMessage(sug)}
                   />
-                ))}
+                );
+              })}
 
-              {/* Typing indicator: only shown before the first chunk arrives */}
-              {loading && !messages[messages.length - 1]?.content && (
-                <div className="flex items-center gap-3 max-w-[80%]">
-                  <div className="size-7 sm:size-8 rounded-lg bg-primary text-primary-foreground font-bold flex items-center justify-center shrink-0">
-                    <Bot className="size-4" />
-                  </div>
-                  <div className="rounded-2xl rounded-tl-xs border border-border bg-card px-4 py-3 text-card-foreground shadow-xs flex items-center gap-1.5">
-                    <span className="size-2 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
-                    <span className="size-2 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
-                    <span className="size-2 rounded-full bg-primary animate-bounce" />
-                  </div>
+            {/* Initial Typing indicator before first token arrives */}
+            {loading && !messages[messages.length - 1]?.content && (
+              <div className="w-full rounded-2xl rounded-tl-xs border border-border/80 bg-card/95 px-4 py-3 text-xs sm:text-sm text-card-foreground backdrop-blur-md shadow-soft animate-in fade-in-50">
+                <div className="flex items-center gap-1.5 text-[11px] font-mono font-medium text-primary mb-2 border-b border-border/50 pb-1.5">
+                  <Bot className="size-3.5" />
+                  <span>Ask Gopal</span>
                 </div>
-              )}
-            </div>
-
-          {/* Quick suggestions pills when only welcome message exists */}
-          {messages.length === 1 && (
-            <div className="px-4 pb-2">
-              <p className="text-[11px] font-mono text-muted-foreground mb-1.5 uppercase tracking-wider">
-                Frequently Asked
-              </p>
-              <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
-                {INITIAL_SUGGESTIONS.map((item, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleSendMessage(item)}
-                    className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary/80 px-2.5 py-1 text-[11px] text-muted-foreground transition-colors hover:border-primary/40 hover:bg-secondary hover:text-foreground active:scale-95 cursor-pointer text-left"
-                  >
-                    <span>{item}</span>
-                  </button>
-                ))}
+                <div className="flex items-center gap-1.5 py-1">
+                  <span className="size-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
+                  <span className="size-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
+                  <span className="size-1.5 rounded-full bg-primary animate-bounce" />
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Input Footer */}
-          <div className="border-t border-border/80 bg-surface/50 p-3 sm:p-3.5 rounded-b-2xl">
+          <div className="border-t border-border/80 bg-surface/70 p-3 sm:p-3.5 backdrop-blur-md">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -372,23 +390,31 @@ export function GopalAIAssistant() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask about projects, skills, DSA, college..."
                 disabled={loading}
-                className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none disabled:opacity-60 pr-10"
+                className="w-full rounded-xl border border-input bg-background/90 px-3.5 py-2.5 sm:py-3 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary/30 focus-visible:outline-none disabled:opacity-60 pr-12 shadow-xs transition-all"
               />
+
+              {/* Modern Sleek Elevated Send Button */}
               <button
                 type="submit"
                 disabled={!input.trim() || loading}
                 aria-label="Send message"
-                className="absolute right-1.5 flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-xs transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 cursor-pointer"
+                className={cn(
+                  "absolute right-1.5 flex size-8 sm:size-8.5 items-center justify-center rounded-lg transition-all duration-200 cursor-pointer",
+                  input.trim() && !loading
+                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/30 hover:opacity-90 active:scale-95"
+                    : "bg-muted text-muted-foreground/40 cursor-not-allowed opacity-50",
+                )}
               >
                 {loading ? (
-                  <Loader2 className="size-3.5 animate-spin" />
+                  <Loader2 className="size-4 animate-spin text-foreground" />
                 ) : (
-                  <CornerDownLeft className="size-3.5" />
+                  <ArrowUp className="size-4 stroke-[2.5]" />
                 )}
               </button>
             </form>
+
             <div className="mt-1.5 flex items-center justify-between text-[10px] text-muted-foreground/70 px-1 font-mono">
-              <span>Gopal's Live Portfolio Data</span>
+              <span>Ask Gopal Portfolio Assistant</span>
               <span className="hidden sm:inline">Press Enter ↵ to send</span>
             </div>
           </div>

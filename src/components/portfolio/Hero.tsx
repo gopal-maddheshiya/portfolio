@@ -224,37 +224,30 @@ export function Hero() {
             <div className="relative overflow-hidden rounded-2xl border-2 border-border bg-card shadow-soft">
               <img
                 src={
-                  (info as { profilePhoto?: string }).profilePhoto &&
-                  (info as { profilePhoto?: string }).profilePhoto !== "/assets/gopal-profile.jpg"
-                    ? (info as { profilePhoto?: string }).profilePhoto!
+                  info.profilePhoto &&
+                  (info.profilePhoto.startsWith("http://") ||
+                    info.profilePhoto.startsWith("https://") ||
+                    info.profilePhoto.startsWith("data:"))
+                    ? info.profilePhoto
                     : profilePhoto
                 }
                 alt={info.name || "Gopal Maddheshiya"}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = profilePhoto;
+                }}
                 width={420}
                 height={500}
                 className="w-64 h-72 sm:w-72 sm:h-80 md:w-80 md:h-96 lg:w-[21rem] lg:h-[25rem] object-cover object-[center_18%] transition-transform duration-500 group-hover:scale-105"
               />
 
-              {/* Bottom overlay with dark scrim gradient (eliminates light mode white glare) */}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent p-4 sm:p-5 flex items-center justify-between">
-                <div>
-                  <p className="font-display text-sm sm:text-base font-semibold text-white">
-                    {info.name}
-                  </p>
-                  <p className="text-xs text-zinc-300">
-                    {info.subtitle}
-                  </p>
-                </div>
-                <span
-                  title="Available for Summer 2026 SWE / Full-Stack Internships"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-primary px-2.5 py-1 text-[11px] font-medium text-primary-foreground shadow-xs cursor-default transition-transform hover:scale-105"
-                >
-                  <span className="relative flex size-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary-foreground opacity-75" />
-                    <span className="relative inline-flex size-2 rounded-full bg-primary-foreground" />
-                  </span>
-                  <span>{hero.availabilityStatus || "Online"}</span>
-                </span>
+              {/* Bottom overlay with dark scrim gradient (Structured full-width text) */}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-4 sm:p-5 text-left">
+                <p className="font-display text-base sm:text-lg font-bold text-white tracking-tight leading-tight">
+                  {info.name}
+                </p>
+                <p className="mt-1 text-xs text-zinc-300 leading-snug">
+                  {info.subtitle}
+                </p>
               </div>
             </div>
           </div>

@@ -65,7 +65,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
   // Safe accessors with fallbacks
   const info = data.personalInfo;
   const currentProfilePhoto =
-    info.profilePhoto && info.profilePhoto !== "/assets/gopal-profile.jpg"
+    info.profilePhoto &&
+    (info.profilePhoto.startsWith("http://") ||
+      info.profilePhoto.startsWith("https://") ||
+      info.profilePhoto.startsWith("data:"))
       ? info.profilePhoto
       : defaultProfilePhoto;
   const hero = data.heroData || HERO_DATA;
@@ -1478,11 +1481,19 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                         {/* Live Image Preview Thumbnail */}
                         <div className="w-full sm:w-64 aspect-video rounded-xl border-2 border-border bg-card overflow-hidden shrink-0 shadow-xs relative flex items-center justify-center">
                           {project.image ? (
-                            <img
-                              src={project.image}
-                              alt={project.title}
-                              className="w-full h-full object-cover"
-                            />
+                            <>
+                              <img
+                                src={project.image}
+                                alt=""
+                                aria-hidden="true"
+                                className="absolute inset-0 h-full w-full object-cover blur-sm opacity-25"
+                              />
+                              <img
+                                src={project.image}
+                                alt={project.title}
+                                className="relative z-10 w-full h-full object-contain"
+                              />
+                            </>
                           ) : (
                             <div className="flex flex-col items-center justify-center text-muted-foreground p-4 text-center">
                               <ImageIcon className="size-8 stroke-1 mb-1 opacity-50" />
