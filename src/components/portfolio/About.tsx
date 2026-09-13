@@ -1,20 +1,38 @@
 import { CheckCircle2, Code2, Cpu, GraduationCap, MapPin, Sparkles, Zap } from "lucide-react";
 
 import { usePortfolio } from "@/context/PortfolioContext";
+import { ABOUT_DATA } from "@/data/profile";
 import { Reveal } from "./Reveal";
 import { Section, SectionHeading } from "./Section";
 
 export function About() {
   const { data } = usePortfolio();
   const info = data.personalInfo;
-  const education = data.education;
-  const focusAreas = data.focusAreas;
+  const education = data.education || [];
+  const focusAreas = data.focusAreas || [];
+  const about = data.aboutData || ABOUT_DATA;
+
+  const getPrincipleIcon = (iconName: string) => {
+    switch (iconName?.toLowerCase()) {
+      case "cpu":
+        return <Cpu className="size-4" />;
+      case "zap":
+        return <Zap className="size-4" />;
+      case "code":
+      default:
+        return <Code2 className="size-4" />;
+    }
+  };
+
   return (
     <Section id="about">
       <SectionHeading
-        eyebrow="About Me"
-        title="Passionate about problem solving &amp; engineering web apps."
-        description="A computer science student combining algorithmic rigor in Java with practical full-stack product development."
+        eyebrow={about.eyebrow || "About Me"}
+        title={about.title || "Passionate about problem solving & engineering web apps."}
+        description={
+          about.description ||
+          "A computer science student combining algorithmic rigor in Java with practical full-stack product development."
+        }
       />
 
       <div className="mt-8 sm:mt-12 grid gap-6 sm:gap-8 lg:grid-cols-12 lg:items-start">
@@ -27,57 +45,41 @@ export function About() {
             </div>
 
             <h3 className="mt-2 font-display text-xl sm:text-2xl font-semibold text-foreground">
-              A developer who learns by building, solving, and iterating.
+              {about.storyTitle || "A developer who learns by building, solving, and iterating."}
             </h3>
 
             <div className="mt-4 space-y-3.5 text-sm sm:text-base leading-relaxed text-muted-foreground">
-              <p>
-                I&apos;m a Computer Science Engineering student at{" "}
-                <span className="font-medium text-foreground">
-                  Shri Ramswaroop Memorial University
-                </span>
-                , actively preparing for software engineering roles. My daily work revolves around
-                two pillars: solving algorithmic problems in Java and engineering end-to-end web
-                applications.
-              </p>
-              <p>
-                On the algorithmic side, I practice problem-solving daily on LeetCode with
-                deliberate focus on time and space complexity. On the development side, I turn ideas
-                into responsive React interfaces backed by Express REST APIs and MongoDB databases.
-              </p>
+              {about.storyParagraphs && about.storyParagraphs.length > 0 ? (
+                about.storyParagraphs.map((paragraph, idx) => <p key={idx}>{paragraph}</p>)
+              ) : (
+                <>
+                  <p>
+                    I&apos;m a Computer Science Engineering student at{" "}
+                    <span className="font-medium text-foreground">
+                      Shri Ramswaroop Memorial University
+                    </span>
+                    , actively preparing for software engineering roles.
+                  </p>
+                </>
+              )}
             </div>
 
-            {/* 3 Core Principles */}
+            {/* Core Principles */}
             <div className="mt-6 pt-6 border-t border-border grid gap-3 sm:grid-cols-3">
-              <div className="rounded-xl border border-border/80 bg-surface/60 p-3.5 transition-colors hover:border-primary/30">
-                <div className="flex size-7 items-center justify-center rounded-md bg-primary/10 text-primary">
-                  <Code2 className="size-4" />
+              {(about.principles || ABOUT_DATA.principles).map((principle, idx) => (
+                <div
+                  key={idx}
+                  className="rounded-xl border border-border/80 bg-surface/60 p-3.5 transition-colors hover:border-primary/30"
+                >
+                  <div className="flex size-7 items-center justify-center rounded-md bg-primary/10 text-primary">
+                    {getPrincipleIcon(principle.icon)}
+                  </div>
+                  <h4 className="mt-2 text-xs font-semibold text-foreground">{principle.title}</h4>
+                  <p className="mt-1 text-[11px] text-muted-foreground leading-snug">
+                    {principle.description}
+                  </p>
                 </div>
-                <h4 className="mt-2 text-xs font-semibold text-foreground">Java &amp; DSA</h4>
-                <p className="mt-1 text-[11px] text-muted-foreground leading-snug">
-                  Algorithmic thinking &amp; Big-O complexity analysis.
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-border/80 bg-surface/60 p-3.5 transition-colors hover:border-primary/30">
-                <div className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Cpu className="size-4" />
-                </div>
-                <h4 className="mt-2 text-xs font-semibold text-foreground">Full-Stack Dev</h4>
-                <p className="mt-1 text-[11px] text-muted-foreground leading-snug">
-                  End-to-end web apps with React, Node.js, Express &amp; MongoDB.
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-border/80 bg-surface/60 p-3.5 transition-colors hover:border-primary/30">
-                <div className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Zap className="size-4" />
-                </div>
-                <h4 className="mt-2 text-xs font-semibold text-foreground">Clean Code</h4>
-                <p className="mt-1 text-[11px] text-muted-foreground leading-snug">
-                  Modular architecture &amp; structured git commits.
-                </p>
-              </div>
+              ))}
             </div>
 
             {/* Quick Context Footer */}
@@ -131,23 +133,37 @@ export function About() {
             <div className="mt-3.5 grid grid-cols-2 gap-3">
               <div className="rounded-xl border border-border/80 bg-surface/60 p-3">
                 <p className="text-[11px] font-mono text-muted-foreground">Degree</p>
-                <p className="mt-0.5 text-sm font-semibold text-foreground">B.Tech CSE</p>
-                <p className="text-[11px] font-mono text-primary mt-0.5">CGPA 7.62</p>
+                <p className="mt-0.5 text-sm font-semibold text-foreground">
+                  {about.snapshot?.degree || "B.Tech CSE"}
+                </p>
+                <p className="text-[11px] font-mono text-primary mt-0.5">
+                  {about.snapshot?.cgpa || "CGPA 7.62"}
+                </p>
               </div>
               <div className="rounded-xl border border-border/80 bg-surface/60 p-3">
                 <p className="text-[11px] font-mono text-muted-foreground">DSA Practice</p>
-                <p className="mt-0.5 text-sm font-semibold text-foreground">Java · LeetCode</p>
+                <p className="mt-0.5 text-sm font-semibold text-foreground">
+                  {about.snapshot?.dsaPractice || "Java · LeetCode"}
+                </p>
                 <p className="text-[11px] font-mono text-primary mt-0.5">Active Practice</p>
               </div>
               <div className="rounded-xl border border-border/80 bg-surface/60 p-3">
                 <p className="text-[11px] font-mono text-muted-foreground">Primary Stack</p>
-                <p className="mt-0.5 text-sm font-semibold text-foreground">Java &amp; Full-Stack</p>
-                <p className="text-[11px] font-mono text-muted-foreground mt-0.5">React · Node · Mongo</p>
+                <p className="mt-0.5 text-sm font-semibold text-foreground">
+                  {about.snapshot?.stack || "Java & Full-Stack"}
+                </p>
+                <p className="text-[11px] font-mono text-muted-foreground mt-0.5">
+                  React · Node · Mongo
+                </p>
               </div>
               <div className="rounded-xl border border-border/80 bg-surface/60 p-3">
                 <p className="text-[11px] font-mono text-muted-foreground">Graduation</p>
-                <p className="mt-0.5 text-sm font-semibold text-foreground">2028 Batch</p>
-                <p className="text-[11px] font-mono text-primary mt-0.5">SRMU University</p>
+                <p className="mt-0.5 text-sm font-semibold text-foreground">
+                  {about.snapshot?.batch || "2028 Batch"}
+                </p>
+                <p className="text-[11px] font-mono text-primary mt-0.5">
+                  {about.snapshot?.university || "SRMU University"}
+                </p>
               </div>
             </div>
           </Reveal>
@@ -187,16 +203,7 @@ export function About() {
                 Relevant Coursework
               </p>
               <div className="mt-2.5 flex flex-wrap gap-1.5">
-                {[
-                  "Data Structures & Algorithms",
-                  "Design & Analysis of Algorithms",
-                  "Object-Oriented Programming (Java)",
-                  "Database Management Systems",
-                  "Operating Systems",
-                  "Software Engineering",
-                  "Cloud Computing (AWS)",
-                  "Web Development",
-                ].map((course) => (
+                {(about.coursework || ABOUT_DATA.coursework).map((course) => (
                   <span
                     key={course}
                     className="rounded-md border border-border bg-background px-2 py-0.5 font-mono text-[11px] text-muted-foreground"

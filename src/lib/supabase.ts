@@ -1,22 +1,30 @@
 import { createClient } from "@supabase/supabase-js";
 import {
+  ABOUT_DATA,
   CERTIFICATIONS,
   CODING_PROFILES,
+  CONTACT_DATA,
   DSA_INFO,
   EDUCATION,
   FOCUS_AREAS,
+  HERO_DATA,
   HIGHLIGHTS,
   JOURNEY,
   PERSONAL_INFO,
   PROJECTS,
+  RESUME_CTA_DATA,
   SKILL_GROUPS,
+  type AboutData,
   type Certification,
   type CodingProfile,
+  type ContactData,
   type EducationItem,
+  type HeroData,
   type HighlightItem,
   type JourneyMilestone,
   type PersonalInfo,
   type Project,
+  type ResumeCTAData,
   type SkillGroup,
 } from "@/data/profile";
 
@@ -36,6 +44,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 export interface PortfolioData {
   personalInfo: PersonalInfo;
+  heroData: HeroData;
+  aboutData: AboutData;
   highlights: HighlightItem[];
   focusAreas: string[];
   skillGroups: SkillGroup[];
@@ -45,11 +55,15 @@ export interface PortfolioData {
   journey: JourneyMilestone[];
   education: EducationItem[];
   certifications: Certification[];
+  resumeCTA: ResumeCTAData;
+  contactData: ContactData;
   updatedAt?: string;
 }
 
 export const DEFAULT_PORTFOLIO_DATA: PortfolioData = {
   personalInfo: PERSONAL_INFO,
+  heroData: HERO_DATA,
+  aboutData: ABOUT_DATA,
   highlights: HIGHLIGHTS,
   focusAreas: FOCUS_AREAS,
   skillGroups: SKILL_GROUPS,
@@ -59,6 +73,8 @@ export const DEFAULT_PORTFOLIO_DATA: PortfolioData = {
   journey: JOURNEY,
   education: EDUCATION,
   certifications: CERTIFICATIONS,
+  resumeCTA: RESUME_CTA_DATA,
+  contactData: CONTACT_DATA,
 };
 
 const TABLE_NAME = "portfolio_data";

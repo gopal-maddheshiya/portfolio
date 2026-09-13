@@ -44,6 +44,126 @@ export const PERSONAL_INFO: PersonalInfo = {
     "Computer Science student focused on Java, Data Structures & Algorithms and full-stack web development with React, Node.js and MongoDB.",
 };
 
+export interface HeroData {
+  greetingBadge: string;
+  headlinePrefix: string;
+  typewriterRoles: string[];
+  floatingBadge1: string;
+  floatingBadge2: string;
+  availabilityStatus: string;
+}
+
+export const HERO_DATA: HeroData = {
+  greetingBadge: "Hi, I'm Gopal Maddheshiya",
+  headlinePrefix: "Building software as a",
+  typewriterRoles: [
+    "Java & DSA Developer",
+    "Full-Stack Web Engineer",
+    "MERN Stack Specialist",
+    "B.Tech CSE Student",
+  ],
+  floatingBadge1: "Java • DSA",
+  floatingBadge2: "Full-Stack",
+  availabilityStatus: "Online",
+};
+
+export interface AboutData {
+  eyebrow: string;
+  title: string;
+  description: string;
+  storyTitle: string;
+  storyParagraphs: string[];
+  principles: Array<{ title: string; description: string; icon: string }>;
+  snapshot: {
+    degree: string;
+    cgpa: string;
+    dsaPractice: string;
+    stack: string;
+    batch: string;
+    university: string;
+  };
+  coursework: string[];
+}
+
+export const ABOUT_DATA: AboutData = {
+  eyebrow: "About Me",
+  title: "Passionate about problem solving & engineering web apps.",
+  description:
+    "A computer science student combining algorithmic rigor in Java with practical full-stack product development.",
+  storyTitle: "A developer who learns by building, solving, and iterating.",
+  storyParagraphs: [
+    "I'm a Computer Science Engineering student at Shri Ramswaroop Memorial University, actively preparing for software engineering roles. My daily work revolves around two pillars: solving algorithmic problems in Java and engineering end-to-end web applications.",
+    "On the algorithmic side, I practice problem-solving daily on LeetCode with deliberate focus on time and space complexity. On the development side, I turn ideas into responsive React interfaces backed by Express REST APIs and MongoDB databases.",
+  ],
+  principles: [
+    {
+      title: "Java & DSA",
+      description: "Algorithmic thinking & Big-O complexity analysis.",
+      icon: "code",
+    },
+    {
+      title: "Full-Stack Dev",
+      description: "End-to-end web apps with React, Node.js, Express & MongoDB.",
+      icon: "cpu",
+    },
+    {
+      title: "Clean Code",
+      description: "Modular architecture & structured git commits.",
+      icon: "zap",
+    },
+  ],
+  snapshot: {
+    degree: "B.Tech CSE",
+    cgpa: "CGPA 7.62",
+    dsaPractice: "Java · LeetCode",
+    stack: "Java & Full-Stack",
+    batch: "2028 Batch",
+    university: "SRMU University",
+  },
+  coursework: [
+    "Data Structures & Algorithms",
+    "Design & Analysis of Algorithms",
+    "Object-Oriented Programming (Java)",
+    "Database Management Systems",
+    "Operating Systems",
+    "Software Engineering",
+    "Cloud Computing (AWS)",
+    "Web Development",
+  ],
+};
+
+export interface ResumeCTAData {
+  eyebrow: string;
+  title: string;
+  description: string;
+  tags: string[];
+  buttonText: string;
+}
+
+export const RESUME_CTA_DATA: ResumeCTAData = {
+  eyebrow: "Resume / Curriculum Vitae",
+  title: "Interested in my profile for an internship or role?",
+  description:
+    "My single-page resume covers my academic coursework at SRMU, core competencies in Java & DSA, full-stack project portfolio, and coding profile achievements.",
+  tags: ["Single-Page PDF", "Java & Full-Stack Focus"],
+  buttonText: "Download Resume",
+};
+
+export interface ContactData {
+  eyebrow: string;
+  title: string;
+  description: string;
+  availabilityNote: string;
+}
+
+export const CONTACT_DATA: ContactData = {
+  eyebrow: "Contact",
+  title: "Let's connect & build something impactful.",
+  description:
+    "Have an internship opportunity, a project to collaborate on, or just want to discuss algorithms and full-stack development? Reach out via form or WhatsApp!",
+  availabilityNote: "Open to Summer 2026 SWE & Full-Stack Internships",
+};
+
 export interface HighlightItem {
   label: string;
   detail: string;

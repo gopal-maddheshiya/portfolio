@@ -1,12 +1,14 @@
 import { Download, ExternalLink, FileText, Sparkles } from "lucide-react";
 
-import { PERSONAL_INFO } from "@/data/profile";
+import { PERSONAL_INFO, RESUME_CTA_DATA } from "@/data/profile";
 import { usePortfolio } from "@/context/PortfolioContext";
 import { Reveal } from "./Reveal";
 
 export function ResumeCTA() {
   const { data } = usePortfolio();
   const info = data?.personalInfo || PERSONAL_INFO;
+  const cta = data?.resumeCTA || RESUME_CTA_DATA;
+
   return (
     <section
       id="resume"
@@ -19,26 +21,29 @@ export function ResumeCTA() {
             <div className="lg:col-span-7">
               <div className="inline-flex items-center gap-1.5 font-mono text-xs text-primary font-medium">
                 <FileText className="size-3.5" aria-hidden="true" />
-                <span>Resume / Curriculum Vitae</span>
+                <span>{cta.eyebrow || "Resume / Curriculum Vitae"}</span>
               </div>
 
               <h2 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground font-display">
-                Interested in my profile for an internship or role?
+                {cta.title || "Interested in my profile for an internship or role?"}
               </h2>
 
               <p className="mt-3 text-sm sm:text-base leading-relaxed text-muted-foreground">
-                My single-page resume covers my academic coursework at SRMU, core competencies in
-                Java &amp; DSA, full-stack project portfolio, and coding profile achievements.
+                {cta.description ||
+                  "My single-page resume covers my academic coursework at SRMU, core competencies in Java & DSA, full-stack project portfolio, and coding profile achievements."}
               </p>
 
               {/* Quick tags */}
               <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-mono text-muted-foreground">
-                <span className="inline-flex items-center gap-1 rounded bg-secondary px-2 py-0.5">
-                  <Sparkles className="size-3 text-primary" />
-                  Single-Page PDF
-                </span>
-                <span>•</span>
-                <span>Java &amp; Full-Stack Focus</span>
+                {(cta.tags || RESUME_CTA_DATA.tags).map((tag, idx) => (
+                  <span
+                    key={idx}
+                    className="inline-flex items-center gap-1 rounded bg-secondary px-2 py-0.5"
+                  >
+                    <Sparkles className="size-3 text-primary" />
+                    <span>{tag}</span>
+                  </span>
+                ))}
               </div>
             </div>
 

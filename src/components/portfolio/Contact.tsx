@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 import { usePortfolio } from "@/context/PortfolioContext";
-import { PERSONAL_INFO } from "@/data/profile";
+import { CONTACT_DATA, PERSONAL_INFO } from "@/data/profile";
 import { Reveal } from "./Reveal";
 import { Section, SectionHeading } from "./Section";
 
@@ -31,12 +31,17 @@ const EMPTY: FormState = {
   message: "",
 };
 
-function buildMessage({ name, email, subject, message }: FormState) {
+function buildMessage(form: FormState) {
+  const subject = form.subject.trim() || "Portfolio enquiry";
+  const name = form.name.trim();
+  const email = form.email.trim();
+  const message = form.message.trim();
+
   return `Hello Gopal,
 
 Name: ${name}
 Email: ${email}
-Subject: ${subject || "General Enquiry"}
+Subject: ${subject}
 
 ${message}`;
 }
@@ -46,7 +51,8 @@ const inputClass =
 
 export function Contact() {
   const { data } = usePortfolio();
-  const info = data.personalInfo;
+  const info = data?.personalInfo || PERSONAL_INFO;
+  const contact = data?.contactData || CONTACT_DATA;
 
   const [form, setForm] = useState<FormState>(EMPTY);
   const [error, setError] = useState("");
@@ -89,12 +95,11 @@ export function Contact() {
     }
 
     if (!trimmedMessage) {
-      setError("Please enter your message.");
+      setError("Please enter a message.");
       setSuccess("");
       return false;
     }
 
-    setError("");
     return true;
   };
 
@@ -124,8 +129,6 @@ export function Contact() {
     if (!validate()) return;
 
     setSending(true);
-    setError("");
-    setSuccess("");
 
     try {
       await emailjs.send(
@@ -165,9 +168,12 @@ export function Contact() {
   return (
     <Section id="contact">
       <SectionHeading
-        eyebrow="Contact"
-        title="Let's build something useful."
-        description="Have an internship opportunity, project idea, or simply want to connect? Send me a message."
+        eyebrow={contact.eyebrow || "Contact"}
+        title={contact.title || "Let's connect & build something impactful."}
+        description={
+          contact.description ||
+          "Have an internship opportunity, project idea, or simply want to connect? Send me a message."
+        }
       />
 
       <div className="mt-8 sm:mt-10 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">

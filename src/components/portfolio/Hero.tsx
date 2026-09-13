@@ -4,20 +4,22 @@ import { ArrowRight, Code2, FileText, Github, Linkedin, MapPin } from "lucide-re
 import profilePhoto from "@/assets/gopal-profile.jpg";
 import { usePortfolio } from "@/context/PortfolioContext";
 
-const TYPING_ROLES = [
-  "Aspiring Software Engineer",
-  "Full-Stack Developer",
+const DEFAULT_TYPING_ROLES = [
   "Java & DSA Developer",
-  "Problem Solver",
+  "Full-Stack Web Engineer",
+  "MERN Stack Specialist",
+  "B.Tech CSE Student",
 ];
 
-function TypewriterRole() {
+function TypewriterRole({ roles = DEFAULT_TYPING_ROLES }: { roles?: string[] }) {
   const [roleIndex, setRoleIndex] = useState(0);
   const [currentText, setCurrentText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const activeRoles = roles && roles.length > 0 ? roles : DEFAULT_TYPING_ROLES;
+
   useEffect(() => {
-    const currentRole = TYPING_ROLES[roleIndex] || "";
+    const currentRole = activeRoles[roleIndex % activeRoles.length] || "";
     const typingSpeed = isDeleting ? 35 : 75;
     const pauseTime = isDeleting ? 300 : 2000;
 
@@ -28,7 +30,7 @@ function TypewriterRole() {
 
     if (isDeleting && currentText === "") {
       setIsDeleting(false);
-      setRoleIndex((prev) => (prev + 1) % TYPING_ROLES.length);
+      setRoleIndex((prev) => (prev + 1) % activeRoles.length);
       return;
     }
 
@@ -41,7 +43,7 @@ function TypewriterRole() {
     }, typingSpeed);
 
     return () => clearTimeout(timeout);
-  }, [currentText, isDeleting, roleIndex]);
+  }, [currentText, isDeleting, roleIndex, activeRoles]);
 
   return (
     <span className="text-primary inline-flex items-baseline whitespace-nowrap">
@@ -97,6 +99,14 @@ function ReactIcon({ className = "size-4" }: { className?: string }) {
 export function Hero() {
   const { data } = usePortfolio();
   const info = data.personalInfo;
+  const hero = data.heroData || {
+    greetingBadge: `Hi, I'm ${info.name}`,
+    headlinePrefix: "Building software as a",
+    typewriterRoles: DEFAULT_TYPING_ROLES,
+    floatingBadge1: "Java • DSA",
+    floatingBadge2: "Full-Stack",
+    availabilityStatus: "Online",
+  };
 
   return (
     <section id="top" className="relative overflow-hidden pt-6 pb-12 sm:py-16 md:py-20 lg:py-24">
@@ -109,15 +119,15 @@ export function Hero() {
           {/* Greeting Badge */}
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 font-mono text-xs text-muted-foreground">
             <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
-            <span>Hi, I&apos;m {info.name}</span>
+            <span>{hero.greetingBadge || `Hi, I'm ${info.name}`}</span>
           </div>
 
           {/* Heading with Typewriter */}
           <h1 className="mt-4 sm:mt-6 text-2xl sm:text-3xl md:text-4xl lg:text-[3.1rem] font-bold leading-[1.22] tracking-tight text-foreground">
-            <span>Building software as a </span>
+            <span>{hero.headlinePrefix || "Building software as a"} </span>
             <br />
             <span className="inline-block min-h-[1.25em] whitespace-nowrap">
-              <TypewriterRole />
+              <TypewriterRole roles={hero.typewriterRoles} />
             </span>
           </h1>
 
@@ -199,7 +209,7 @@ export function Hero() {
               <div className="flex size-5 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/20">
                 <JavaIcon className="size-3.5" />
               </div>
-              <span className="font-semibold text-xs text-foreground">Java &bull; DSA</span>
+              <span className="font-semibold text-xs text-foreground">{hero.floatingBadge1 || "Java • DSA"}</span>
             </div>
 
             {/* Floating Mini Tech Badge 2 (Bottom Right): Full-Stack */}
@@ -207,7 +217,7 @@ export function Hero() {
               <div className="flex size-5 items-center justify-center rounded-full bg-cyan-500/10 border border-cyan-500/20">
                 <ReactIcon className="size-3.5" />
               </div>
-              <span className="font-semibold text-xs text-foreground">Full-Stack</span>
+              <span className="font-semibold text-xs text-foreground">{hero.floatingBadge2 || "Full-Stack"}</span>
             </div>
 
             {/* Main Photo Card Container */}
@@ -238,7 +248,7 @@ export function Hero() {
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary-foreground opacity-75" />
                     <span className="relative inline-flex size-2 rounded-full bg-primary-foreground" />
                   </span>
-                  <span>Online</span>
+                  <span>{hero.availabilityStatus || "Online"}</span>
                 </span>
               </div>
             </div>
