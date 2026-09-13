@@ -17,19 +17,11 @@ import {
   Upload,
   ArrowUp,
   ArrowDown,
-  CheckCircle2,
   Globe,
-  Github,
-  Linkedin,
-  MapPin,
-  Phone,
   FileText,
   Clock,
-  Zap,
-  Cpu,
   GraduationCap,
-  Download,
-  Info,
+  Image as ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { usePortfolio } from "@/context/PortfolioContext";
@@ -41,7 +33,6 @@ import {
   RESUME_CTA_DATA,
   type Project,
   type Certification,
-  type CodingProfile,
   type JourneyMilestone,
   type EducationItem,
   type SkillGroup,
@@ -142,7 +133,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
           const updatedProjects = [...data.projects];
           updatedProjects[index] = { ...existing, image: res.url };
           updateData({ projects: updatedProjects });
-          toast.success("Image uploaded! Remember to click 'Save Live'.");
+          toast.success("Project screenshot uploaded! Click 'Save Live' to persist.");
         }
       } else {
         toast.error(`Upload error: ${res.error || "Failed"}`);
@@ -170,7 +161,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
           const updatedCerts = [...data.certifications];
           updatedCerts[index] = { ...existing, certificateUrl: res.url };
           updateData({ certifications: updatedCerts });
-          toast.success("Certificate uploaded! Remember to click 'Save Live'.");
+          toast.success("Certificate uploaded! Click 'Save Live' to persist.");
         }
       } else {
         toast.error(`Upload error: ${res.error || "Failed to upload certificate"}`);
@@ -290,227 +281,273 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-24">
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-40 border-b border-border bg-card/90 backdrop-blur-md px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-display font-bold border border-primary/20">
-            G
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-display font-bold text-sm sm:text-base">Portfolio Studio</h1>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Live Sync Ready
-              </span>
+    <div className="min-h-screen bg-background text-foreground pb-28">
+      {/* 1. TOP STICKY APP HEADER */}
+      <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md px-4 sm:px-8 py-3 shadow-xs">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          {/* Logo & Brand Info */}
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+            <div className="flex items-center gap-2.5">
+              <div className="size-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-display font-bold text-base shadow-sm ring-2 ring-primary/20">
+                G
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="font-display font-bold text-base tracking-tight text-foreground">
+                    Portfolio Studio
+                  </h1>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Live Cloud Sync
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground hidden sm:block">
+                  Admin: <span className="font-mono text-foreground font-medium">{userEmail}</span>
+                </p>
+              </div>
             </div>
-            <p className="text-[11px] text-muted-foreground hidden sm:block">
-              Logged in as <span className="font-mono text-foreground">{userEmail}</span>
-            </p>
+
+            {/* Mobile-only Logout button */}
+            <button
+              onClick={onSignOut}
+              title="Sign Out"
+              className="sm:hidden p-2 rounded-lg border border-border bg-surface text-muted-foreground hover:text-destructive transition-colors"
+            >
+              <LogOut className="size-4" />
+            </button>
           </div>
-        </div>
 
-        {/* Global Action Buttons */}
-        <div className="flex items-center gap-2">
-          <a
-            href="/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
-          >
-            <ExternalLink className="size-3.5" />
-            <span className="hidden sm:inline">Preview Site</span>
-          </a>
+          {/* Global Action Buttons */}
+          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-card hover:bg-secondary px-3.5 py-2 text-xs font-semibold text-foreground transition-all shadow-2xs hover:scale-[1.02] cursor-pointer"
+            >
+              <ExternalLink className="size-3.5 text-primary" />
+              <span>Preview Site</span>
+            </a>
 
-          <button
-            onClick={() => resetToDefaults()}
-            title="Reset to local profile defaults"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
-          >
-            <RotateCcw className="size-3.5" />
-            <span className="hidden sm:inline">Reset</span>
-          </button>
+            <button
+              onClick={() => resetToDefaults()}
+              title="Reset to local profile defaults"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card hover:bg-secondary px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            >
+              <RotateCcw className="size-3.5" />
+              <span className="hidden md:inline">Reset</span>
+            </button>
 
-          <button
-            onClick={() => saveData()}
-            disabled={isSaving}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs sm:text-sm font-medium text-primary-foreground shadow-soft transition-opacity hover:opacity-90 active:scale-[0.99] disabled:opacity-50 cursor-pointer"
-          >
-            {isSaving ? (
-              <span className="size-3.5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-            ) : (
-              <Save className="size-3.5" />
-            )}
-            <span>{isSaving ? "Saving..." : "Save Live"}</span>
-          </button>
+            <button
+              onClick={() => saveData()}
+              disabled={isSaving}
+              className="inline-flex items-center gap-2 rounded-lg bg-primary hover:bg-primary/90 px-5 py-2 text-xs sm:text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+            >
+              {isSaving ? (
+                <span className="size-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+              ) : (
+                <Save className="size-4" />
+              )}
+              <span>{isSaving ? "Saving Live..." : "Save Live"}</span>
+            </button>
 
-          <button
-            onClick={onSignOut}
-            title="Sign Out"
-            className="inline-flex items-center justify-center rounded-lg border border-border bg-surface p-2 text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-colors cursor-pointer"
-          >
-            <LogOut className="size-4" />
-          </button>
+            <button
+              onClick={onSignOut}
+              title="Sign Out"
+              className="hidden sm:inline-flex items-center justify-center rounded-lg border border-border bg-card hover:bg-destructive/10 p-2 text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-colors cursor-pointer"
+            >
+              <LogOut className="size-4" />
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Main Container */}
-      <div className="container-page mt-6">
-        {/* Section Navigation Tabs (Mapped 1:1 with website sections) */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-border scrollbar-none">
+      {/* 2. STICKY SUB-HEADER: UNIFIED SECTION TABS */}
+      <nav className="sticky top-[57px] sm:top-[61px] z-40 border-b border-border bg-card/90 backdrop-blur-md px-4 sm:px-8 py-2.5 shadow-2xs">
+        <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto scrollbar-none py-0.5">
           <button
             onClick={() => setActiveTab("hero")}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
+            className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === "hero"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-surface"
+                ? "bg-primary text-primary-foreground shadow-sm font-semibold ring-1 ring-primary/20"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
             }`}
           >
-            <User className="size-3.5" />
+            <User className="size-4" />
             <span>1. Hero &amp; Profile</span>
           </button>
 
           <button
             onClick={() => setActiveTab("about")}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
+            className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === "about"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-surface"
+                ? "bg-primary text-primary-foreground shadow-sm font-semibold ring-1 ring-primary/20"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
             }`}
           >
-            <BookOpen className="size-3.5" />
+            <BookOpen className="size-4" />
             <span>2. About &amp; Education</span>
           </button>
 
           <button
             onClick={() => setActiveTab("projects")}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
+            className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === "projects"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-surface"
+                ? "bg-primary text-primary-foreground shadow-sm font-semibold ring-1 ring-primary/20"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
             }`}
           >
-            <Briefcase className="size-3.5" />
-            <span>3. Projects ({data.projects.length})</span>
+            <Briefcase className="size-4" />
+            <span>3. Projects</span>
+            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+              activeTab === "projects" ? "bg-white/20 text-white" : "bg-secondary text-muted-foreground"
+            }`}>
+              {data.projects.length}
+            </span>
           </button>
 
           <button
             onClick={() => setActiveTab("skills")}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
+            className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === "skills"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-surface"
+                ? "bg-primary text-primary-foreground shadow-sm font-semibold ring-1 ring-primary/20"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
             }`}
           >
-            <Layers className="size-3.5" />
+            <Layers className="size-4" />
             <span>4. Skills &amp; Stack</span>
+            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+              activeTab === "skills" ? "bg-white/20 text-white" : "bg-secondary text-muted-foreground"
+            }`}>
+              {data.skillGroups.length}
+            </span>
           </button>
 
           <button
             onClick={() => setActiveTab("dsa")}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
+            className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === "dsa"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-surface"
+                ? "bg-primary text-primary-foreground shadow-sm font-semibold ring-1 ring-primary/20"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
             }`}
           >
-            <Code2 className="size-3.5" />
-            <span>5. DSA &amp; Coding Profiles</span>
+            <Code2 className="size-4" />
+            <span>5. DSA &amp; Profiles</span>
           </button>
 
           <button
             onClick={() => setActiveTab("certifications")}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
+            className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === "certifications"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-surface"
+                ? "bg-primary text-primary-foreground shadow-sm font-semibold ring-1 ring-primary/20"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
             }`}
           >
-            <Award className="size-3.5" />
-            <span>6. Certificates ({data.certifications.length})</span>
+            <Award className="size-4" />
+            <span>6. Certificates</span>
+            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+              activeTab === "certifications" ? "bg-white/20 text-white" : "bg-secondary text-muted-foreground"
+            }`}>
+              {data.certifications.length}
+            </span>
           </button>
 
           <button
             onClick={() => setActiveTab("journey")}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
+            className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === "journey"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-surface"
+                ? "bg-primary text-primary-foreground shadow-sm font-semibold ring-1 ring-primary/20"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
             }`}
           >
-            <Sparkles className="size-3.5" />
+            <Sparkles className="size-4" />
             <span>7. Highlights &amp; Journey</span>
           </button>
 
           <button
             onClick={() => setActiveTab("contact")}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
+            className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === "contact"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-surface"
+                ? "bg-primary text-primary-foreground shadow-sm font-semibold ring-1 ring-primary/20"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
             }`}
           >
-            <Mail className="size-3.5" />
+            <Mail className="size-4" />
             <span>8. Contact &amp; Footer</span>
           </button>
         </div>
+      </nav>
 
+      {/* 3. MAIN CONTENT CONTAINER */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-8 mt-6 sm:mt-8">
         {/* ---------------- TAB 1: HERO & PROFILE ---------------- */}
         {activeTab === "hero" && (
-          <div className="mt-6 space-y-6 max-w-4xl">
+          <div className="space-y-6 max-w-4xl">
             {/* Hero Main */}
-            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-soft space-y-4">
-              <h2 className="font-display font-bold text-base text-foreground flex items-center gap-2">
-                <User className="size-4 text-primary" />
-                Hero Headline, Typewriter &amp; Greeting
-              </h2>
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-5">
+              <div className="border-b border-border pb-3">
+                <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+                  <User className="size-5 text-primary" />
+                  Hero Headline, Typewriter &amp; Greeting
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Configure primary identity, headline badges, rotating typewriter roles, and contact info.
+                </p>
+              </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Full Name</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Full Name
+                  </label>
                   <input
                     type="text"
                     value={info.name}
                     onChange={(e) => updateData({ personalInfo: { ...info, name: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Primary Role / Title</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Primary Role / Title
+                  </label>
                   <input
                     type="text"
                     value={info.role}
                     onChange={(e) => updateData({ personalInfo: { ...info, role: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Greeting Pill Badge</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Greeting Pill Badge
+                  </label>
                   <input
                     type="text"
                     placeholder="Hi, I'm Gopal Maddheshiya"
                     value={hero.greetingBadge || ""}
                     onChange={(e) => updateData({ heroData: { ...hero, greetingBadge: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Headline Prefix</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Headline Prefix
+                  </label>
                   <input
                     type="text"
                     placeholder="Building software as a"
                     value={hero.headlinePrefix || ""}
                     onChange={(e) => updateData({ heroData: { ...hero, headlinePrefix: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-foreground mb-1">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                     Typewriter Rotating Roles (Comma separated)
                   </label>
                   <input
@@ -524,120 +561,213 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                         },
                       })
                     }
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-foreground mb-1">Hero Subtitle</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Hero Subtitle
+                  </label>
+                  <textarea
+                    rows={2}
                     value={info.subtitle}
                     onChange={(e) => updateData({ personalInfo: { ...info, subtitle: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-foreground mb-1">Bio / Site Description</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Bio / Site Description
+                  </label>
                   <textarea
                     rows={3}
                     value={info.siteDescription}
                     onChange={(e) => updateData({ personalInfo: { ...info, siteDescription: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm leading-relaxed text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-2xs min-h-[90px]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Top-Left Floating Chip</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Top-Left Floating Chip
+                  </label>
                   <input
                     type="text"
                     placeholder="Java • DSA"
                     value={hero.floatingBadge1 || ""}
                     onChange={(e) => updateData({ heroData: { ...hero, floatingBadge1: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Bottom-Right Floating Chip</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Bottom-Right Floating Chip
+                  </label>
                   <input
                     type="text"
                     placeholder="Full-Stack"
                     value={hero.floatingBadge2 || ""}
                     onChange={(e) => updateData({ heroData: { ...hero, floatingBadge2: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Status Badge Text</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Status Badge Text
+                  </label>
                   <input
                     type="text"
                     placeholder="Online"
                     value={hero.availabilityStatus || ""}
                     onChange={(e) => updateData({ heroData: { ...hero, availabilityStatus: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Location</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Location
+                  </label>
                   <input
                     type="text"
                     value={info.location}
                     onChange={(e) => updateData({ personalInfo: { ...info, location: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Email Address</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Email Address
+                  </label>
                   <input
                     type="email"
                     value={info.email}
                     onChange={(e) => updateData({ personalInfo: { ...info, email: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Phone Number</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Phone Number
+                  </label>
                   <input
                     type="text"
                     value={info.phone}
                     onChange={(e) => updateData({ personalInfo: { ...info, phone: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">WhatsApp (Digits with Country Code)</label>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    WhatsApp (Digits with Country Code)
+                  </label>
                   <input
                     type="text"
                     placeholder="916388354988"
                     value={info.whatsapp || ""}
                     onChange={(e) => updateData({ personalInfo: { ...info, whatsapp: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
 
+                {/* Profile Photo (Hero Picture) with Live Preview & Recommended Specs */}
+                <div className="sm:col-span-2 rounded-2xl border-2 border-border/80 bg-surface/50 p-5 space-y-4 shadow-2xs">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-border/60 pb-2.5">
+                    <label className="block text-sm font-bold text-foreground">
+                      Hero Profile Photo (Homepage Main Avatar)
+                    </label>
+                    <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                      Recommended: 4:5 Portrait or 1:1 Square
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col md:flex-row gap-5 items-start md:items-center">
+                    {/* Live Thumbnail Preview */}
+                    <div className="relative w-28 h-36 rounded-2xl overflow-hidden border-2 border-border bg-card shrink-0 shadow-sm ring-2 ring-primary/20">
+                      <img
+                        src={info.profilePhoto || "/assets/gopal-profile.jpg"}
+                        alt="Profile Preview"
+                        className="w-full h-full object-cover object-[center_18%]"
+                      />
+                    </div>
+
+                    <div className="flex-1 space-y-3 w-full">
+                      <div className="flex flex-col sm:flex-row gap-2.5 items-start sm:items-center">
+                        <input
+                          type="text"
+                          placeholder="Image URL or upload from device"
+                          value={info.profilePhoto || ""}
+                          onChange={(e) => updateData({ personalInfo: { ...info, profilePhoto: e.target.value } })}
+                          className="flex-1 w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none font-mono"
+                        />
+                        <label className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary hover:bg-primary/90 px-4 py-2.5 text-xs font-semibold text-primary-foreground cursor-pointer transition-all shrink-0 shadow-sm">
+                          <Upload className="size-4" />
+                          <span>{uploadingProfilePhoto ? "Uploading..." : "Upload New Photo"}</span>
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,image/jpg"
+                            className="hidden"
+                            disabled={uploadingProfilePhoto}
+                            onChange={handleProfilePhotoUpload}
+                          />
+                        </label>
+                      </div>
+
+                      {/* Dimensions & Sizing Guidelines Box */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-muted-foreground font-mono">
+                        <div className="bg-card rounded-lg border border-border p-2">
+                          <span className="text-[10px] text-muted-foreground block uppercase font-sans font-bold">Aspect Ratio</span>
+                          <strong className="text-foreground">4:5 or 1:1</strong>
+                        </div>
+                        <div className="bg-card rounded-lg border border-border p-2">
+                          <span className="text-[10px] text-muted-foreground block uppercase font-sans font-bold">Ideal Resolution</span>
+                          <strong className="text-foreground">800 × 1000 px</strong>
+                        </div>
+                        <div className="bg-card rounded-lg border border-border p-2">
+                          <span className="text-[10px] text-muted-foreground block uppercase font-sans font-bold">Supported Formats</span>
+                          <strong className="text-foreground">JPG, PNG, WEBP</strong>
+                        </div>
+                        <div className="bg-card rounded-lg border border-border p-2">
+                          <span className="text-[10px] text-muted-foreground block uppercase font-sans font-bold">Max File Size</span>
+                          <strong className="text-foreground">&lt; 5 MB</strong>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        💡 <strong>Photo Tip:</strong> For best look on both desktop and mobile, upload a portrait photo where your face and shoulders are well-centered.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Resume PDF Upload & URL */}
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-foreground mb-1">
-                    Resume PDF Document (File Upload &amp; Link)
-                  </label>
+                <div className="sm:col-span-2 rounded-2xl border-2 border-border/80 bg-surface/50 p-5 space-y-4 shadow-2xs">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-border/60 pb-2.5">
+                    <label className="block text-sm font-bold text-foreground">
+                      Resume PDF Document (Direct Upload &amp; Link)
+                    </label>
+                    <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                      Format: .PDF document
+                    </span>
+                  </div>
+
                   <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                     <input
                       type="text"
                       placeholder="Resume URL (/gopal-cv.pdf or Supabase URL)"
                       value={info.resume || ""}
                       onChange={(e) => updateData({ personalInfo: { ...info, resume: e.target.value } })}
-                      className="flex-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none font-mono text-xs"
+                      className="flex-1 w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none font-mono"
                     />
-                    <label className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface px-3.5 py-2 text-xs font-medium text-foreground hover:bg-secondary cursor-pointer transition-colors shrink-0">
-                      <Upload className="size-3.5 text-primary" />
-                      <span>{uploadingResume ? "Uploading PDF..." : "Upload New PDF Resume"}</span>
+                    <label className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary hover:bg-primary/90 px-4 py-2.5 text-xs font-semibold text-primary-foreground cursor-pointer transition-all shrink-0 shadow-sm">
+                      <Upload className="size-4" />
+                      <span>{uploadingResume ? "Uploading PDF..." : "Upload PDF Resume"}</span>
                       <input
                         type="file"
                         accept="application/pdf,.pdf"
@@ -651,124 +781,63 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                         href={info.resume}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors shrink-0"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3.5 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors shrink-0 shadow-2xs"
                       >
-                        <ExternalLink className="size-3.5" />
-                        <span>View PDF</span>
+                        <ExternalLink className="size-4" />
+                        <span>View Current PDF</span>
                       </a>
                     )}
                   </div>
-                  <p className="text-[11px] text-muted-foreground mt-1">
-                    Upload your latest resume PDF directly. It saves to Supabase Storage and connects with Hero "View Resume", Navbar "Resume", Resume CTA banner, and AI Chat Assistant.
+                  <p className="text-xs text-muted-foreground">
+                    Upload your latest single-page resume PDF here. It uploads directly to Supabase Storage and connects with the Hero "View Resume" button, Navbar "Resume", Resume CTA banner, and AI Chat Assistant.
                   </p>
-                </div>
-
-                {/* Profile Photo (Hero Picture) with Live Preview & Recommended Specs */}
-                <div className="sm:col-span-2 rounded-xl border border-border/80 bg-surface/70 p-4 space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-                    <label className="block text-xs font-semibold text-foreground">
-                      Hero Profile Photo (Homepage Main Avatar)
-                    </label>
-                    <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
-                      Recommended: 4:5 Portrait or 1:1 Square
-                    </span>
-                  </div>
-
-                  <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-                    {/* Live Thumbnail Preview */}
-                    <div className="relative size-20 sm:size-24 rounded-xl overflow-hidden border-2 border-border bg-card shrink-0 shadow-xs">
-                      <img
-                        src={info.profilePhoto || "/assets/gopal-profile.jpg"}
-                        alt="Profile Preview"
-                        className="w-full h-full object-cover object-[center_18%]"
-                      />
-                    </div>
-
-                    <div className="flex-1 space-y-2.5 w-full">
-                      <div className="flex flex-col sm:flex-row gap-2.5 items-start sm:items-center">
-                        <input
-                          type="text"
-                          placeholder="Image URL or upload from device"
-                          value={info.profilePhoto || ""}
-                          onChange={(e) => updateData({ personalInfo: { ...info, profilePhoto: e.target.value } })}
-                          className="flex-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none font-mono"
-                        />
-                        <label className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 cursor-pointer transition-opacity shrink-0 shadow-xs">
-                          <Upload className="size-3.5" />
-                          <span>{uploadingProfilePhoto ? "Uploading..." : "Upload New Photo"}</span>
-                          <input
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp,image/jpg"
-                            className="hidden"
-                            disabled={uploadingProfilePhoto}
-                            onChange={handleProfilePhotoUpload}
-                          />
-                        </label>
-                      </div>
-
-                      {/* Dimensions & Sizing Guidelines Box */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-muted-foreground font-mono">
-                        <div className="bg-card rounded-md border border-border p-2">
-                          <span className="text-[10px] text-muted-foreground block uppercase font-sans">Aspect Ratio</span>
-                          <strong className="text-foreground">4:5 or 1:1</strong>
-                        </div>
-                        <div className="bg-card rounded-md border border-border p-2">
-                          <span className="text-[10px] text-muted-foreground block uppercase font-sans">Ideal Resolution</span>
-                          <strong className="text-foreground">800 × 1000 px</strong>
-                        </div>
-                        <div className="bg-card rounded-md border border-border p-2">
-                          <span className="text-[10px] text-muted-foreground block uppercase font-sans">Supported Formats</span>
-                          <strong className="text-foreground">JPG, PNG, WEBP</strong>
-                        </div>
-                        <div className="bg-card rounded-md border border-border p-2">
-                          <span className="text-[10px] text-muted-foreground block uppercase font-sans">Max File Size</span>
-                          <strong className="text-foreground">&lt; 5 MB</strong>
-                        </div>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground">
-                        💡 <strong>Photo Tip:</strong> For best look on both desktop and mobile, upload a high-resolution portrait photo where your face and shoulders are well-centered.
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
 
             {/* Social Links */}
-            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-soft space-y-4">
-              <h2 className="font-display font-bold text-base text-foreground flex items-center gap-2">
-                <Globe className="size-4 text-primary" />
-                Social Profiles
-              </h2>
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-4">
+              <div className="border-b border-border pb-3">
+                <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+                  <Globe className="size-5 text-primary" />
+                  Social &amp; Coding Profile Links
+                </h2>
+              </div>
 
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid gap-5 sm:grid-cols-3">
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">GitHub URL</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    GitHub URL
+                  </label>
                   <input
                     type="text"
                     value={info.github}
                     onChange={(e) => updateData({ personalInfo: { ...info, github: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">LinkedIn URL</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    LinkedIn URL
+                  </label>
                   <input
                     type="text"
                     value={info.linkedin}
                     onChange={(e) => updateData({ personalInfo: { ...info, linkedin: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">LeetCode URL</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    LeetCode URL
+                  </label>
                   <input
                     type="text"
                     value={info.leetcode}
                     onChange={(e) => updateData({ personalInfo: { ...info, leetcode: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none font-mono"
                   />
                 </div>
               </div>
@@ -778,57 +847,72 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
         {/* ---------------- TAB 2: ABOUT & EDUCATION ---------------- */}
         {activeTab === "about" && (
-          <div className="mt-6 space-y-6 max-w-4xl">
+          <div className="space-y-6 max-w-4xl">
             {/* About Headings & Story */}
-            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-soft space-y-4">
-              <h2 className="font-display font-bold text-base text-foreground flex items-center gap-2">
-                <BookOpen className="size-4 text-primary" />
-                About Section Heading &amp; Philosophy Story
-              </h2>
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-5">
+              <div className="border-b border-border pb-3">
+                <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+                  <BookOpen className="size-5 text-primary" />
+                  About Section Headings &amp; Story
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Update section intro, your software philosophy story paragraphs, and core values.
+                </p>
+              </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Eyebrow Tag</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Eyebrow Tag
+                  </label>
                   <input
                     type="text"
                     value={about.eyebrow}
                     onChange={(e) => updateData({ aboutData: { ...about, eyebrow: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Main Heading</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Main Heading
+                  </label>
                   <input
                     type="text"
                     value={about.title}
                     onChange={(e) => updateData({ aboutData: { ...about, title: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-foreground mb-1">Section Subtitle / Description</label>
-                  <input
-                    type="text"
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Section Subtitle / Description
+                  </label>
+                  <textarea
+                    rows={2}
                     value={about.description}
                     onChange={(e) => updateData({ aboutData: { ...about, description: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-foreground mb-1">Story Card Title</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Story Card Title
+                  </label>
                   <input
                     type="text"
                     value={about.storyTitle}
                     onChange={(e) => updateData({ aboutData: { ...about, storyTitle: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-semibold text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-foreground mb-1">Story Paragraph 1</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Story Paragraph 1
+                  </label>
                   <textarea
                     rows={3}
                     value={about.storyParagraphs?.[0] || ""}
@@ -837,12 +921,14 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       updated[0] = e.target.value;
                       updateData({ aboutData: { ...about, storyParagraphs: updated } });
                     }}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm leading-relaxed text-foreground focus:border-primary focus:outline-none min-h-[90px]"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-foreground mb-1">Story Paragraph 2</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Story Paragraph 2
+                  </label>
                   <textarea
                     rows={3}
                     value={about.storyParagraphs?.[1] || ""}
@@ -851,22 +937,24 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       updated[1] = e.target.value;
                       updateData({ aboutData: { ...about, storyParagraphs: updated } });
                     }}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm leading-relaxed text-foreground focus:border-primary focus:outline-none min-h-[90px]"
                   />
                 </div>
               </div>
             </div>
 
             {/* Profile Snapshot Stats */}
-            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-soft space-y-4">
-              <h2 className="font-display font-bold text-base text-foreground flex items-center gap-2">
-                <Sparkles className="size-4 text-primary" />
-                Profile Snapshot Grid (Right Column Cards)
-              </h2>
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-4">
+              <div className="border-b border-border pb-3">
+                <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+                  <Sparkles className="size-5 text-primary" />
+                  Profile Snapshot Grid (Right Column Cards)
+                </h2>
+              </div>
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Degree Title</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Degree Title</label>
                   <input
                     type="text"
                     value={about.snapshot?.degree || ""}
@@ -874,16 +962,16 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       updateData({
                         aboutData: {
                           ...about,
-                          snapshot: { ...about.snapshot, degree: e.target.value },
+                          snapshot: { ...(about.snapshot || {}), degree: e.target.value },
                         },
                       })
                     }
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">CGPA / Score</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">CGPA</label>
                   <input
                     type="text"
                     value={about.snapshot?.cgpa || ""}
@@ -891,16 +979,16 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       updateData({
                         aboutData: {
                           ...about,
-                          snapshot: { ...about.snapshot, cgpa: e.target.value },
+                          snapshot: { ...(about.snapshot || {}), cgpa: e.target.value },
                         },
                       })
                     }
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">DSA Practice Badge</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">DSA Practice Count</label>
                   <input
                     type="text"
                     value={about.snapshot?.dsaPractice || ""}
@@ -908,16 +996,16 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       updateData({
                         aboutData: {
                           ...about,
-                          snapshot: { ...about.snapshot, dsaPractice: e.target.value },
+                          snapshot: { ...(about.snapshot || {}), dsaPractice: e.target.value },
                         },
                       })
                     }
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Primary Stack</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Core Tech Stack</label>
                   <input
                     type="text"
                     value={about.snapshot?.stack || ""}
@@ -925,16 +1013,16 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       updateData({
                         aboutData: {
                           ...about,
-                          snapshot: { ...about.snapshot, stack: e.target.value },
+                          snapshot: { ...(about.snapshot || {}), stack: e.target.value },
                         },
                       })
                     }
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Graduation Batch</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Graduating Batch</label>
                   <input
                     type="text"
                     value={about.snapshot?.batch || ""}
@@ -942,16 +1030,16 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       updateData({
                         aboutData: {
                           ...about,
-                          snapshot: { ...about.snapshot, batch: e.target.value },
+                          snapshot: { ...(about.snapshot || {}), batch: e.target.value },
                         },
                       })
                     }
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">University / College</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">University Name</label>
                   <input
                     type="text"
                     value={about.snapshot?.university || ""}
@@ -959,48 +1047,48 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       updateData({
                         aboutData: {
                           ...about,
-                          snapshot: { ...about.snapshot, university: e.target.value },
+                          snapshot: { ...(about.snapshot || {}), university: e.target.value },
                         },
                       })
                     }
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Education Timeline Manager */}
-            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-soft space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="font-display font-bold text-base text-foreground flex items-center gap-2">
-                  <GraduationCap className="size-4 text-primary" />
+            {/* Education Timeline */}
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-4">
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+                  <GraduationCap className="size-5 text-primary" />
                   Education Timeline ({data.education.length})
                 </h2>
                 <button
                   onClick={handleAddEducation}
-                  className="inline-flex items-center gap-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 px-2.5 py-1.5 text-xs font-medium transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer"
                 >
-                  <Plus className="size-3.5" />
+                  <Plus className="size-4" />
                   <span>Add Degree</span>
                 </button>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {data.education.map((edu, idx) => (
-                  <div key={idx} className="rounded-xl border border-border bg-surface p-3.5 space-y-3">
+                  <div key={idx} className="rounded-xl border border-border bg-surface/50 p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono text-muted-foreground">Degree #{idx + 1}</span>
+                      <span className="text-xs font-mono font-bold text-primary">Degree #{idx + 1}</span>
                       <button
                         onClick={() => handleDeleteEducation(idx)}
                         className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors"
                       >
-                        <Trash2 className="size-3.5" />
+                        <Trash2 className="size-4" />
                       </button>
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div>
-                        <label className="block text-[11px] text-muted-foreground mb-1">Degree Title</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">Degree Title</label>
                         <input
                           type="text"
                           value={edu.title}
@@ -1009,11 +1097,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             updated[idx] = { ...edu, title: e.target.value };
                             updateData({ education: updated });
                           }}
-                          className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none"
+                          className="w-full rounded-md border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:outline-none"
                         />
                       </div>
+
                       <div>
-                        <label className="block text-[11px] text-muted-foreground mb-1">Institution / School</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">University / Institute</label>
                         <input
                           type="text"
                           value={edu.org}
@@ -1022,11 +1111,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             updated[idx] = { ...edu, org: e.target.value };
                             updateData({ education: updated });
                           }}
-                          className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none"
+                          className="w-full rounded-md border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:outline-none"
                         />
                       </div>
+
                       <div>
-                        <label className="block text-[11px] text-muted-foreground mb-1">Period (Years)</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">Period (Years)</label>
                         <input
                           type="text"
                           value={edu.period}
@@ -1035,11 +1125,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             updated[idx] = { ...edu, period: e.target.value };
                             updateData({ education: updated });
                           }}
-                          className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none"
+                          className="w-full rounded-md border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:outline-none font-mono"
                         />
                       </div>
+
                       <div>
-                        <label className="block text-[11px] text-muted-foreground mb-1">Detail (CGPA / Score)</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">CGPA / Details</label>
                         <input
                           type="text"
                           value={edu.detail}
@@ -1048,7 +1139,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             updated[idx] = { ...edu, detail: e.target.value };
                             updateData({ education: updated });
                           }}
-                          className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none"
+                          className="w-full rounded-md border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:outline-none font-mono"
                         />
                       </div>
                     </div>
@@ -1058,45 +1149,49 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
             </div>
 
             {/* Coursework & Focus Areas */}
-            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-soft space-y-4">
-              <h2 className="font-display font-bold text-base text-foreground flex items-center gap-2">
-                <Layers className="size-4 text-primary" />
-                Coursework &amp; Focus Areas Tags
-              </h2>
-
-              <div>
-                <label className="block text-xs font-medium text-foreground mb-1">
-                  Relevant Coursework (Comma separated)
-                </label>
-                <input
-                  type="text"
-                  value={(about.coursework || []).join(", ")}
-                  onChange={(e) =>
-                    updateData({
-                      aboutData: {
-                        ...about,
-                        coursework: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
-                      },
-                    })
-                  }
-                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
-                />
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-4">
+              <div className="border-b border-border pb-3">
+                <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+                  <Layers className="size-5 text-primary" />
+                  Academic Coursework &amp; Focus Area Tags
+                </h2>
               </div>
 
-              <div>
-                <label className="block text-xs font-medium text-foreground mb-1">
-                  Focus Areas Pills (Comma separated)
-                </label>
-                <input
-                  type="text"
-                  value={(data.focusAreas || []).join(", ")}
-                  onChange={(e) =>
-                    updateData({
-                      focusAreas: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
-                    })
-                  }
-                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
-                />
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Coursework Subjects (Comma separated)
+                  </label>
+                  <input
+                    type="text"
+                    value={(about.coursework || []).join(", ")}
+                    onChange={(e) =>
+                      updateData({
+                        aboutData: {
+                          ...about,
+                          coursework: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                        },
+                      })
+                    }
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Engineering Focus Areas (Comma separated)
+                  </label>
+                  <input
+                    type="text"
+                    value={(data.focusAreas || []).join(", ")}
+                    onChange={(e) =>
+                      updateData({
+                        focusAreas: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                      })
+                    }
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -1104,76 +1199,111 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
         {/* ---------------- TAB 3: PROJECTS MANAGER ---------------- */}
         {activeTab === "projects" && (
-          <div className="mt-6 space-y-6">
-            <div className="flex items-center justify-between">
+          <div className="space-y-6">
+            {/* Header + Add Project */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="font-display font-bold text-lg text-foreground">Projects Manager</h2>
-                <p className="text-xs text-muted-foreground">
-                  Add, reorder, edit summaries, problem statements, tech tags, or upload screenshot images.
+                <h2 className="font-display font-bold text-xl text-foreground flex items-center gap-2.5">
+                  <Briefcase className="size-6 text-primary" />
+                  Projects Manager ({data.projects.length})
+                </h2>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Add, reorder, edit titles, problem statements, features, and upload live project screenshots.
                 </p>
               </div>
               <button
                 onClick={handleAddProject}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-medium text-primary-foreground shadow-soft hover:opacity-90 active:scale-[0.99] cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary/90 px-4 py-2.5 text-xs sm:text-sm font-semibold text-primary-foreground shadow-md transition-all active:scale-[0.98] cursor-pointer shrink-0"
               >
                 <Plus className="size-4" />
-                <span>Add Project</span>
+                <span>Add New Project</span>
               </button>
             </div>
 
+            {/* Sizing & Image Specs Banner */}
+            <div className="rounded-2xl border-2 border-primary/20 bg-primary/5 p-4 sm:p-5 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+              <div className="space-y-1">
+                <h3 className="font-display font-bold text-sm text-foreground flex items-center gap-2">
+                  <ImageIcon className="size-4 text-primary" />
+                  Project Screenshot Sizing Guidelines:
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Upload crisp, landscape screenshots of your live web apps or UI dashboards.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2 text-xs font-mono">
+                <span className="rounded-lg bg-card border border-border px-2.5 py-1 text-foreground font-semibold">
+                  📐 16:9 Landscape
+                </span>
+                <span className="rounded-lg bg-card border border-border px-2.5 py-1 text-foreground font-semibold">
+                  🎯 1280 × 720 px / 1920 × 1080 px
+                </span>
+                <span className="rounded-lg bg-card border border-border px-2.5 py-1 text-foreground font-semibold">
+                  🖼️ WebP / PNG / JPG
+                </span>
+                <span className="rounded-lg bg-card border border-border px-2.5 py-1 text-foreground font-semibold">
+                  ⚡ &lt; 5 MB
+                </span>
+              </div>
+            </div>
+
+            {/* Project Cards List */}
             <div className="space-y-6">
               {data.projects.map((project, idx) => (
                 <div
                   key={idx}
-                  className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-soft space-y-4 relative"
+                  className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-5 relative"
                 >
-                  {/* Card Header & Controls */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="flex size-6 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold font-mono">
-                        {idx + 1}
+                  {/* Card Header & Ordering Actions */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+                    <div className="flex items-center gap-3">
+                      <span className="flex size-7 items-center justify-center rounded-xl bg-primary text-primary-foreground text-xs font-bold font-mono">
+                        #{idx + 1}
                       </span>
-                      <h3 className="font-display font-semibold text-sm sm:text-base text-foreground">
+                      <h3 className="font-display font-bold text-base sm:text-lg text-foreground">
                         {project.title || "Untitled Project"}
                       </h3>
                       {project.featured && (
-                        <span className="rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-semibold px-2 py-0.5 border border-amber-500/20">
-                          Featured
+                        <span className="rounded-full bg-amber-500/10 text-amber-500 text-xs font-semibold px-2.5 py-0.5 border border-amber-500/20">
+                          ★ Featured Flagship
                         </span>
                       )}
                     </div>
 
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => handleMoveProject(idx, "up")}
                         disabled={idx === 0}
-                        title="Move Up"
-                        className="p-1.5 rounded-lg border border-border bg-surface text-muted-foreground hover:text-foreground disabled:opacity-30 cursor-pointer"
+                        title="Move Up in List"
+                        className="p-2 rounded-lg border border-border bg-card hover:bg-secondary text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors cursor-pointer"
                       >
-                        <ArrowUp className="size-3.5" />
+                        <ArrowUp className="size-4" />
                       </button>
                       <button
                         onClick={() => handleMoveProject(idx, "down")}
                         disabled={idx === data.projects.length - 1}
-                        title="Move Down"
-                        className="p-1.5 rounded-lg border border-border bg-surface text-muted-foreground hover:text-foreground disabled:opacity-30 cursor-pointer"
+                        title="Move Down in List"
+                        className="p-2 rounded-lg border border-border bg-card hover:bg-secondary text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors cursor-pointer"
                       >
-                        <ArrowDown className="size-3.5" />
+                        <ArrowDown className="size-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteProject(idx)}
                         title="Delete Project"
-                        className="p-1.5 rounded-lg border border-border bg-surface text-muted-foreground hover:text-destructive hover:border-destructive/30 cursor-pointer"
+                        className="p-2 rounded-lg border border-border bg-card hover:bg-destructive/10 text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-colors cursor-pointer"
                       >
-                        <Trash2 className="size-3.5" />
+                        <Trash2 className="size-4" />
                       </button>
                     </div>
                   </div>
 
                   {/* Form Grid */}
-                  <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="grid gap-5 sm:grid-cols-3">
                     <div className="sm:col-span-2">
-                      <label className="block text-xs font-medium text-foreground mb-1">Project Title</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        Project Title
+                      </label>
                       <input
                         type="text"
                         value={project.title}
@@ -1182,12 +1312,14 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           updated[idx] = { ...project, title: e.target.value };
                           updateData({ projects: updated });
                         }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-semibold text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">Year</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        Year
+                      </label>
                       <input
                         type="text"
                         value={project.year}
@@ -1196,27 +1328,31 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           updated[idx] = { ...project, year: e.target.value };
                           updateData({ projects: updated });
                         }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none font-mono"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">Category</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        Category Tag
+                      </label>
                       <input
                         type="text"
                         value={project.category || ""}
-                        placeholder="Full-Stack MERN, Frontend, Cloud"
+                        placeholder="Full-Stack MERN, AI, Frontend"
                         onChange={(e) => {
                           const updated = [...data.projects];
                           updated[idx] = { ...project, category: e.target.value };
                           updateData({ projects: updated });
                         }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">GitHub Repo URL</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        GitHub Repo URL
+                      </label>
                       <input
                         type="text"
                         value={project.githubUrl}
@@ -1225,12 +1361,14 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           updated[idx] = { ...project, githubUrl: e.target.value };
                           updateData({ projects: updated });
                         }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none font-mono text-xs"
+                        className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none font-mono"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">Live Demo URL</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        Live Demo URL
+                      </label>
                       <input
                         type="text"
                         value={project.liveUrl || ""}
@@ -1240,12 +1378,14 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           updated[idx] = { ...project, liveUrl: e.target.value };
                           updateData({ projects: updated });
                         }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none font-mono text-xs"
+                        className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none font-mono"
                       />
                     </div>
 
                     <div className="sm:col-span-3">
-                      <label className="block text-xs font-medium text-foreground mb-1">Summary / Pitch</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        Summary / Elevator Pitch
+                      </label>
                       <textarea
                         rows={2}
                         value={project.summary}
@@ -1254,12 +1394,14 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           updated[idx] = { ...project, summary: e.target.value };
                           updateData({ projects: updated });
                         }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none min-h-[70px]"
                       />
                     </div>
 
                     <div className="sm:col-span-3">
-                      <label className="block text-xs font-medium text-foreground mb-1">Problem Statement</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        Problem Statement &amp; Solution
+                      </label>
                       <textarea
                         rows={2}
                         value={project.problem || ""}
@@ -1268,12 +1410,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           updated[idx] = { ...project, problem: e.target.value };
                           updateData({ projects: updated });
                         }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none min-h-[70px]"
                       />
                     </div>
 
                     <div className="sm:col-span-3">
-                      <label className="block text-xs font-medium text-foreground mb-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                         Technologies (Comma separated)
                       </label>
                       <input
@@ -1287,12 +1429,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           };
                           updateData({ projects: updated });
                         }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
                     <div className="sm:col-span-3">
-                      <label className="block text-xs font-medium text-foreground mb-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                         Key Features (One feature per line)
                       </label>
                       <textarea
@@ -1306,43 +1448,84 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           };
                           updateData({ projects: updated });
                         }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none font-sans min-h-[80px]"
                       />
                     </div>
 
-                    {/* Screenshot image upload & URL */}
-                    <div className="sm:col-span-3 pt-2">
-                      <label className="block text-xs font-medium text-foreground mb-1">
-                        Project Screenshot Image
-                      </label>
-                      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                        <input
-                          type="text"
-                          value={project.image || ""}
-                          placeholder="Image URL or upload from device"
-                          onChange={(e) => {
-                            const updated = [...data.projects];
-                            updated[idx] = { ...project, image: e.target.value };
-                            updateData({ projects: updated });
-                          }}
-                          className="flex-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none font-mono text-xs"
-                        />
-                        <label className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface px-3.5 py-2 text-xs font-medium text-foreground hover:bg-secondary cursor-pointer transition-colors shrink-0">
-                          <Upload className="size-3.5 text-primary" />
-                          <span>{uploadingIndex === idx ? "Uploading..." : "Upload Screenshot"}</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            disabled={uploadingIndex === idx}
-                            onChange={(e) => handleProjectImageUpload(idx, e)}
-                          />
+                    {/* Screenshot Image Upload & Live Preview Card */}
+                    <div className="sm:col-span-3 rounded-2xl border-2 border-border/80 bg-surface/50 p-5 space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-border/60 pb-2.5">
+                        <label className="block text-sm font-bold text-foreground">
+                          Project Screenshot / Cover Image
                         </label>
+                        <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                          Recommended: 16:9 Landscape (1280 × 720 px)
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col lg:flex-row gap-5 items-start">
+                        {/* Live Image Preview Thumbnail */}
+                        <div className="w-full sm:w-64 aspect-video rounded-xl border-2 border-border bg-card overflow-hidden shrink-0 shadow-xs relative flex items-center justify-center">
+                          {project.image ? (
+                            <img
+                              src={project.image}
+                              alt={project.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex flex-col items-center justify-center text-muted-foreground p-4 text-center">
+                              <ImageIcon className="size-8 stroke-1 mb-1 opacity-50" />
+                              <span className="text-[11px]">No image uploaded</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Controls */}
+                        <div className="flex-1 space-y-3 w-full">
+                          <div className="flex flex-col sm:flex-row gap-2.5 items-start sm:items-center">
+                            <input
+                              type="text"
+                              value={project.image || ""}
+                              placeholder="Image URL or upload from device"
+                              onChange={(e) => {
+                                const updated = [...data.projects];
+                                updated[idx] = { ...project, image: e.target.value };
+                                updateData({ projects: updated });
+                              }}
+                              className="flex-1 w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none font-mono"
+                            />
+                            <label className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary hover:bg-primary/90 px-4 py-2.5 text-xs font-semibold text-primary-foreground cursor-pointer transition-all shrink-0 shadow-sm">
+                              <Upload className="size-4" />
+                              <span>{uploadingIndex === idx ? "Uploading..." : "Upload Screenshot"}</span>
+                              <input
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp,image/jpg"
+                                className="hidden"
+                                disabled={uploadingIndex === idx}
+                                onChange={(e) => handleProjectImageUpload(idx, e)}
+                              />
+                            </label>
+                            {project.image && (
+                              <a
+                                href={project.image}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center gap-1 rounded-lg border border-border bg-card px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                              >
+                                <ExternalLink className="size-3.5" />
+                                <span>Preview</span>
+                              </a>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Uploads screenshot directly to Supabase Storage bucket (`portfolio-media/projects`).
+                          </p>
+                        </div>
                       </div>
                     </div>
 
                     {/* Featured toggle */}
-                    <div className="sm:col-span-3 flex items-center gap-2 pt-2">
+                    <div className="sm:col-span-3 flex items-center gap-2.5 pt-2">
                       <input
                         type="checkbox"
                         id={`featured-${idx}`}
@@ -1352,10 +1535,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           updated[idx] = { ...project, featured: e.target.checked };
                           updateData({ projects: updated });
                         }}
-                        className="rounded border-border text-primary focus:ring-primary size-4"
+                        className="rounded border-border text-primary focus:ring-primary size-4.5 cursor-pointer"
                       />
-                      <label htmlFor={`featured-${idx}`} className="text-xs text-foreground font-medium cursor-pointer">
-                        Mark as Featured Flagship Project
+                      <label htmlFor={`featured-${idx}`} className="text-sm text-foreground font-semibold cursor-pointer">
+                        Mark as Featured Flagship Project (Displayed with badge in Hero / Projects)
                       </label>
                     </div>
                   </div>
@@ -1367,42 +1550,42 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
         {/* ---------------- TAB 4: SKILLS & STACK ---------------- */}
         {activeTab === "skills" && (
-          <div className="mt-6 space-y-6 max-w-4xl">
+          <div className="space-y-6 max-w-4xl">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="font-display font-bold text-base text-foreground flex items-center gap-2">
-                  <Layers className="size-4 text-primary" />
-                  Skill Groups &amp; Tech Stack
+                <h2 className="font-display font-bold text-xl text-foreground flex items-center gap-2.5">
+                  <Layers className="size-6 text-primary" />
+                  Skill Groups &amp; Tech Stack ({data.skillGroups.length})
                 </h2>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground mt-1">
                   Manage technical skill categories and tag lists displayed in the Skills section.
                 </p>
               </div>
               <button
                 onClick={handleAddSkillGroup}
-                className="inline-flex items-center gap-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-primary hover:bg-primary/90 px-4 py-2 text-xs sm:text-sm font-semibold text-primary-foreground shadow-sm transition-all cursor-pointer"
               >
-                <Plus className="size-3.5" />
+                <Plus className="size-4" />
                 <span>Add Category</span>
               </button>
             </div>
 
             <div className="space-y-4">
               {data.skillGroups.map((group, idx) => (
-                <div key={idx} className="rounded-2xl border border-border bg-card p-5 shadow-soft space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono text-muted-foreground">Category #{idx + 1}</span>
+                <div key={idx} className="rounded-2xl border border-border bg-card p-6 shadow-soft space-y-4">
+                  <div className="flex items-center justify-between border-b border-border pb-3">
+                    <span className="text-xs font-mono font-bold text-primary">Skill Category #{idx + 1}</span>
                     <button
                       onClick={() => handleDeleteSkillGroup(idx)}
                       className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors"
                     >
-                      <Trash2 className="size-3.5" />
+                      <Trash2 className="size-4" />
                     </button>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">Category Title</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Category Title</label>
                       <input
                         type="text"
                         value={group.title}
@@ -1411,7 +1594,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           updated[idx] = { ...group, title: e.target.value };
                           updateData({ skillGroups: updated });
                         }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-semibold text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
@@ -1425,15 +1608,15 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           updated[idx] = { ...group, primary: e.target.checked };
                           updateData({ skillGroups: updated });
                         }}
-                        className="rounded border-border text-primary size-4"
+                        className="rounded border-border text-primary size-4.5 cursor-pointer"
                       />
-                      <label htmlFor={`primary-skill-${idx}`} className="text-xs text-foreground font-medium">
-                        Highlight as Primary Category
+                      <label htmlFor={`primary-skill-${idx}`} className="text-xs text-foreground font-semibold cursor-pointer">
+                        Highlight as Primary Category (Emphasized Card)
                       </label>
                     </div>
 
                     <div className="sm:col-span-2">
-                      <label className="block text-xs font-medium text-foreground mb-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                         Skills &amp; Frameworks (Comma separated)
                       </label>
                       <input
@@ -1447,7 +1630,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           };
                           updateData({ skillGroups: updated });
                         }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
                   </div>
@@ -1459,17 +1642,19 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
         {/* ---------------- TAB 5: DSA & CODING PROFILES ---------------- */}
         {activeTab === "dsa" && (
-          <div className="mt-6 space-y-6 max-w-4xl">
+          <div className="space-y-6 max-w-4xl">
             {/* DSA Section Config */}
-            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-soft space-y-4">
-              <h2 className="font-display font-bold text-base text-foreground flex items-center gap-2">
-                <Code2 className="size-4 text-primary" />
-                DSA Problem Solving Configuration
-              </h2>
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-5">
+              <div className="border-b border-border pb-3">
+                <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+                  <Code2 className="size-5 text-primary" />
+                  DSA Problem Solving Configuration
+                </h2>
+              </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Problems Solved Badge Text</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Problems Solved Badge Text</label>
                   <input
                     type="text"
                     value={data.dsaInfo.problemsSolved}
@@ -1478,12 +1663,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                         dsaInfo: { ...data.dsaInfo, problemsSolved: e.target.value },
                       })
                     }
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Primary Problem Solving Language</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Primary Problem Solving Language</label>
                   <input
                     type="text"
                     value={data.dsaInfo.language}
@@ -1492,12 +1677,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                         dsaInfo: { ...data.dsaInfo, language: e.target.value },
                       })
                     }
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">GitHub DSA Repo Name</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">GitHub DSA Repo Name</label>
                   <input
                     type="text"
                     value={data.dsaInfo.repoName}
@@ -1506,12 +1691,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                         dsaInfo: { ...data.dsaInfo, repoName: e.target.value },
                       })
                     }
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none font-mono text-xs"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">GitHub DSA Repo URL</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">GitHub DSA Repo URL</label>
                   <input
                     type="text"
                     value={data.dsaInfo.repoUrl}
@@ -1520,29 +1705,31 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                         dsaInfo: { ...data.dsaInfo, repoUrl: e.target.value },
                       })
                     }
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none font-mono text-xs"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none font-mono"
                   />
                 </div>
               </div>
             </div>
 
             {/* Coding Profiles Cards */}
-            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-soft space-y-4">
-              <h2 className="font-display font-bold text-base text-foreground flex items-center gap-2">
-                <Globe className="size-4 text-primary" />
-                Competitive Coding Platform Profiles
-              </h2>
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-4">
+              <div className="border-b border-border pb-3">
+                <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+                  <Globe className="size-5 text-primary" />
+                  Competitive Coding Platform Profiles
+                </h2>
+              </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {data.codingProfiles.map((prof, idx) => (
-                  <div key={idx} className="rounded-xl border border-border bg-surface p-3.5 space-y-3">
+                  <div key={idx} className="rounded-xl border border-border bg-surface/50 p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-foreground">{prof.name} Profile</span>
+                      <span className="text-xs font-bold text-foreground">{prof.name} Profile</span>
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div>
-                        <label className="block text-[11px] text-muted-foreground mb-1">Profile Link (URL)</label>
+                        <label className="block text-[11px] text-muted-foreground font-semibold mb-1">Profile Link (URL)</label>
                         <input
                           type="text"
                           value={prof.url}
@@ -1551,12 +1738,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             updated[idx] = { ...prof, url: e.target.value };
                             updateData({ codingProfiles: updated });
                           }}
-                          className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none font-mono"
+                          className="w-full rounded-md border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:outline-none font-mono"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[11px] text-muted-foreground mb-1">Username / Handle</label>
+                        <label className="block text-[11px] text-muted-foreground font-semibold mb-1">Username / Handle</label>
                         <input
                           type="text"
                           value={prof.username}
@@ -1565,12 +1752,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             updated[idx] = { ...prof, username: e.target.value };
                             updateData({ codingProfiles: updated });
                           }}
-                          className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none font-mono"
+                          className="w-full rounded-md border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:outline-none font-mono"
                         />
                       </div>
 
                       <div className="sm:col-span-2">
-                        <label className="block text-[11px] text-muted-foreground mb-1">Description / Subtitle</label>
+                        <label className="block text-[11px] text-muted-foreground font-semibold mb-1">Description / Subtitle</label>
                         <input
                           type="text"
                           value={prof.description}
@@ -1579,7 +1766,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             updated[idx] = { ...prof, description: e.target.value };
                             updateData({ codingProfiles: updated });
                           }}
-                          className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none"
+                          className="w-full rounded-md border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:outline-none"
                         />
                       </div>
                     </div>
@@ -1592,42 +1779,63 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
         {/* ---------------- TAB 6: CERTIFICATIONS ---------------- */}
         {activeTab === "certifications" && (
-          <div className="mt-6 space-y-6 max-w-4xl">
+          <div className="space-y-6 max-w-4xl">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="font-display font-bold text-base text-foreground flex items-center gap-2">
-                  <Award className="size-4 text-primary" />
+                <h2 className="font-display font-bold text-xl text-foreground flex items-center gap-2.5">
+                  <Award className="size-6 text-primary" />
                   Certifications &amp; Contests ({data.certifications.length})
                 </h2>
-                <p className="text-xs text-muted-foreground">
-                  Add or edit verified certifications, issuing universities, and credential links.
+                <p className="text-xs text-muted-foreground mt-1">
+                  Add or edit verified certifications, issuing universities, and credential PDF/URL links.
                 </p>
               </div>
               <button
                 onClick={handleAddCertification}
-                className="inline-flex items-center gap-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-primary hover:bg-primary/90 px-4 py-2 text-xs sm:text-sm font-semibold text-primary-foreground shadow-sm transition-all cursor-pointer"
               >
-                <Plus className="size-3.5" />
+                <Plus className="size-4" />
                 <span>Add Certificate</span>
               </button>
             </div>
 
-            <div className="space-y-4">
+            {/* Sizing & Image Specs Banner */}
+            <div className="rounded-2xl border-2 border-primary/20 bg-primary/5 p-4 sm:p-5 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+              <div className="space-y-0.5">
+                <h3 className="font-display font-bold text-sm text-foreground flex items-center gap-2">
+                  <FileText className="size-4 text-primary" />
+                  Certificate File Recommendations:
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Upload official Certificate PDFs or landscape screenshot badges.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2 text-xs font-mono">
+                <span className="rounded-lg bg-card border border-border px-2.5 py-1 text-foreground font-semibold">
+                  📄 PDF or Image
+                </span>
+                <span className="rounded-lg bg-card border border-border px-2.5 py-1 text-foreground font-semibold">
+                  🎯 4:3 / 16:9 Landscape
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-5">
               {data.certifications.map((cert, idx) => (
-                <div key={idx} className="rounded-2xl border border-border bg-card p-5 shadow-soft space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono text-muted-foreground">Certificate #{idx + 1}</span>
+                <div key={idx} className="rounded-2xl border border-border bg-card p-6 shadow-soft space-y-4">
+                  <div className="flex items-center justify-between border-b border-border pb-3">
+                    <span className="text-xs font-mono font-bold text-primary">Certificate #{idx + 1}</span>
                     <button
                       onClick={() => handleDeleteCertification(idx)}
                       className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors"
                     >
-                      <Trash2 className="size-3.5" />
+                      <Trash2 className="size-4" />
                     </button>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-4 sm:grid-cols-2">
                     <div className="sm:col-span-2">
-                      <label className="block text-xs font-medium text-foreground mb-1">Title</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Title</label>
                       <input
                         type="text"
                         value={cert.title}
@@ -1636,12 +1844,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           updated[idx] = { ...cert, title: e.target.value };
                           updateData({ certifications: updated });
                         }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-semibold text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">Issuing Organization</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Issuing Organization</label>
                       <input
                         type="text"
                         value={cert.org}
@@ -1650,12 +1858,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           updated[idx] = { ...cert, org: e.target.value };
                           updateData({ certifications: updated });
                         }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">Period / Date</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Period / Date</label>
                       <input
                         type="text"
                         value={cert.period}
@@ -1664,12 +1872,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           updated[idx] = { ...cert, period: e.target.value };
                           updateData({ certifications: updated });
                         }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none font-mono"
                       />
                     </div>
 
                     <div className="sm:col-span-2">
-                      <label className="block text-xs font-medium text-foreground mb-1">Description / Impact</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Description / Impact</label>
                       <textarea
                         rows={2}
                         value={cert.detail}
@@ -1678,12 +1886,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           updated[idx] = { ...cert, detail: e.target.value };
                           updateData({ certifications: updated });
                         }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none min-h-[70px]"
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                         Skills Verified (Comma separated)
                       </label>
                       <input
@@ -1697,15 +1905,16 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           };
                           updateData({ certifications: updated });
                         }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
 
-                    <div className="sm:col-span-2">
-                      <label className="block text-xs font-medium text-foreground mb-1">
+                    {/* Certificate File Upload & Live Link */}
+                    <div className="sm:col-span-2 rounded-xl border border-border bg-surface/50 p-4 space-y-3">
+                      <label className="block text-xs font-bold text-foreground">
                         Certificate PDF / Image Document
                       </label>
-                      <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                      <div className="flex flex-col sm:flex-row gap-2.5 items-start sm:items-center">
                         <input
                           type="text"
                           value={cert.certificateUrl || ""}
@@ -1715,11 +1924,11 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             updated[idx] = { ...cert, certificateUrl: e.target.value };
                             updateData({ certifications: updated });
                           }}
-                          className="flex-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none font-mono text-xs"
+                          className="flex-1 w-full rounded-lg border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none font-mono"
                         />
-                        <label className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary cursor-pointer transition-colors shrink-0">
-                          <Upload className="size-3.5 text-primary" />
-                          <span>{uploadingCertIndex === idx ? "Uploading..." : "Upload Certificate File"}</span>
+                        <label className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary hover:bg-primary/90 px-3.5 py-2 text-xs font-semibold text-primary-foreground cursor-pointer transition-all shrink-0 shadow-xs">
+                          <Upload className="size-3.5" />
+                          <span>{uploadingCertIndex === idx ? "Uploading..." : "Upload File"}</span>
                           <input
                             type="file"
                             accept="application/pdf,image/*"
@@ -1733,7 +1942,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             href={cert.certificateUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center gap-1 rounded-lg border border-border bg-surface px-2.5 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors shrink-0"
+                            className="inline-flex items-center justify-center gap-1 rounded-lg border border-border bg-card px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors shrink-0"
                           >
                             <ExternalLink className="size-3.5" />
                             <span>View</span>
@@ -1750,19 +1959,21 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
         {/* ---------------- TAB 7: JOURNEY & HIGHLIGHTS ---------------- */}
         {activeTab === "journey" && (
-          <div className="mt-6 space-y-6 max-w-4xl">
+          <div className="space-y-6 max-w-4xl">
             {/* Top Highlights Stats Bar */}
-            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-soft space-y-4">
-              <h2 className="font-display font-bold text-base text-foreground flex items-center gap-2">
-                <Sparkles className="size-4 text-primary" />
-                Top Highlights Cards (Below Hero Section)
-              </h2>
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-5">
+              <div className="border-b border-border pb-3">
+                <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+                  <Sparkles className="size-5 text-primary" />
+                  Top Highlights Cards (Below Hero Section)
+                </h2>
+              </div>
 
               <div className="space-y-3">
                 {data.highlights.map((hl, idx) => (
-                  <div key={idx} className="rounded-xl border border-border bg-surface p-3 grid gap-3 sm:grid-cols-2">
+                  <div key={idx} className="rounded-xl border border-border bg-surface/50 p-4 grid gap-3 sm:grid-cols-2">
                     <div>
-                      <label className="block text-[11px] text-muted-foreground mb-1">Highlight Label</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Highlight Label</label>
                       <input
                         type="text"
                         value={hl.label}
@@ -1771,12 +1982,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           updated[idx] = { ...hl, label: e.target.value };
                           updateData({ highlights: updated });
                         }}
-                        className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none"
+                        className="w-full rounded-md border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[11px] text-muted-foreground mb-1">Detail Text</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Detail Text</label>
                       <input
                         type="text"
                         value={hl.detail}
@@ -1785,7 +1996,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           updated[idx] = { ...hl, detail: e.target.value };
                           updateData({ highlights: updated });
                         }}
-                        className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none"
+                        className="w-full rounded-md border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:outline-none"
                       />
                     </div>
                   </div>
@@ -1794,37 +2005,37 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
             </div>
 
             {/* Journey Timeline */}
-            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-soft space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="font-display font-bold text-base text-foreground flex items-center gap-2">
-                  <Clock className="size-4 text-primary" />
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-5">
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+                  <Clock className="size-5 text-primary" />
                   Journey &amp; Milestone Phases ({data.journey.length})
                 </h2>
                 <button
                   onClick={handleAddMilestone}
-                  className="inline-flex items-center gap-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 px-3.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer"
                 >
-                  <Plus className="size-3.5" />
+                  <Plus className="size-4" />
                   <span>Add Milestone</span>
                 </button>
               </div>
 
               <div className="space-y-4">
                 {data.journey.map((m, idx) => (
-                  <div key={idx} className="rounded-xl border border-border bg-surface p-4 space-y-3">
+                  <div key={idx} className="rounded-xl border border-border bg-surface/50 p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-mono font-bold text-primary">Phase {m.phase}</span>
                       <button
                         onClick={() => handleDeleteMilestone(idx)}
                         className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors"
                       >
-                        <Trash2 className="size-3.5" />
+                        <Trash2 className="size-4" />
                       </button>
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-3">
                       <div>
-                        <label className="block text-[11px] text-muted-foreground mb-1">Phase Code</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">Phase Code</label>
                         <input
                           type="text"
                           value={m.phase}
@@ -1833,12 +2044,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             updated[idx] = { ...m, phase: e.target.value };
                             updateData({ journey: updated });
                           }}
-                          className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none font-mono"
+                          className="w-full rounded-md border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:outline-none font-mono"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[11px] text-muted-foreground mb-1">Title</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">Title</label>
                         <input
                           type="text"
                           value={m.title}
@@ -1847,12 +2058,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             updated[idx] = { ...m, title: e.target.value };
                             updateData({ journey: updated });
                           }}
-                          className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none"
+                          className="w-full rounded-md border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:outline-none"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[11px] text-muted-foreground mb-1">Status</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">Status</label>
                         <select
                           value={m.status}
                           onChange={(e) => {
@@ -1863,7 +2074,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             };
                             updateData({ journey: updated });
                           }}
-                          className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none"
+                          className="w-full rounded-md border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:outline-none cursor-pointer"
                         >
                           <option value="done">Done (Completed)</option>
                           <option value="active">Active (In Progress)</option>
@@ -1872,7 +2083,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       </div>
 
                       <div className="sm:col-span-3">
-                        <label className="block text-[11px] text-muted-foreground mb-1">Description</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">Description</label>
                         <textarea
                           rows={2}
                           value={m.detail}
@@ -1881,12 +2092,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             updated[idx] = { ...m, detail: e.target.value };
                             updateData({ journey: updated });
                           }}
-                          className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none"
+                          className="w-full rounded-md border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:outline-none min-h-[60px]"
                         />
                       </div>
 
                       <div className="sm:col-span-3">
-                        <label className="block text-[11px] text-muted-foreground mb-1">Tags (Comma separated)</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">Tags (Comma separated)</label>
                         <input
                           type="text"
                           value={(m.tags || []).join(", ")}
@@ -1898,7 +2109,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             };
                             updateData({ journey: updated });
                           }}
-                          className="w-full rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none"
+                          className="w-full rounded-md border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:outline-none"
                         />
                       </div>
                     </div>
@@ -1911,47 +2122,49 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
         {/* ---------------- TAB 8: CONTACT, RESUME & FOOTER ---------------- */}
         {activeTab === "contact" && (
-          <div className="mt-6 space-y-6 max-w-4xl">
+          <div className="space-y-6 max-w-4xl">
             {/* Contact Heading */}
-            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-soft space-y-4">
-              <h2 className="font-display font-bold text-base text-foreground flex items-center gap-2">
-                <Mail className="size-4 text-primary" />
-                Contact Section Heading &amp; Text
-              </h2>
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-5">
+              <div className="border-b border-border pb-3">
+                <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+                  <Mail className="size-5 text-primary" />
+                  Contact Section Heading &amp; Text
+                </h2>
+              </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Eyebrow Tag</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Eyebrow Tag</label>
                   <input
                     type="text"
                     value={contact.eyebrow}
                     onChange={(e) => updateData({ contactData: { ...contact, eyebrow: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Title</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Title</label>
                   <input
                     type="text"
                     value={contact.title}
                     onChange={(e) => updateData({ contactData: { ...contact, title: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-semibold text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-foreground mb-1">Description</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Description</label>
                   <textarea
                     rows={2}
                     value={contact.description}
                     onChange={(e) => updateData({ contactData: { ...contact, description: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none min-h-[70px]"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-foreground mb-1">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                     Availability Notice Card (Right Column)
                   </label>
                   <input
@@ -1959,52 +2172,54 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     value={contact.availabilityNote || ""}
                     placeholder="Open to Summer 2026 SWE & Full-Stack Internships"
                     onChange={(e) => updateData({ contactData: { ...contact, availabilityNote: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
               </div>
             </div>
 
             {/* Resume CTA Card */}
-            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-soft space-y-4">
-              <h2 className="font-display font-bold text-base text-foreground flex items-center gap-2">
-                <FileText className="size-4 text-primary" />
-                Resume CTA Banner (Above Contact Section)
-              </h2>
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-5">
+              <div className="border-b border-border pb-3">
+                <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+                  <FileText className="size-5 text-primary" />
+                  Resume CTA Banner (Above Contact Section)
+                </h2>
+              </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Eyebrow</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Eyebrow</label>
                   <input
                     type="text"
                     value={cta.eyebrow}
                     onChange={(e) => updateData({ resumeCTA: { ...cta, eyebrow: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Title</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Title</label>
                   <input
                     type="text"
                     value={cta.title}
                     onChange={(e) => updateData({ resumeCTA: { ...cta, title: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-semibold text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-foreground mb-1">Description</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Description</label>
                   <textarea
                     rows={2}
                     value={cta.description}
                     onChange={(e) => updateData({ resumeCTA: { ...cta, description: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none min-h-[70px]"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-foreground mb-1">Pill Tags (Comma separated)</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Pill Tags (Comma separated)</label>
                   <input
                     type="text"
                     value={(cta.tags || []).join(", ")}
@@ -2016,12 +2231,12 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                         },
                       })
                     }
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
-                <div className="sm:col-span-2 pt-3 border-t border-border">
-                  <label className="block text-xs font-medium text-foreground mb-1">
+                <div className="sm:col-span-2 rounded-xl border border-border bg-surface/50 p-4 space-y-3">
+                  <label className="block text-xs font-bold text-foreground">
                     Attached Resume PDF File (Direct Upload &amp; Link)
                   </label>
                   <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
@@ -2030,10 +2245,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       placeholder="Resume URL (/gopal-cv.pdf or Supabase URL)"
                       value={info.resume || ""}
                       onChange={(e) => updateData({ personalInfo: { ...info, resume: e.target.value } })}
-                      className="flex-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none font-mono text-xs"
+                      className="flex-1 w-full rounded-lg border border-border-strong bg-card px-3.5 py-2 text-xs text-foreground focus:border-primary focus:outline-none font-mono"
                     />
-                    <label className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface px-3.5 py-2 text-xs font-medium text-foreground hover:bg-secondary cursor-pointer transition-colors shrink-0">
-                      <Upload className="size-3.5 text-primary" />
+                    <label className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary hover:bg-primary/90 px-3.5 py-2 text-xs font-semibold text-primary-foreground cursor-pointer transition-all shrink-0 shadow-xs">
+                      <Upload className="size-3.5" />
                       <span>{uploadingResume ? "Uploading PDF..." : "Upload New PDF Resume"}</span>
                       <input
                         type="file"
@@ -2048,7 +2263,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                         href={info.resume}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors shrink-0"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors shrink-0"
                       >
                         <ExternalLink className="size-3.5" />
                         <span>View Current</span>
@@ -2060,7 +2275,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
             </div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }
