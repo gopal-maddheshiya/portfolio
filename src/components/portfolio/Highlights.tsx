@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { HIGHLIGHTS } from "@/data/profile";
+import { usePortfolio } from "@/context/PortfolioContext";
 
 const ICONS_MAP: Record<string, LucideIcon> = {
   grad: GraduationCap,
@@ -21,10 +21,11 @@ const ICONS_MAP: Record<string, LucideIcon> = {
   sparkles: Sparkles,
 };
 
-// Quadruple items to create an unbroken seamless infinite loop
-const MARQUEE_ITEMS = [...HIGHLIGHTS, ...HIGHLIGHTS, ...HIGHLIGHTS, ...HIGHLIGHTS];
-
 export function Highlights() {
+  const { data } = usePortfolio();
+  const highlights = data.highlights;
+  const marqueeItems = [...highlights, ...highlights, ...highlights, ...highlights];
+
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -169,7 +170,7 @@ export function Highlights() {
           ref={trackRef}
           className="flex items-center gap-3.5 sm:gap-5 whitespace-nowrap will-change-transform py-1"
         >
-          {MARQUEE_ITEMS.map((item, index) => {
+          {marqueeItems.map((item, index) => {
             const Icon = (item.icon && ICONS_MAP[item.icon]) || Code2;
             const isOpportunity =
               item.section === "contact" ||

@@ -1,10 +1,12 @@
 import { Award, Download, ExternalLink, FileCheck } from "lucide-react";
 
-import { CERTIFICATIONS } from "@/data/profile";
+import { usePortfolio } from "@/context/PortfolioContext";
 import { Reveal } from "./Reveal";
 import { Section, SectionHeading } from "./Section";
 
 export function Certifications() {
+  const { data } = usePortfolio();
+
   return (
     <Section id="certifications">
       <SectionHeading
@@ -14,7 +16,7 @@ export function Certifications() {
       />
 
       <div className="mt-8 sm:mt-10 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {CERTIFICATIONS.map((cert, index) => (
+        {data.certifications.map((cert, index) => (
           <Reveal
             key={cert.title}
             delay={index * 60}

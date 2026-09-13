@@ -1,9 +1,12 @@
 import { Download, ExternalLink, FileText, Sparkles } from "lucide-react";
 
 import { PERSONAL_INFO } from "@/data/profile";
+import { usePortfolio } from "@/context/PortfolioContext";
 import { Reveal } from "./Reveal";
 
 export function ResumeCTA() {
+  const { data } = usePortfolio();
+  const info = data?.personalInfo || PERSONAL_INFO;
   return (
     <section
       id="resume"
@@ -42,7 +45,7 @@ export function ResumeCTA() {
             {/* Action buttons */}
             <div className="lg:col-span-5 flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-3 w-full lg:justify-end">
               <a
-                href={PERSONAL_INFO.resume}
+                href={info.resume}
                 download="Gopal_Maddheshiya_Resume.pdf"
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-xs sm:text-sm font-medium text-primary-foreground shadow-soft transition-all hover:opacity-90 active:scale-[0.98] cursor-pointer"
               >
@@ -51,7 +54,7 @@ export function ResumeCTA() {
               </a>
 
               <a
-                href={PERSONAL_INFO.resume}
+                href={info.resume}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-border-strong bg-secondary/60 px-5 py-3 text-xs sm:text-sm font-medium text-foreground transition-all hover:bg-secondary active:scale-[0.98] cursor-pointer"

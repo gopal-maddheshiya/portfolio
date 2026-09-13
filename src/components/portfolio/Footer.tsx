@@ -1,15 +1,20 @@
-import { Code2, Github, Linkedin, Mail } from "lucide-react";
+import { Code2, Github, Linkedin, Mail, ShieldCheck } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
-import { NAV_LINKS, PERSONAL_INFO } from "@/data/profile";
+import { usePortfolio } from "@/context/PortfolioContext";
+import { NAV_LINKS } from "@/data/profile";
 
 export function Footer() {
+  const { data } = usePortfolio();
+  const info = data.personalInfo;
+
   return (
     <footer className="border-t border-border py-8 sm:py-12">
       <div className="container-page flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="font-display text-base font-semibold">{PERSONAL_INFO.name}</p>
+          <p className="font-display text-base font-semibold">{info.name}</p>
           <p className="mt-1 max-w-xs text-xs sm:text-sm text-muted-foreground">
-            B.Tech CSE Student | Java &amp; Full-Stack Developer.
+            {info.role}
           </p>
         </div>
 
@@ -31,7 +36,7 @@ export function Footer() {
         <ul className="flex flex-wrap gap-2">
           <li>
             <a
-              href={PERSONAL_INFO.github}
+              href={info.github}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub profile"
@@ -42,7 +47,7 @@ export function Footer() {
           </li>
           <li>
             <a
-              href={PERSONAL_INFO.leetcode}
+              href={info.leetcode}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LeetCode profile"
@@ -53,7 +58,7 @@ export function Footer() {
           </li>
           <li>
             <a
-              href={PERSONAL_INFO.linkedin}
+              href={info.linkedin}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn profile"
@@ -64,7 +69,7 @@ export function Footer() {
           </li>
           <li>
             <a
-              href={`mailto:${PERSONAL_INFO.email}`}
+              href={`mailto:${info.email}`}
               aria-label="Send an email"
               className="flex size-9 sm:size-10 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:text-foreground"
             >
@@ -74,11 +79,18 @@ export function Footer() {
         </ul>
       </div>
 
-      <div className="container-page mt-8 sm:mt-10 border-t border-border pt-5 sm:pt-6">
+      <div className="container-page mt-8 sm:mt-10 border-t border-border pt-5 sm:pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p className="text-[11px] sm:text-xs text-muted-foreground">
-          © {new Date().getFullYear()} {PERSONAL_INFO.name}. Built with code and continuous
+          © {new Date().getFullYear()} {info.name}. Built with code and continuous
           learning.
         </p>
+        <Link
+          to="/admin"
+          className="inline-flex items-center gap-1.5 text-[11px] font-mono text-muted-foreground/50 hover:text-primary transition-colors"
+        >
+          <ShieldCheck className="size-3" />
+          <span>Studio Dashboard</span>
+        </Link>
       </div>
     </footer>
   );

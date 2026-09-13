@@ -14,7 +14,7 @@ import {
   Zap,
 } from "lucide-react";
 
-import { SKILL_GROUPS } from "@/data/profile";
+import { usePortfolio } from "@/context/PortfolioContext";
 import { cn } from "@/lib/utils";
 import { Reveal } from "./Reveal";
 import { Section, SectionHeading } from "./Section";
@@ -83,6 +83,8 @@ function getSkillIcon(skill: string) {
 }
 
 export function Skills() {
+  const { data } = usePortfolio();
+
   return (
     <Section id="skills" tone="surface">
       <SectionHeading
@@ -92,7 +94,7 @@ export function Skills() {
       />
 
       <div className="mt-8 sm:mt-10 grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {SKILL_GROUPS.map((group, index) => {
+        {data.skillGroups.map((group, index) => {
           const CategoryIcon = CATEGORY_ICONS[group.title] || Code2;
 
           return (

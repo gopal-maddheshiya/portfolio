@@ -4,14 +4,33 @@ import chatImage from "@/assets/node-chat.png";
 import jobsImage from "@/assets/job-card.png";
 import weatherImage from "@/assets/weather.png";
 
-export const PERSONAL_INFO = {
+export interface PersonalInfo {
+  name: string;
+  role: string;
+  subtitle: string;
+  location: string;
+  email: string;
+  phone: string;
+  whatsapp: string;
+  github: string;
+  githubUsername: string;
+  leetcode: string;
+  leetcodeUsername: string;
+  linkedin: string;
+  resume: string;
+  siteUrl: string;
+  ogImage: string;
+  siteDescription: string;
+  profilePhoto?: string;
+}
+
+export const PERSONAL_INFO: PersonalInfo = {
   name: "Gopal Maddheshiya",
   role: "B.Tech CSE Student | Java & Full-Stack Developer",
   subtitle: "Java & Full-Stack Developer · DSA & API Integration",
   location: "Maharajganj, Uttar Pradesh, India",
   email: "gopalmaddheshiya138@gmail.com",
   phone: "+91 6388354988",
-  // Digits only, with country code (no +, no spaces) — used for wa.me links
   whatsapp: "916388354988",
   github: "https://github.com/gopal-maddheshiya",
   githubUsername: "gopal-maddheshiya",
@@ -23,9 +42,16 @@ export const PERSONAL_INFO = {
   ogImage: "https://gopal-maddheshiya.vercel.app/og-image.jpg",
   siteDescription:
     "Computer Science student focused on Java, Data Structures & Algorithms and full-stack web development with React, Node.js and MongoDB.",
-} as const;
+};
 
-export const HIGHLIGHTS = [
+export interface HighlightItem {
+  label: string;
+  detail: string;
+  section: string;
+  icon: string;
+}
+
+export const HIGHLIGHTS: HighlightItem[] = [
   { label: "B.Tech CSE", detail: "2024–2028 · CGPA 7.62", section: "about", icon: "grad" },
   { label: "Java & DSA", detail: "Active LeetCode Practice", section: "dsa", icon: "code" },
   { label: "Full-Stack Dev", detail: "React · Node · Mongo", section: "projects", icon: "db" },
@@ -38,7 +64,7 @@ export const HIGHLIGHTS = [
   { label: "Opportunities", detail: "Open to SWE Roles", section: "contact", icon: "sparkles" },
 ];
 
-export const FOCUS_AREAS = [
+export const FOCUS_AREAS: string[] = [
   "Java & Data Structures",
   "REST API Development",
   "MongoDB & Databases",
@@ -46,7 +72,13 @@ export const FOCUS_AREAS = [
   "Full-Stack Web Dev",
 ];
 
-export const SKILL_GROUPS = [
+export interface SkillGroup {
+  title: string;
+  skills: string[];
+  primary: boolean;
+}
+
+export const SKILL_GROUPS: SkillGroup[] = [
   {
     title: "Programming & DSA",
     skills: ["Java", "Data Structures", "Algorithms", "OOP Concepts", "Time & Space Complexity"],
@@ -240,44 +272,60 @@ export const DSA_INFO = {
   ],
 };
 
-export const CODING_PROFILES = [
+export interface CodingProfile {
+  name: string;
+  url: string;
+  username: string;
+  description: string;
+  icon: "code" | "terminal" | "codechef" | "trophy";
+}
+
+export const CODING_PROFILES: CodingProfile[] = [
   {
     name: "LeetCode",
     url: PERSONAL_INFO.leetcode,
     username: PERSONAL_INFO.leetcodeUsername,
     description: "Java solutions and ongoing problem-solving practice.",
-    icon: "code" as const,
+    icon: "code",
   },
   {
     name: "GeeksforGeeks",
     url: "https://www.geeksforgeeks.org/profile/gopalmaddheshiya",
     username: "gopalmaddheshiya",
     description: "Coding practice and data structures learning.",
-    icon: "terminal" as const,
+    icon: "terminal",
   },
   {
     name: "CodeChef",
     url: "https://www.codechef.com/users/gopal_code_96",
     username: "gopal_code_96",
     description: "Competitive programming and algorithm practice.",
-    icon: "codechef" as const,
+    icon: "codechef",
   },
   {
     name: "HackerRank",
     url: "https://www.hackerrank.com/profile/gopalmaddheshiy1",
     username: "gopalmaddheshiy1",
     description: "Problem solving challenges and skills badges.",
-    icon: "trophy" as const,
+    icon: "trophy",
   },
-] as const;
+];
 
-export const JOURNEY = [
+export interface JourneyMilestone {
+  phase: string;
+  title: string;
+  detail: string;
+  status: "done" | "active" | "next";
+  tags: string[];
+}
+
+export const JOURNEY: JourneyMilestone[] = [
   {
     phase: "01",
     title: "Java Fundamentals & OOP",
     detail:
       "Object-oriented principles, classes, inheritance, collections framework, and clean code structure.",
-    status: "done" as const,
+    status: "done",
     tags: ["Java", "OOP", "Collections"],
   },
   {
@@ -285,7 +333,7 @@ export const JOURNEY = [
     title: "Core Data Structures",
     detail:
       "Arrays, strings, recursion, sorting algorithms, and searching techniques with Big-O complexity analysis.",
-    status: "done" as const,
+    status: "done",
     tags: ["Arrays", "Recursion", "Big-O"],
   },
   {
@@ -293,7 +341,7 @@ export const JOURNEY = [
     title: "Daily LeetCode Problem Solving",
     detail:
       "Practicing Java problem solving with arrays, strings, recursion and common problem-solving patterns.",
-    status: "active" as const,
+    status: "active",
     tags: ["LeetCode", "Java", "Algorithms"],
   },
   {
@@ -301,7 +349,7 @@ export const JOURNEY = [
     title: "Full-Stack Web Development",
     detail:
       "Building end-to-end applications with React interfaces, Express REST APIs, and MongoDB persistence.",
-    status: "active" as const,
+    status: "active",
     tags: ["React", "Node.js", "MongoDB"],
   },
   {
@@ -309,7 +357,7 @@ export const JOURNEY = [
     title: "Trees, Graphs & Advanced Patterns",
     detail:
       "Currently practicing binary search trees, tree traversals, graph algorithms (BFS/DFS), and dynamic programming.",
-    status: "next" as const,
+    status: "next",
     tags: ["Trees", "Graphs", "DP"],
   },
   {
@@ -317,12 +365,19 @@ export const JOURNEY = [
     title: "System Fundamentals & Architecture",
     detail:
       "Deepening understanding of database indexing, REST design patterns, and deployment pipelines.",
-    status: "next" as const,
+    status: "next",
     tags: ["System Basics", "Databases", "APIs"],
   },
 ];
 
-export const EDUCATION = [
+export interface EducationItem {
+  title: string;
+  org: string;
+  period: string;
+  detail: string;
+}
+
+export const EDUCATION: EducationItem[] = [
   {
     title: "B.Tech, Computer Science Engineering",
     org: "Shri Ramswaroop Memorial University",
@@ -338,7 +393,7 @@ export type Certification = {
   org: string;
   period: string;
   detail: string;
-  skills: readonly string[];
+  skills: string[];
   certificateUrl?: string;
 };
 

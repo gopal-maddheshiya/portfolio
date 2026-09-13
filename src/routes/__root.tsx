@@ -7,10 +7,12 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { type ReactNode } from "react";
+import { type ReactNode, useState, useEffect } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Toaster } from "sonner";
 
+import { PortfolioProvider } from "@/context/PortfolioContext";
 import { PERSONAL_INFO } from "@/data/profile";
 import appCss from "../styles.css?url";
 
@@ -139,13 +141,25 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function ClientToaster() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  if (!mounted) return null;
+  return <Toaster position="top-right" richColors />;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <PortfolioProvider>
+        <ClientToaster />
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+      </PortfolioProvider>
     </QueryClientProvider>
   );
 }

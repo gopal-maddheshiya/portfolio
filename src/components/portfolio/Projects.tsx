@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { ArrowUpRight, CheckCircle2, Code2, ExternalLink, Github, Sparkles } from "lucide-react";
 
-import { PROJECTS, type Project } from "@/data/profile";
+import { usePortfolio } from "@/context/PortfolioContext";
+import type { Project } from "@/data/profile";
 import { cn } from "@/lib/utils";
 import { Reveal } from "./Reveal";
 import { Section, SectionHeading } from "./Section";
@@ -139,9 +140,10 @@ function ProjectVisual({
 }
 
 export function Projects() {
+  const { data } = usePortfolio();
   const [activeCategory, setActiveCategory] = useState<string>("All");
 
-  const filteredProjects = PROJECTS.filter((p) => {
+  const filteredProjects = data.projects.filter((p) => {
     if (activeCategory === "All") return true;
     if (activeCategory === "Full-Stack")
       return p.category?.toLowerCase().includes("full-stack");

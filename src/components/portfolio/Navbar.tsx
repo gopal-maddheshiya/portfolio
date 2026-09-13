@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Download, FileText, Menu, Moon, Sun, X } from "lucide-react";
 
-import { NAV_LINKS, PERSONAL_INFO } from "@/data/profile";
+import { usePortfolio } from "@/context/PortfolioContext";
+import { NAV_LINKS } from "@/data/profile";
 import { useActiveSection } from "@/hooks/useActiveSection";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
@@ -9,6 +10,9 @@ import { cn } from "@/lib/utils";
 const SECTION_IDS = NAV_LINKS.map((link) => link.id);
 
 export function Navbar() {
+  const { data } = usePortfolio();
+  const info = data.personalInfo;
+
   const { theme, toggleTheme, mounted } = useTheme();
   const active = useActiveSection(SECTION_IDS);
   const [open, setOpen] = useState(false);
@@ -54,7 +58,7 @@ export function Navbar() {
               </span>
               <div className="flex items-center gap-2">
                 <span className="truncate max-w-[120px] min-[400px]:max-w-none text-foreground drop-shadow-[0_1px_1px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)] group-hover:text-primary transition-colors">
-                  {PERSONAL_INFO.name}
+                  {info.name}
                 </span>
                 <span className="relative flex size-2 shrink-0" title="Online & Available">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
@@ -105,7 +109,7 @@ export function Navbar() {
 
               {/* Resume CTA — inside pill, hidden on mobile */}
               <a
-                href={PERSONAL_INFO.resume}
+                href={info.resume}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:opacity-90 active:scale-[0.97]"
@@ -169,7 +173,7 @@ export function Navbar() {
               })}
               <li className="pt-1">
                 <a
-                  href={PERSONAL_INFO.resume}
+                  href={info.resume}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setOpen(false)}

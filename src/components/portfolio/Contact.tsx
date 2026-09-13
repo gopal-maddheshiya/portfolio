@@ -12,6 +12,7 @@ import {
   Phone,
 } from "lucide-react";
 
+import { usePortfolio } from "@/context/PortfolioContext";
 import { PERSONAL_INFO } from "@/data/profile";
 import { Reveal } from "./Reveal";
 import { Section, SectionHeading } from "./Section";
@@ -44,6 +45,9 @@ const inputClass =
   "w-full rounded-md border border-input bg-background px-3 py-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none disabled:opacity-60 disabled:cursor-not-allowed";
 
 export function Contact() {
+  const { data } = usePortfolio();
+  const info = data.personalInfo;
+
   const [form, setForm] = useState<FormState>(EMPTY);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -105,7 +109,7 @@ export function Contact() {
     const text = encodeURIComponent(buildMessage(form));
 
     window.open(
-      `https://wa.me/${PERSONAL_INFO.whatsapp}?text=${text}`,
+      `https://wa.me/${info.whatsapp || "916388354988"}?text=${text}`,
       "_blank",
       "noopener,noreferrer",
     );
@@ -326,11 +330,11 @@ export function Contact() {
               <li>
                 <a
                   className="inline-flex items-center gap-2.5 sm:gap-3 text-muted-foreground transition-colors hover:text-foreground break-all"
-                  href={`mailto:${PERSONAL_INFO.email}`}
+                  href={`mailto:${info.email}`}
                 >
                   <Mail className="size-4 text-primary shrink-0" aria-hidden="true" />
 
-                  <span>{PERSONAL_INFO.email}</span>
+                  <span>{info.email}</span>
                 </a>
               </li>
 
@@ -338,13 +342,13 @@ export function Contact() {
               <li>
                 <a
                   className="inline-flex items-center gap-2.5 sm:gap-3 text-muted-foreground transition-colors hover:text-foreground"
-                  href={`https://wa.me/${PERSONAL_INFO.whatsapp}`}
+                  href={`https://wa.me/${info.whatsapp}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <Phone className="size-4 text-primary shrink-0" aria-hidden="true" />
 
-                  <span>{PERSONAL_INFO.phone}</span>
+                  <span>{info.phone}</span>
                 </a>
               </li>
 
@@ -352,7 +356,7 @@ export function Contact() {
               <li className="inline-flex items-center gap-2.5 sm:gap-3 text-muted-foreground">
                 <MapPin className="size-4 text-primary shrink-0" aria-hidden="true" />
 
-                <span>{PERSONAL_INFO.location}</span>
+                <span>{info.location}</span>
               </li>
             </ul>
           </div>
@@ -361,7 +365,7 @@ export function Contact() {
           <div className="mt-6 sm:mt-8 flex gap-2">
             {/* GitHub */}
             <a
-              href={PERSONAL_INFO.github}
+              href={info.github}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub profile"
@@ -372,7 +376,7 @@ export function Contact() {
 
             {/* LinkedIn */}
             <a
-              href={PERSONAL_INFO.linkedin}
+              href={info.linkedin}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn profile"
@@ -383,7 +387,7 @@ export function Contact() {
 
             {/* LeetCode */}
             <a
-              href={PERSONAL_INFO.leetcode}
+              href={info.leetcode}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LeetCode profile"

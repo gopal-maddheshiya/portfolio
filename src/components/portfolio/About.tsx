@@ -1,10 +1,14 @@
 import { CheckCircle2, Code2, Cpu, GraduationCap, MapPin, Sparkles, Zap } from "lucide-react";
 
-import { EDUCATION, FOCUS_AREAS, PERSONAL_INFO } from "@/data/profile";
+import { usePortfolio } from "@/context/PortfolioContext";
 import { Reveal } from "./Reveal";
 import { Section, SectionHeading } from "./Section";
 
 export function About() {
+  const { data } = usePortfolio();
+  const info = data.personalInfo;
+  const education = data.education;
+  const focusAreas = data.focusAreas;
   return (
     <Section id="about">
       <SectionHeading
@@ -80,7 +84,7 @@ export function About() {
             <div className="mt-6 pt-5 border-t border-border flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
               <div className="flex items-center gap-1.5 font-mono">
                 <MapPin className="size-3.5 text-primary" />
-                <span>{PERSONAL_INFO.location}</span>
+                <span>{info.location}</span>
               </div>
               <div className="flex items-center gap-1.5 font-mono text-primary">
                 <span className="relative flex size-2">
@@ -101,7 +105,7 @@ export function About() {
               Current Learning &amp; Focus Areas
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {FOCUS_AREAS.map((item) => (
+              {focusAreas.map((item) => (
                 <span
                   key={item}
                   className="inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary/80 px-2.5 py-1 text-xs text-secondary-foreground"
@@ -159,7 +163,7 @@ export function About() {
             </div>
 
             <ul className="space-y-4">
-              {EDUCATION.map((item) => (
+              {education.map((item) => (
                 <li key={item.title} className="border-l-2 border-border pl-3.5">
                   <div className="flex items-baseline justify-between gap-2">
                     <p className="text-sm font-medium text-foreground">{item.title}</p>

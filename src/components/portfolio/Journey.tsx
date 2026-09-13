@@ -1,6 +1,6 @@
 import { CheckCircle2, CircleDot, Clock } from "lucide-react";
 
-import { JOURNEY } from "@/data/profile";
+import { usePortfolio } from "@/context/PortfolioContext";
 import { cn } from "@/lib/utils";
 import { Reveal } from "./Reveal";
 import { Section, SectionHeading } from "./Section";
@@ -27,6 +27,8 @@ const STATUS_CONFIG = {
 } as const;
 
 export function Journey() {
+  const { data } = usePortfolio();
+
   return (
     <Section id="journey">
       <SectionHeading
@@ -36,7 +38,7 @@ export function Journey() {
       />
 
       <div className="mt-8 sm:mt-10 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {JOURNEY.map((step, index) => {
+        {data.journey.map((step, index) => {
           const config = STATUS_CONFIG[step.status];
           const StatusIcon = config.icon;
 

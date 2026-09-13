@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Code2, FileText, Github, Linkedin, MapPin, Sparkles } from "lucide-react";
+import { ArrowRight, Code2, FileText, Github, Linkedin, MapPin } from "lucide-react";
 
 import profilePhoto from "@/assets/gopal-profile.jpg";
-import { PERSONAL_INFO } from "@/data/profile";
+import { usePortfolio } from "@/context/PortfolioContext";
 
 const TYPING_ROLES = [
   "Aspiring Software Engineer",
@@ -95,6 +95,9 @@ function ReactIcon({ className = "size-4" }: { className?: string }) {
 }
 
 export function Hero() {
+  const { data } = usePortfolio();
+  const info = data.personalInfo;
+
   return (
     <section id="top" className="relative overflow-hidden pt-6 pb-12 sm:py-16 md:py-20 lg:py-24">
       {/* Background grid */}
@@ -106,7 +109,7 @@ export function Hero() {
           {/* Greeting Badge */}
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 font-mono text-xs text-muted-foreground">
             <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
-            <span>Hi, I&apos;m Gopal Maddheshiya</span>
+            <span>Hi, I&apos;m {info.name}</span>
           </div>
 
           {/* Heading with Typewriter */}
@@ -120,15 +123,13 @@ export function Hero() {
 
           {/* Bio Description */}
           <p className="mt-4 sm:mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-muted-foreground">
-            Computer Science student at SRMU. I practice Data Structures &amp; Algorithms in Java
-            daily, and build practical full-stack web applications with React, Node.js, Express, and
-            MongoDB.
+            {info.siteDescription}
           </p>
 
           {/* Location */}
           <p className="mt-3 sm:mt-4 inline-flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
             <MapPin className="size-4 text-primary shrink-0" aria-hidden="true" />
-            <span>{PERSONAL_INFO.location}</span>
+            <span>{info.location}</span>
           </p>
 
           {/* CTA Buttons */}
@@ -142,7 +143,7 @@ export function Hero() {
             </a>
 
             <a
-              href={PERSONAL_INFO.resume}
+              href={info.resume}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex flex-1 sm:flex-initial sm:w-auto items-center justify-center gap-1.5 sm:gap-2 rounded-md border border-border-strong bg-card px-3.5 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-medium text-foreground transition-colors hover:bg-secondary active:scale-[0.99] cursor-pointer whitespace-nowrap"
@@ -157,7 +158,7 @@ export function Hero() {
             <li>
               <a
                 className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-xs sm:text-sm text-muted-foreground transition-colors hover:border-border-strong hover:bg-secondary hover:text-foreground"
-                href={PERSONAL_INFO.github}
+                href={info.github}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -168,7 +169,7 @@ export function Hero() {
             <li>
               <a
                 className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-xs sm:text-sm text-muted-foreground transition-colors hover:border-border-strong hover:bg-secondary hover:text-foreground"
-                href={PERSONAL_INFO.leetcode}
+                href={info.leetcode}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -179,7 +180,7 @@ export function Hero() {
             <li>
               <a
                 className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-xs sm:text-sm text-muted-foreground transition-colors hover:border-border-strong hover:bg-secondary hover:text-foreground"
-                href={PERSONAL_INFO.linkedin}
+                href={info.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -212,8 +213,8 @@ export function Hero() {
             {/* Main Photo Card Container */}
             <div className="relative overflow-hidden rounded-2xl border-2 border-border bg-card shadow-soft">
               <img
-                src={profilePhoto}
-                alt="Gopal Maddheshiya"
+                src={(info as { profilePhoto?: string }).profilePhoto || profilePhoto}
+                alt={info.name || "Gopal Maddheshiya"}
                 width={420}
                 height={500}
                 className="w-64 h-72 sm:w-72 sm:h-80 md:w-80 md:h-96 lg:w-[21rem] lg:h-[25rem] object-cover object-[center_18%] transition-transform duration-500 group-hover:scale-105"
@@ -223,10 +224,10 @@ export function Hero() {
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent p-4 sm:p-5 flex items-center justify-between">
                 <div>
                   <p className="font-display text-sm sm:text-base font-semibold text-white">
-                    Gopal Maddheshiya
+                    {info.name}
                   </p>
                   <p className="text-xs text-zinc-300">
-                    Java &amp; Full-Stack Developer
+                    {info.subtitle}
                   </p>
                 </div>
                 <span

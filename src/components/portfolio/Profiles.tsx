@@ -1,7 +1,7 @@
 import { ArrowUpRight, Code, Code2, Github, Linkedin, Terminal, Trophy } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { CODING_PROFILES, PERSONAL_INFO } from "@/data/profile";
+import { usePortfolio } from "@/context/PortfolioContext";
 import { Reveal } from "./Reveal";
 import { Section, SectionHeading } from "./Section";
 
@@ -22,40 +22,44 @@ const CODING_PROFILE_ICONS: Record<string, LucideIcon> = {
   braces: Code,
 };
 
-const PROFILE_CARDS: ProfileCard[] = [
-  {
-    name: "GitHub",
-    handle: PERSONAL_INFO.githubUsername,
-    description: "Projects, repositories, and source code for all my work.",
-    cta: "View GitHub",
-    url: PERSONAL_INFO.github,
-    Icon: Github,
-  },
-  ...CODING_PROFILES.flatMap((profile) =>
-    profile.url
-      ? [
-          {
-            name: profile.name,
-            handle: profile.username,
-            description: profile.description,
-            cta: `View ${profile.name}`,
-            url: profile.url,
-            Icon: CODING_PROFILE_ICONS[profile.icon] || Code2,
-          },
-        ]
-      : [],
-  ),
-  {
-    name: "LinkedIn",
-    handle: "gopal-maddheshiya",
-    description: "Professional profile, experience, and academic updates.",
-    cta: "View LinkedIn",
-    url: PERSONAL_INFO.linkedin,
-    Icon: Linkedin,
-  },
-];
-
 export function Profiles() {
+  const { data } = usePortfolio();
+  const info = data.personalInfo;
+  const codingProfiles = data.codingProfiles;
+
+  const profileCards: ProfileCard[] = [
+    {
+      name: "GitHub",
+      handle: info.githubUsername,
+      description: "Projects, repositories, and source code for all my work.",
+      cta: "View GitHub",
+      url: info.github,
+      Icon: Github,
+    },
+    ...codingProfiles.flatMap((profile) =>
+      profile.url
+        ? [
+            {
+              name: profile.name,
+              handle: profile.username,
+              description: profile.description,
+              cta: `View ${profile.name}`,
+              url: profile.url,
+              Icon: CODING_PROFILE_ICONS[profile.icon] || Code2,
+            },
+          ]
+        : [],
+    ),
+    {
+      name: "LinkedIn",
+      handle: "gopal-maddheshiya",
+      description: "Professional profile, experience, and academic updates.",
+      cta: "View LinkedIn",
+      url: info.linkedin,
+      Icon: Linkedin,
+    },
+  ];
+
   return (
     <Section id="profiles" tone="surface">
       <SectionHeading
@@ -65,7 +69,7 @@ export function Profiles() {
       />
 
       <div className="mt-8 sm:mt-10 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {PROFILE_CARDS.map((profile, index) => (
+        {profileCards.map((profile, index) => (
           <Reveal key={profile.name} delay={index * 50} className="h-full">
             <a
               href={profile.url}
