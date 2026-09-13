@@ -546,6 +546,19 @@ export const CERTIFICATIONS: Certification[] = [
   },
 ];
 
+export interface AcademicMediaItem {
+  id: string;
+  title: string;
+  caption: string; // What this relates to / description
+  type: "image" | "video";
+  url: string;
+  thumbnailUrl?: string;
+  category?: string; // e.g. "Hackathon", "College Event", "Lab Project", "Workshop", "Campus"
+  date?: string; // e.g. "2025" or "Oct 2025"
+}
+
+export const ACADEMIC_GALLERY: AcademicMediaItem[] = [];
+
 export const NAV_LINKS = [
   { id: "about", label: "About" },
   { id: "skills", label: "Skills" },
@@ -553,5 +566,6 @@ export const NAV_LINKS = [
   { id: "dsa", label: "DSA" },
   { id: "profiles", label: "Profiles" },
   { id: "certifications", label: "Certificates" },
+  { id: "gallery", label: "Gallery" },
   { id: "contact", label: "Contact" },
 ];

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { About } from "@/components/portfolio/About";
+import { AcademicGallery } from "@/components/portfolio/AcademicGallery";
 import { Certifications } from "@/components/portfolio/Certifications";
 import { Contact } from "@/components/portfolio/Contact";
 import { DSA } from "@/components/portfolio/DSA";
@@ -80,6 +81,7 @@ function Index() {
         <Journey />
         <Profiles />
         <Certifications />
+        <AcademicGallery />
         <ResumeCTA />
         <Contact />
       </main>

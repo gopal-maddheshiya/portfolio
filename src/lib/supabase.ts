@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import {
   ABOUT_DATA,
+  ACADEMIC_GALLERY,
   CERTIFICATIONS,
   CODING_PROFILES,
   CONTACT_DATA,
@@ -15,6 +16,7 @@ import {
   RESUME_CTA_DATA,
   SKILL_GROUPS,
   type AboutData,
+  type AcademicMediaItem,
   type Certification,
   type CodingProfile,
   type ContactData,
@@ -55,6 +57,7 @@ export interface PortfolioData {
   journey: JourneyMilestone[];
   education: EducationItem[];
   certifications: Certification[];
+  academicGallery: AcademicMediaItem[];
   resumeCTA: ResumeCTAData;
   contactData: ContactData;
   updatedAt?: string;
@@ -73,6 +76,7 @@ export const DEFAULT_PORTFOLIO_DATA: PortfolioData = {
   journey: JOURNEY,
   education: EDUCATION,
   certifications: CERTIFICATIONS,
+  academicGallery: ACADEMIC_GALLERY,
   resumeCTA: RESUME_CTA_DATA,
   contactData: CONTACT_DATA,
 };
@@ -124,6 +128,7 @@ export function parsePortfolioContent(c: any, updatedAt?: string): PortfolioData
     journey: Array.isArray(c.journey) ? c.journey : DEFAULT_PORTFOLIO_DATA.journey,
     education: Array.isArray(c.education) ? c.education : DEFAULT_PORTFOLIO_DATA.education,
     certifications: Array.isArray(c.certifications) ? c.certifications : DEFAULT_PORTFOLIO_DATA.certifications,
+    academicGallery: Array.isArray(c.academicGallery) ? c.academicGallery : DEFAULT_PORTFOLIO_DATA.academicGallery,
     updatedAt: updatedAt || c.updatedAt,
   };
 }

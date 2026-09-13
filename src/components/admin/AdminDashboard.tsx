@@ -22,6 +22,10 @@ import {
   Clock,
   GraduationCap,
   Image as ImageIcon,
+  Camera,
+  Video,
+  Play,
+  Tag,
 } from "lucide-react";
 import { toast } from "sonner";
 import defaultProfilePhoto from "@/assets/gopal-profile.jpg";
@@ -34,6 +38,7 @@ import {
   RESUME_CTA_DATA,
   type Project,
   type Certification,
+  type AcademicMediaItem,
   type JourneyMilestone,
   type EducationItem,
   type SkillGroup,
@@ -51,6 +56,7 @@ type TabType =
   | "skills"
   | "dsa"
   | "certifications"
+  | "gallery"
   | "journey"
   | "contact";
 
@@ -61,6 +67,8 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
   const [uploadingProfilePhoto, setUploadingProfilePhoto] = useState<boolean>(false);
   const [uploadingResume, setUploadingResume] = useState<boolean>(false);
   const [uploadingCertIndex, setUploadingCertIndex] = useState<number | null>(null);
+  const [uploadingGalleryIndex, setUploadingGalleryIndex] = useState<number | null>(null);
+  const [uploadingGalleryThumbIndex, setUploadingGalleryThumbIndex] = useState<number | null>(null);
 
   // Safe accessors with fallbacks
   const info = data.personalInfo;
@@ -237,6 +245,101 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
   const handleDeleteCertification = (index: number) => {
     const updated = data.certifications.filter((_, i) => i !== index);
     updateData({ certifications: updated });
+  };
+
+  // ---------------- ACADEMIC GALLERY HELPERS ----------------
+  const handleAddGalleryItem = () => {
+    const newItem: AcademicMediaItem = {
+      id: crypto.randomUUID(),
+      title: "New Academic Milestone / Event",
+      caption: "Details about this milestone, event, problem solved, or context.",
+      type: "image",
+      url: "",
+      thumbnailUrl: "",
+      category: "College Event",
+      date: new Date().getFullYear().toString(),
+    };
+    updateData({ academicGallery: [newItem, ...(data.academicGallery || [])] });
+    toast.success("New media card added at the top! Upload image/video and fill details.");
+  };
+
+  const handleDeleteGalleryItem = (index: number) => {
+    const item = (data.academicGallery || [])[index];
+    if (confirm(`Are you sure you want to delete "${item?.title || "this media item"}"?`)) {
+      const updated = (data.academicGallery || []).filter((_, i) => i !== index);
+      updateData({ academicGallery: updated });
+      toast.info("Media item removed.");
+    }
+  };
+
+  const handleMoveGalleryItem = (index: number, direction: "up" | "down") => {
+    const list = data.academicGallery || [];
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= list.length) return;
+    const itemA = list[index];
+    const itemB = list[targetIndex];
+    if (itemA && itemB) {
+      const updated = [...list];
+      updated[index] = itemB;
+      updated[targetIndex] = itemA;
+      updateData({ academicGallery: updated });
+    }
+  };
+
+  const handleGalleryMediaUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingGalleryIndex(index);
+      toast.info("Uploading media file to Supabase Storage...");
+      const res = await uploadPortfolioFile(file, "gallery");
+      if (res.url) {
+        const list = data.academicGallery || [];
+        const existing = list[index];
+        if (existing) {
+          const updated = [...list];
+          updated[index] = { ...existing, url: res.url };
+          updateData({ academicGallery: updated });
+          toast.success("Media file uploaded! Remember to click 'Save Live'.");
+        }
+      } else {
+        toast.error(`Upload error: ${res.error || "Failed to upload media file"}`);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      toast.error(msg);
+    } finally {
+      setUploadingGalleryIndex(null);
+    }
+  };
+
+  const handleGalleryThumbnailUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingGalleryThumbIndex(index);
+      toast.info("Uploading thumbnail to Supabase Storage...");
+      const res = await uploadPortfolioImage(file, "gallery-thumbnails");
+      if (res.url) {
+        const list = data.academicGallery || [];
+        const existing = list[index];
+        if (existing) {
+          const updated = [...list];
+          updated[index] = { ...existing, thumbnailUrl: res.url };
+          updateData({ academicGallery: updated });
+          toast.success("Video thumbnail uploaded!");
+        }
+      } else {
+        toast.error(`Upload error: ${res.error || "Failed to upload thumbnail"}`);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Thumbnail upload failed";
+      toast.error(msg);
+    } finally {
+      setUploadingGalleryThumbIndex(null);
+    }
   };
 
   // ---------------- SKILL HELPERS ----------------
@@ -461,6 +564,23 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
           </button>
 
           <button
+            onClick={() => setActiveTab("gallery")}
+            className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+              activeTab === "gallery"
+                ? "bg-primary text-primary-foreground shadow-sm font-semibold ring-1 ring-primary/20"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
+            }`}
+          >
+            <Camera className="size-4" />
+            <span>7. Academic Media &amp; Gallery</span>
+            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+              activeTab === "gallery" ? "bg-white/20 text-white" : "bg-secondary text-muted-foreground"
+            }`}>
+              {(data.academicGallery || []).length}
+            </span>
+          </button>
+
+          <button
             onClick={() => setActiveTab("journey")}
             className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === "journey"
@@ -469,7 +589,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
             }`}
           >
             <Sparkles className="size-4" />
-            <span>7. Highlights &amp; Journey</span>
+            <span>8. Highlights &amp; Journey</span>
           </button>
 
           <button
@@ -481,7 +601,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
             }`}
           >
             <Mail className="size-4" />
-            <span>8. Contact &amp; Footer</span>
+            <span>9. Contact &amp; Footer</span>
           </button>
         </div>
       </nav>
@@ -1979,7 +2099,367 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
           </div>
         )}
 
-        {/* ---------------- TAB 7: JOURNEY & HIGHLIGHTS ---------------- */}
+        {/* ---------------- TAB 7: ACADEMIC MEDIA & GALLERY ---------------- */}
+        {activeTab === "gallery" && (
+          <div className="space-y-6 max-w-4xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="font-display font-bold text-xl text-foreground flex items-center gap-2.5">
+                  <Camera className="size-6 text-primary" />
+                  Academic Media &amp; Gallery ({(data.academicGallery || []).length})
+                </h2>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Upload and manage your university event photos, hackathon pictures, lab demo videos, and context descriptions.
+                </p>
+              </div>
+              <button
+                onClick={handleAddGalleryItem}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-primary hover:bg-primary/90 px-4 py-2 text-xs sm:text-sm font-semibold text-primary-foreground shadow-sm transition-all cursor-pointer self-start sm:self-auto"
+              >
+                <Plus className="size-4" />
+                <span>Add Photo / Video</span>
+              </button>
+            </div>
+
+            {/* Feature Info Banner */}
+            <div className="rounded-2xl border-2 border-primary/20 bg-primary/5 p-4 sm:p-5 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+              <div className="space-y-0.5">
+                <h3 className="font-display font-bold text-sm text-foreground flex items-center gap-2">
+                  <Sparkles className="size-4 text-primary" />
+                  Academic Media &amp; Context Details:
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Each photo/video includes a dedicated bottom context box explaining what it relates to (event, team role, or achievement).
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2 text-xs font-mono">
+                <span className="rounded-lg bg-card border border-border px-2.5 py-1 text-foreground font-semibold">
+                  📸 JPG, PNG, WEBP
+                </span>
+                <span className="rounded-lg bg-card border border-border px-2.5 py-1 text-foreground font-semibold">
+                  🎥 MP4, WEBM, YouTube
+                </span>
+              </div>
+            </div>
+
+            {/* Empty State when no items */}
+            {(!data.academicGallery || data.academicGallery.length === 0) ? (
+              <div className="rounded-2xl border-2 border-dashed border-border bg-card/60 p-10 text-center flex flex-col items-center justify-center space-y-3">
+                <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                  <Camera className="size-6" />
+                </div>
+                <h3 className="font-display font-semibold text-base text-foreground">
+                  No Academic Media Added Yet
+                </h3>
+                <p className="text-xs text-muted-foreground max-w-md">
+                  Your portfolio gallery section is currently blank as requested. Click the button below to add your first photo or video.
+                </p>
+                <button
+                  onClick={handleAddGalleryItem}
+                  className="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer"
+                >
+                  <Plus className="size-4" />
+                  <span>Add First Media Item</span>
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {data.academicGallery.map((item, idx) => (
+                  <div
+                    key={item.id || idx}
+                    className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-soft space-y-5"
+                  >
+                    {/* Item Top Row: Index, Move & Delete */}
+                    <div className="flex items-center justify-between border-b border-border pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-mono font-bold text-primary">
+                          Media Item #{idx + 1}
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-md bg-secondary px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                          {item.type === "video" ? (
+                            <>
+                              <Video className="size-3 text-red-500" /> Video
+                            </>
+                          ) : (
+                            <>
+                              <Camera className="size-3 text-primary" /> Photo
+                            </>
+                          )}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => handleMoveGalleryItem(idx, "up")}
+                          disabled={idx === 0}
+                          title="Move up"
+                          className="p-1.5 rounded-lg border border-border bg-surface text-muted-foreground hover:text-foreground disabled:opacity-30 cursor-pointer"
+                        >
+                          <ArrowUp className="size-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleMoveGalleryItem(idx, "down")}
+                          disabled={idx === (data.academicGallery?.length || 1) - 1}
+                          title="Move down"
+                          className="p-1.5 rounded-lg border border-border bg-surface text-muted-foreground hover:text-foreground disabled:opacity-30 cursor-pointer"
+                        >
+                          <ArrowDown className="size-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteGalleryItem(idx)}
+                          title="Delete media"
+                          className="p-1.5 rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {/* Media Type Selector */}
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                          Media Type
+                        </label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = [...(data.academicGallery || [])];
+                              updated[idx] = { ...item, type: "image" };
+                              updateData({ academicGallery: updated });
+                            }}
+                            className={`inline-flex items-center justify-center gap-2 rounded-lg py-2 text-xs font-semibold border transition-all cursor-pointer ${
+                              item.type === "image"
+                                ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                : "bg-card border-border text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            <Camera className="size-3.5" />
+                            <span>Photo / Image</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = [...(data.academicGallery || [])];
+                              updated[idx] = { ...item, type: "video" };
+                              updateData({ academicGallery: updated });
+                            }}
+                            className={`inline-flex items-center justify-center gap-2 rounded-lg py-2 text-xs font-semibold border transition-all cursor-pointer ${
+                              item.type === "video"
+                                ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                : "bg-card border-border text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            <Video className="size-3.5" />
+                            <span>Video / Demo</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Title */}
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                          Milestone / Event Title
+                        </label>
+                        <input
+                          type="text"
+                          value={item.title}
+                          placeholder="e.g. Smart India Hackathon internal finals presentation"
+                          onChange={(e) => {
+                            const updated = [...(data.academicGallery || [])];
+                            updated[idx] = { ...item, title: e.target.value };
+                            updateData({ academicGallery: updated });
+                          }}
+                          className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        />
+                      </div>
+
+                      {/* Category Tag */}
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                          Category Tag
+                        </label>
+                        <input
+                          type="text"
+                          value={item.category || ""}
+                          placeholder="Hackathon, College Event, Workshop, Lab Project, Campus"
+                          onChange={(e) => {
+                            const updated = [...(data.academicGallery || [])];
+                            updated[idx] = { ...item, category: e.target.value };
+                            updateData({ academicGallery: updated });
+                          }}
+                          className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        />
+                      </div>
+
+                      {/* Date / Period */}
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                          Date / Year
+                        </label>
+                        <input
+                          type="text"
+                          value={item.date || ""}
+                          placeholder="e.g. Feb 2026 or 2025"
+                          onChange={(e) => {
+                            const updated = [...(data.academicGallery || [])];
+                            updated[idx] = { ...item, date: e.target.value };
+                            updateData({ academicGallery: updated });
+                          }}
+                          className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                        />
+                      </div>
+
+                      {/* USER'S KEY REQUIREMENT: What this photo/video relates to */}
+                      <div className="sm:col-span-2 rounded-xl border-2 border-primary/20 bg-primary/5 p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="block text-xs font-bold text-foreground flex items-center gap-1.5">
+                            <Tag className="size-3.5 text-primary" />
+                            <span>Photo / Video Bottom Note: "Related To &amp; Context"</span>
+                          </label>
+                          <span className="text-[11px] font-mono text-muted-foreground">
+                            Displayed on card bottom
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Write what this photo/video relates to (e.g. which project was demonstrated, what problem was solved, team members involved, or university contest details):
+                        </p>
+                        <textarea
+                          rows={2}
+                          value={item.caption || ""}
+                          placeholder="e.g. Explaining the algorithmic pipeline during the university hackathon with CSE classmates; demonstrated live data structures optimization."
+                          onChange={(e) => {
+                            const updated = [...(data.academicGallery || [])];
+                            updated[idx] = { ...item, caption: e.target.value };
+                            updateData({ academicGallery: updated });
+                          }}
+                          className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none min-h-[70px]"
+                        />
+                      </div>
+
+                      {/* Media File Upload & Direct URL */}
+                      <div className="sm:col-span-2 rounded-xl border border-border bg-surface/50 p-4 space-y-3">
+                        <label className="block text-xs font-bold text-foreground">
+                          {item.type === "video" ? "Video File or Embed URL" : "Photo Image File or Direct URL"}
+                        </label>
+                        <div className="flex flex-col sm:flex-row gap-2.5 items-start sm:items-center">
+                          <input
+                            type="text"
+                            value={item.url || ""}
+                            placeholder={
+                              item.type === "video"
+                                ? "Supabase video URL, YouTube link, or MP4 URL"
+                                : "/media/... or Supabase image URL"
+                            }
+                            onChange={(e) => {
+                              const updated = [...(data.academicGallery || [])];
+                              updated[idx] = { ...item, url: e.target.value };
+                              updateData({ academicGallery: updated });
+                            }}
+                            className="flex-1 w-full rounded-lg border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none font-mono"
+                          />
+                          <label className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary hover:bg-primary/90 px-3.5 py-2 text-xs font-semibold text-primary-foreground cursor-pointer transition-all shrink-0 shadow-xs">
+                            <Upload className="size-3.5" />
+                            <span>
+                              {uploadingGalleryIndex === idx
+                                ? "Uploading..."
+                                : item.type === "video"
+                                ? "Upload Video"
+                                : "Upload Photo"}
+                            </span>
+                            <input
+                              type="file"
+                              accept={item.type === "video" ? "video/*" : "image/*"}
+                              className="hidden"
+                              disabled={uploadingGalleryIndex === idx}
+                              onChange={(e) => handleGalleryMediaUpload(idx, e)}
+                            />
+                          </label>
+                          {item.url && (
+                            <a
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center gap-1 rounded-lg border border-border bg-card px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                            >
+                              <ExternalLink className="size-3.5" />
+                              <span>View</span>
+                            </a>
+                          )}
+                        </div>
+
+                        {/* Optional Video Thumbnail if type is video */}
+                        {item.type === "video" && (
+                          <div className="pt-2 border-t border-border/60">
+                            <label className="block text-[11px] font-semibold text-muted-foreground mb-1.5">
+                              Custom Video Poster / Thumbnail (Optional)
+                            </label>
+                            <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                              <input
+                                type="text"
+                                value={item.thumbnailUrl || ""}
+                                placeholder="Poster image URL for video card"
+                                onChange={(e) => {
+                                  const updated = [...(data.academicGallery || [])];
+                                  updated[idx] = { ...item, thumbnailUrl: e.target.value };
+                                  updateData({ academicGallery: updated });
+                                }}
+                                className="flex-1 w-full rounded-lg border border-border-strong bg-card px-3 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none font-mono"
+                              />
+                              <label className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card hover:bg-secondary px-3 py-1.5 text-xs font-medium text-foreground cursor-pointer transition-colors shrink-0">
+                                <ImageIcon className="size-3.5 text-primary" />
+                                <span>
+                                  {uploadingGalleryThumbIndex === idx ? "Uploading..." : "Upload Poster"}
+                                </span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  disabled={uploadingGalleryThumbIndex === idx}
+                                  onChange={(e) => handleGalleryThumbnailUpload(idx, e)}
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Live Visual Preview */}
+                        {item.url && (
+                          <div className="mt-3 rounded-lg overflow-hidden border border-border bg-black/40 aspect-video max-w-sm relative flex items-center justify-center">
+                            {item.type === "video" ? (
+                              item.thumbnailUrl ? (
+                                <img
+                                  src={item.thumbnailUrl}
+                                  alt={item.title}
+                                  className="size-full object-cover"
+                                />
+                              ) : (
+                                <div className="text-center text-zinc-400 p-4 space-y-1">
+                                  <Video className="size-8 mx-auto text-primary" />
+                                  <p className="text-[11px] font-mono truncate max-w-xs">{item.url}</p>
+                                </div>
+                              )
+                            ) : (
+                              <img
+                                src={item.url}
+                                alt={item.title}
+                                className="size-full object-cover"
+                              />
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ---------------- TAB 8: JOURNEY & HIGHLIGHTS ---------------- */}
         {activeTab === "journey" && (
           <div className="space-y-6 max-w-4xl">
             {/* Top Highlights Stats Bar */}
