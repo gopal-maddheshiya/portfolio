@@ -91,13 +91,13 @@ RESPONSE FORMATTING GUIDELINES:
 4. Keep answers concise (2 to 4 short paragraphs or bulleted lists) so visitors get fast, crisp insights without information overload.`;
 }
 
-// Ultra-fast Gemini models in order of priority
+// Ultra-fast and stable models in order of priority
 const STABLE_FAST_MODELS = [
-  "gemini-2.0-flash",
-  "gemini-2.0-flash-lite",
   "gemini-1.5-flash",
+  "gemini-1.5-flash-latest",
+  "gemini-2.0-flash",
+  "gemini-1.5-pro",
   "gemini-2.5-flash",
-  "gemini-3.5-flash-lite",
 ];
 
 function formatConversationContents(
@@ -143,6 +143,210 @@ function formatConversationContents(
 }
 
 /**
+ * Intelligent instant knowledge engine (0ms latency fallback).
+ * Answers questions about projects, DSA, academics, OOPs, skills, contact in Hindi & English.
+ */
+export function generateInstantKnowledgeResponse(
+  rawQuery: string,
+  resumeUrl?: string,
+  whatsappNumber?: string,
+): { reply: string; suggestions: string[]; actions?: ChatAction[] } {
+  const query = rawQuery.toLowerCase().trim();
+  const resume = resumeUrl || PERSONAL_INFO.resume;
+  const whatsapp = whatsappNumber || PERSONAL_INFO.whatsapp;
+
+  const isHindi =
+    query.includes("kya") ||
+    query.includes("kaise") ||
+    query.includes("batao") ||
+    query.includes("kaha") ||
+    query.includes("hai") ||
+    query.includes("kon") ||
+    query.includes("kaun") ||
+    query.includes("karta") ||
+    query.includes("namaste") ||
+    query.includes("kuch");
+
+  // 1. Projects
+  if (
+    query.includes("project") ||
+    query.includes("app") ||
+    query.includes("built") ||
+    query.includes("dsa tracker") ||
+    query.includes("trading") ||
+    query.includes("work") ||
+    query.includes("portfolio")
+  ) {
+    const projectItems = PROJECTS.map(
+      (p) =>
+        `- **${p.title}** (${p.year}): ${p.summary}\n  *Tech Stack:* \`${p.technologies.slice(0, 4).join(", ")}\`${p.liveUrl ? ` • [Live Demo](${p.liveUrl})` : ""} • [GitHub](${p.githubUrl})`,
+    ).join("\n\n");
+
+    return {
+      reply: isHindi
+        ? `Gopal ne kai full-stack aur real-world applications develop kiye hain:\n\n${projectItems}\n\nAap kisi specific project ke features ya tech stack ke baare me bhi poochh sakte hain!`
+        : `Here are Gopal's featured full-stack projects:\n\n${projectItems}\n\nFeel free to explore live demos or inspect the GitHub repositories!`,
+      suggestions: [
+        "Tell me about DSA Tracker project",
+        "What are Gopal's primary skills?",
+        "Download Gopal's Resume",
+      ],
+      actions: [
+        { label: "🚀 View Projects Section", action: "projects" },
+        { label: "📄 Download Resume", url: resume, action: "resume" },
+      ],
+    };
+  }
+
+  // 2. DSA & LeetCode
+  if (
+    query.includes("dsa") ||
+    query.includes("leetcode") ||
+    query.includes("algorithm") ||
+    query.includes("data structure") ||
+    query.includes("problem") ||
+    query.includes("java") ||
+    query.includes("coding")
+  ) {
+    return {
+      reply: isHindi
+        ? `Gopal **Java & DSA** me kafi active hain:\n\n- **174+ LeetCode Problems Solved** (Arrays, Strings, HashMaps, Trees, Graphs, DP).\n- **LeetCode Profile:** [@${PERSONAL_INFO.leetcodeUsername}](${PERSONAL_INFO.leetcode})\n- **GitHub Repo:** [${DSA_INFO.repoName}](${DSA_INFO.repoUrl})\n\nWo regular practice aur time/space complexity optimization par deliberate focus rakhte hain.`
+        : `Gopal has a strong foundation in **Data Structures & Algorithms (Java)**:\n\n- **174+ LeetCode Problems Solved** across Arrays, Strings, HashMaps, Binary Trees, Graphs, and DP.\n- **LeetCode Profile:** [@${PERSONAL_INFO.leetcodeUsername}](${PERSONAL_INFO.leetcode})\n- **GitHub Repository:** [${DSA_INFO.repoName}](${DSA_INFO.repoUrl})\n\nHe practices structured problem solving daily with clean object-oriented code.`,
+      suggestions: [
+        "What projects has Gopal built?",
+        "What is his college & CGPA?",
+        "Download Resume",
+      ],
+      actions: [
+        { label: "⚡ View DSA Section", action: "dsa" },
+        { label: "🏆 Open LeetCode", url: PERSONAL_INFO.leetcode },
+      ],
+    };
+  }
+
+  // 3. Education / College / School / CGPA
+  if (
+    query.includes("college") ||
+    query.includes("university") ||
+    query.includes("srmu") ||
+    query.includes("education") ||
+    query.includes("cgpa") ||
+    query.includes("marks") ||
+    query.includes("school") ||
+    query.includes("modern academy") ||
+    query.includes("degree") ||
+    query.includes("padhai")
+  ) {
+    return {
+      reply: isHindi
+        ? `Gopal ki academic details:\n\n- **College:** B.Tech in Computer Science & Engineering (2024–2028) at **Shri Ramswaroop Memorial University (SRMU)**.\n- **Current CGPA:** **7.62**\n- **Schooling:** **Modern Academy** (Class X in 2021, Class XII in 2024).\n\nWo computer science fundamentals (OOPs, DBMS, OS) ke sath full-stack development me deep practice kar rahe hain.`
+        : `Here is Gopal's academic background:\n\n- **University:** B.Tech in Computer Science & Engineering (2024–2028) at **Shri Ramswaroop Memorial University (SRMU)**.\n- **Current CGPA:** **7.62**\n- **Schooling:** **Modern Academy** (Class X - 2021, Class XII - 2024).\n\nHe balances rigorous academic fundamentals with practical software engineering projects.`,
+      suggestions: [
+        "What are Gopal's primary skills?",
+        "What projects has he built?",
+        "Download Resume",
+      ],
+      actions: [{ label: "📄 Download Resume", url: resume, action: "resume" }],
+    };
+  }
+
+  // 4. Skills & Tech Stack
+  if (
+    query.includes("skill") ||
+    query.includes("tech") ||
+    query.includes("stack") ||
+    query.includes("language") ||
+    query.includes("framework") ||
+    query.includes("know")
+  ) {
+    const skillList = SKILL_GROUPS.map((g) => `- **${g.title}:** ${g.skills.join(", ")}`).join(
+      "\n",
+    );
+
+    return {
+      reply: isHindi
+        ? `Gopal ke primary technical skills:\n\n${skillList}\n\nActive focus: ${FOCUS_AREAS.slice(0, 3).join(", ")}.`
+        : `Gopal's technical skill set spans:\n\n${skillList}\n\nCurrently focused on: ${FOCUS_AREAS.slice(0, 3).join(", ")}.`,
+      suggestions: [
+        "What full-stack projects has he built?",
+        "Tell me about his DSA skills",
+        "Download Resume",
+      ],
+      actions: [{ label: "📄 Download Resume", url: resume, action: "resume" }],
+    };
+  }
+
+  // 5. Contact / Hire / Internship
+  if (
+    query.includes("contact") ||
+    query.includes("hire") ||
+    query.includes("internship") ||
+    query.includes("email") ||
+    query.includes("phone") ||
+    query.includes("whatsapp") ||
+    query.includes("call") ||
+    query.includes("connect") ||
+    query.includes("resume")
+  ) {
+    return {
+      reply: isHindi
+        ? `Gopal **Software Engineering / Full-Stack Internships** ke liye actively open hain!\n\n**Connect Directly:**\n- **Email:** [${PERSONAL_INFO.email}](mailto:${PERSONAL_INFO.email})\n- **WhatsApp / Phone:** [${PERSONAL_INFO.phone}](https://wa.me/${whatsapp})\n- **LinkedIn:** [gopal-maddheshiya](${PERSONAL_INFO.linkedin})\n- **GitHub:** [gopal-maddheshiya](${PERSONAL_INFO.github})\n- **Location:** ${PERSONAL_INFO.location}`
+        : `Gopal is currently open for **Software Engineering & Full-Stack Web Development internships and roles**!\n\n**Direct Contact Information:**\n- **Email:** [${PERSONAL_INFO.email}](mailto:${PERSONAL_INFO.email})\n- **WhatsApp / Phone:** [${PERSONAL_INFO.phone}](https://wa.me/${whatsapp})\n- **LinkedIn:** [gopal-maddheshiya](${PERSONAL_INFO.linkedin})\n- **GitHub:** [gopal-maddheshiya](${PERSONAL_INFO.github})\n- **Location:** ${PERSONAL_INFO.location}`,
+      suggestions: [
+        "Download Gopal's Resume",
+        "What projects has he built?",
+        "Tell me about his DSA journey",
+      ],
+      actions: [
+        { label: "📄 Download Resume", url: resume, action: "resume" },
+        { label: "💬 Message on WhatsApp", url: `https://wa.me/${whatsapp}`, action: "whatsapp" },
+      ],
+    };
+  }
+
+  // 6. OOPs / Technical Concepts
+  if (
+    query.includes("oops") ||
+    query.includes("oop") ||
+    query.includes("inheritance") ||
+    query.includes("polymorphism") ||
+    query.includes("encapsulation") ||
+    query.includes("abstraction") ||
+    query.includes("react") ||
+    query.includes("node")
+  ) {
+    return {
+      reply: isHindi
+        ? `**OOPs ke 4 Core Pillars:**\n\n1. **Encapsulation:** Data aur methods ko ek single unit (class) me wrap karna with private fields & getters/setters.\n2. **Inheritance:** Code reusability ke liye parent class se properties child class me inherit karna (\`extends\`).\n3. **Polymorphism:** Same method name with different behaviors (Method Overloading & Overriding).\n4. **Abstraction:** Internal complex implementation hide karke sirf essential functionality expose karna (via Abstract Classes & Interfaces).\n\nGopal in concepts ko Java aur real-world web architectures me deeply apply karte hain.`
+        : `**Core Pillars of Object-Oriented Programming (OOP):**\n\n1. **Encapsulation:** Bundling data and methods into a single class with restricted access using access modifiers.\n2. **Inheritance:** Reusing and extending functionality from base classes to derived classes.\n3. **Polymorphism:** Allowing objects to take multiple forms through method overloading and overriding.\n4. **Abstraction:** Hiding low-level implementation details and exposing only essential interfaces.\n\nGopal applies these principles across Java backend systems and modular full-stack projects.`,
+      suggestions: [
+        "What projects has Gopal built?",
+        "Tell me about his DSA background",
+        "Download Resume",
+      ],
+      actions: [{ label: "📄 Download Resume", url: resume, action: "resume" }],
+    };
+  }
+
+  // Default friendly response
+  return {
+    reply: isHindi
+      ? `Gopal **SRMU me B.Tech CSE (2024–2028, CGPA 7.62)** ke student hain jo **Java & DSA (174+ LeetCode)** aur **Full-Stack Development (React, Node.js, Express, MongoDB)** par focus karte hain.\n\nAap Gopal ke projects, skills, education ya resume ke baare me poochh sakte hain!`
+      : `Gopal is a **B.Tech Computer Science student at SRMU** (CGPA 7.62, 2024–2028) specializing in **Java & DSA (174+ LeetCode problems solved)** and **Full-Stack Web Development** (React, Node.js, Express, MongoDB, Supabase).\n\nFeel free to ask about his projects, technical skills, problem solving, or internship availability!`,
+    suggestions: [
+      "What projects has Gopal built?",
+      "Tell me about his DSA skills",
+      "Download Gopal's Resume",
+    ],
+    actions: [
+      { label: "🚀 View Projects", action: "projects" },
+      { label: "📄 Download Resume", url: resume, action: "resume" },
+      { label: "💬 Message on WhatsApp", url: `https://wa.me/${whatsapp}`, action: "whatsapp" },
+    ],
+  };
+}
+
+/**
  * Handles Real-Time Server-Sent Events (SSE) Streaming Response
  */
 export async function handleAiChatStream(
@@ -162,29 +366,27 @@ export async function handleAiChatStream(
 
   const encoder = new TextEncoder();
 
+  // If no API key configured, stream instant knowledge engine without any delay
   if (!apiKey) {
+    const instantResult = generateInstantKnowledgeResponse(message);
     const stream = new ReadableStream({
       start(controller) {
-        controller.enqueue(
-          encoder.encode(
-            `data: ${JSON.stringify({
-              chunk: "AI service is currently initializing. In the meantime, you can explore Gopal's projects or download his resume below!",
-            })}\n\n`,
-          ),
-        );
+        // Stream text in words/chunks for smooth typewriter
+        const words = instantResult.reply.split(" ");
+        let idx = 0;
+        const chunkSize = 4;
+        while (idx < words.length) {
+          const piece = words.slice(idx, idx + chunkSize).join(" ") + (idx + chunkSize < words.length ? " " : "");
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ chunk: piece })}\n\n`));
+          idx += chunkSize;
+        }
+
         controller.enqueue(
           encoder.encode(
             `data: ${JSON.stringify({
               done: true,
-              suggestions: ["What projects has Gopal built?", "Tell me about his DSA skills"],
-              actions: [
-                { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" },
-                {
-                  label: "💬 Message on WhatsApp",
-                  url: `https://wa.me/${PERSONAL_INFO.whatsapp}`,
-                  action: "whatsapp",
-                },
-              ],
+              suggestions: instantResult.suggestions,
+              actions: instantResult.actions,
             })}\n\n`,
           ),
         );
@@ -208,41 +410,53 @@ export async function handleAiChatStream(
 
   for (const model of STABLE_FAST_MODELS) {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
           body: JSON.stringify({
             contents,
             systemInstruction: {
               parts: [{ text: systemInstruction }],
             },
             generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 800,
+              temperature: 0.6,
+              maxOutputTokens: 600,
             },
           }),
         },
       );
 
+      clearTimeout(timeoutId);
+
       if (res.ok && res.body) {
         upstreamResponse = res;
         break;
       }
-      console.warn(`Model ${model} streaming returned status ${res.status}`);
-    } catch (err) {
-      console.warn(`Model ${model} streaming network error:`, err);
+    } catch {
+      // Try next candidate model
     }
   }
 
+  // Fallback to instant knowledge stream if upstream failed
   if (!upstreamResponse || !upstreamResponse.body) {
-    const fallbackResult = await processAiChatRequest(message, history, serverEnv);
+    const fallbackResult = generateInstantKnowledgeResponse(message);
     const stream = new ReadableStream({
       start(controller) {
-        controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ chunk: fallbackResult.reply })}\n\n`),
-        );
+        const words = fallbackResult.reply.split(" ");
+        let idx = 0;
+        const chunkSize = 4;
+        while (idx < words.length) {
+          const piece = words.slice(idx, idx + chunkSize).join(" ") + (idx + chunkSize < words.length ? " " : "");
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ chunk: piece })}\n\n`));
+          idx += chunkSize;
+        }
+
         controller.enqueue(
           encoder.encode(
             `data: ${JSON.stringify({
@@ -310,8 +524,7 @@ export async function handleAiChatStream(
               suggestions: [
                 "What projects has Gopal built?",
                 "Tell me about his DSA skills",
-                "Is Gopal currently open to internship opportunities?",
-                "Download his resume",
+                "Download Gopal's Resume",
               ],
               actions: [
                 { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" },
@@ -342,60 +555,6 @@ export async function handleAiChatStream(
 }
 
 /**
- * Calls the Google Gemini API with direct fast Flash models.
- */
-export async function callGeminiApi(
-  apiKey: string,
-  history: ChatMessage[],
-  userPrompt: string,
-): Promise<string> {
-  const systemInstruction = generateSystemContext();
-  const contents = formatConversationContents(history, userPrompt);
-  let lastError: Error | null = null;
-
-  for (const model of STABLE_FAST_MODELS) {
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents,
-            systemInstruction: {
-              parts: [{ text: systemInstruction }],
-            },
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 800,
-            },
-          }),
-        },
-      );
-
-      if (response.ok) {
-        const data = (await response.json()) as {
-          candidates?: { content?: { parts?: { text?: string }[] } }[];
-        };
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text) {
-          return text;
-        }
-      }
-
-      const errorText = await response.text();
-      console.warn(`Model ${model} returned ${response.status}:`, errorText);
-      lastError = new Error(`Model ${model} failed (${response.status})`);
-    } catch (err) {
-      console.warn(`Error connecting to model ${model}:`, err);
-      lastError = err instanceof Error ? err : new Error(String(err));
-    }
-  }
-
-  throw lastError ?? new Error("All available Gemini models failed to generate a response.");
-}
-
-/**
  * Server-side processor for /api/chat requests (Non-streaming fallback).
  */
 export async function processAiChatRequest(
@@ -407,69 +566,11 @@ export async function processAiChatRequest(
   suggestions: string[];
   actions?: ChatAction[] | undefined;
 }> {
-  const apiKey =
-    (typeof serverEnv?.["GEMINI_API_KEY"] === "string" && serverEnv["GEMINI_API_KEY"]) ||
-    (typeof serverEnv?.["VITE_GEMINI_API_KEY"] === "string" && serverEnv["VITE_GEMINI_API_KEY"]) ||
-    (typeof process !== "undefined" &&
-      (process.env?.["GEMINI_API_KEY"] ||
-        process.env?.["VITE_GEMINI_API_KEY"] ||
-        process.env?.["AI_API_KEY"] ||
-        process.env?.["GOOGLE_AI_KEY"])) ||
-    "";
-
-  if (!apiKey) {
-    return {
-      reply: `Hello! I'm here to help you learn about Gopal's full-stack projects, Java & DSA problem solving, and academic background. Feel free to explore his projects or connect directly!`,
-      suggestions: [
-        "What projects has Gopal built?",
-        "Tell me about his DSA skills",
-        "How can I contact Gopal?",
-      ],
-      actions: [
-        { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" },
-        {
-          label: "💬 Message on WhatsApp",
-          url: `https://wa.me/${PERSONAL_INFO.whatsapp}`,
-          action: "whatsapp",
-        },
-      ],
-    };
-  }
-
-  try {
-    const reply = await callGeminiApi(apiKey, history ?? [], message);
-    return {
-      reply,
-      suggestions: [
-        "What projects has Gopal built?",
-        "Tell me about his DSA skills",
-        "Is Gopal currently open to internship opportunities?",
-        "Download his resume",
-      ],
-      actions: [
-        { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" as const },
-        {
-          label: "💬 Message on WhatsApp",
-          url: `https://wa.me/${PERSONAL_INFO.whatsapp}`,
-          action: "whatsapp" as const,
-        },
-      ],
-    };
-  } catch (err) {
-    console.error("Gemini API call failed:", err);
-    return {
-      reply: `Hello! I'm here to help you learn about Gopal's full-stack projects, Java & DSA problem solving, and academic background. Feel free to explore his projects or connect directly!`,
-      suggestions: ["What projects has Gopal built?", "Tell me about his DSA skills", "Download his resume"],
-      actions: [
-        { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" as const },
-        { label: "💬 Message on WhatsApp", url: `https://wa.me/${PERSONAL_INFO.whatsapp}`, action: "whatsapp" as const },
-      ],
-    };
-  }
+  return generateInstantKnowledgeResponse(message);
 }
 
 /**
- * Frontend client helper: Real-time SSE streaming reader
+ * Frontend client helper: Real-time SSE streaming reader with guaranteed 0-lag fallback
  */
 export async function askGopalAiStream({
   message,
@@ -508,6 +609,7 @@ export async function askGopalAiStream({
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
+      let hasReceivedAnyChunk = false;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -531,18 +633,14 @@ export async function askGopalAiStream({
                 };
 
                 if (data.chunk) {
+                  hasReceivedAnyChunk = true;
                   onChunk(data.chunk);
                 }
 
                 if (data.done) {
-                  // If actions are provided, ensure resume & whatsapp urls match the current dynamic values
                   const sanitizedActions = data.actions?.map((act) => {
-                    if (act.action === "resume") {
-                      return { ...act, url: activeResume };
-                    }
-                    if (act.action === "whatsapp") {
-                      return { ...act, url: `https://wa.me/${activeWhatsapp}` };
-                    }
+                    if (act.action === "resume") return { ...act, url: activeResume };
+                    if (act.action === "whatsapp") return { ...act, url: `https://wa.me/${activeWhatsapp}` };
                     return act;
                   });
 
@@ -560,61 +658,38 @@ export async function askGopalAiStream({
         }
       }
 
-      onComplete({
-        suggestions: [
-          "What projects has Gopal built?",
-          "Tell me about his DSA skills",
-          "Download Gopal's Resume",
-        ],
-        actions: [
-          { label: "📄 Download Resume", url: activeResume, action: "resume" },
-          {
-            label: "💬 Message on WhatsApp",
-            url: `https://wa.me/${activeWhatsapp}`,
-            action: "whatsapp",
-          },
-        ],
-      });
-      return;
+      if (hasReceivedAnyChunk) {
+        onComplete({
+          suggestions: ["What projects has Gopal built?", "Tell me about his DSA skills"],
+          actions: [
+            { label: "📄 Download Resume", url: activeResume, action: "resume" },
+            { label: "💬 Message on WhatsApp", url: `https://wa.me/${activeWhatsapp}`, action: "whatsapp" },
+          ],
+        });
+        return;
+      }
     }
   } catch (err) {
-    console.warn("Server streaming failed, falling back to direct call:", err);
+    console.warn("API /api/chat unreachable, activating instant client response:", err);
   }
 
-  // Client-side fallback if /api/chat is not reachable
-  const clientKey =
-    typeof import.meta !== "undefined" && import.meta.env
-      ? (import.meta.env["VITE_GEMINI_API_KEY"] as string) ||
-        (import.meta.env["GEMINI_API_KEY"] as string) ||
-        ""
-      : "";
-
-  if (clientKey) {
-    try {
-      const reply = await callGeminiApi(clientKey, history ?? [], message);
-      onChunk(reply);
+  // Guaranteed instant client response with typewriter streaming chunks
+  const instant = generateInstantKnowledgeResponse(message, activeResume, activeWhatsapp);
+  const words = instant.reply.split(" ");
+  let i = 0;
+  const timer = setInterval(() => {
+    if (i < words.length) {
+      const chunk = words.slice(i, i + 3).join(" ") + (i + 3 < words.length ? " " : "");
+      onChunk(chunk);
+      i += 3;
+    } else {
+      clearInterval(timer);
       onComplete({
-        suggestions: [
-          "What projects has Gopal built?",
-          "Tell me about his DSA skills",
-          "Download his resume",
-        ],
-        actions: [
-          { label: "📄 Download Resume", url: activeResume, action: "resume" as const },
-          {
-            label: "💬 Message on WhatsApp",
-            url: `https://wa.me/${activeWhatsapp}`,
-            action: "whatsapp" as const,
-          },
-        ],
+        suggestions: instant.suggestions,
+        actions: instant.actions,
       });
-      return;
-    } catch (clientErr) {
-      console.error("Client fallback API call failed:", clientErr);
     }
-  }
-
-  onError(new Error("Unable to connect to the assistant server."));
+  }, 35);
 }
 
 /**
@@ -629,27 +704,5 @@ export async function askGopalAi({
   suggestions: string[];
   actions?: ChatAction[] | undefined;
 }> {
-  return new Promise((resolve) => {
-    let accumulated = "";
-    askGopalAiStream({
-      message: data.message,
-      history: data.history,
-      onChunk: (chunk) => {
-        accumulated += chunk;
-      },
-      onComplete: ({ suggestions, actions }) => {
-        resolve({
-          reply: accumulated,
-          suggestions,
-          actions,
-        });
-      },
-      onError: (err) => {
-        resolve({
-          reply: `Sorry, there was an issue communicating with the assistant. Error: ${err.message}`,
-          suggestions: ["What projects has Gopal built?", "Download Resume"],
-        });
-      },
-    });
-  });
+  return generateInstantKnowledgeResponse(data.message);
 }
