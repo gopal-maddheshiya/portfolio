@@ -43,13 +43,11 @@ export function GopalAIAssistant() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Buffer queue for silky-smooth typewriter streaming
-  const bufferQueueRef = useRef<string>("");
-  const typingTimerRef = useRef<number | null>(null);
-  const pendingCompletionRef = useRef<{
-    suggestions: string[];
-    actions?: ChatAction[] | undefined;
-  } | null>(null);
+  // Typewriter Streaming Engine Refs
+  const bufferRef = useRef<string>("");
+  const isDoneRef = useRef<boolean>(false);
+  const completionDataRef = useRef<{ suggestions: string[]; actions?: ChatAction[] | undefined } | null>(null);
+  const timerRef = useRef<number | null>(null);
 
   // Auto-scroll to bottom smoothly
   const scrollToBottom = () => {
@@ -75,64 +73,71 @@ export function GopalAIAssistant() {
     }
   }, [isOpen]);
 
-  // Typewriter ticker loop
+  // Cleanup typewriter timer on unmount
   useEffect(() => {
-    const drainBuffer = () => {
-      if (bufferQueueRef.current.length > 0) {
-        // Adaptive speed: type faster if large buffer accumulates
-        const queueLen = bufferQueueRef.current.length;
-        const chunkSize = queueLen > 50 ? 6 : queueLen > 20 ? 3 : queueLen > 8 ? 2 : 1;
-        const nextChars = bufferQueueRef.current.slice(0, chunkSize);
-        bufferQueueRef.current = bufferQueueRef.current.slice(chunkSize);
-
-        setMessages((prev) => {
-          const next = [...prev];
-          const last = next[next.length - 1];
-          if (last && last.role === "assistant") {
-            next[next.length - 1] = {
-              ...last,
-              content: last.content + nextChars,
-            };
-          }
-          return next;
-        });
-
-        // Trigger fast micro-interval for next char
-        typingTimerRef.current = window.setTimeout(drainBuffer, 12);
-      } else if (pendingCompletionRef.current) {
-        // Buffer is empty, apply pending completions (suggestions, actions)
-        const comp = pendingCompletionRef.current;
-        pendingCompletionRef.current = null;
-        setMessages((prev) => {
-          const next = [...prev];
-          const last = next[next.length - 1];
-          if (last && last.role === "assistant") {
-            next[next.length - 1] = {
-              ...last,
-              suggestions: comp.suggestions,
-              actions: comp.actions,
-            };
-          }
-          return next;
-        });
-        setIsStreaming(false);
-        setLoading(false);
+    return () => {
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
       }
     };
+  }, []);
 
-    if (isStreaming) {
-      if (!typingTimerRef.current) {
-        typingTimerRef.current = window.setTimeout(drainBuffer, 10);
-      }
+  const startTypewriterLoop = () => {
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
     }
 
-    return () => {
-      if (typingTimerRef.current) {
-        clearTimeout(typingTimerRef.current);
-        typingTimerRef.current = null;
+    const tick = () => {
+      if (bufferRef.current.length > 0) {
+        // Natural typewriter cadence:
+        // Speed up dynamically if network delivers a large chunk so it never falls behind
+        const charsToTake = bufferRef.current.length > 80 ? 4 : bufferRef.current.length > 30 ? 2 : 1;
+        const piece = bufferRef.current.slice(0, charsToTake);
+        bufferRef.current = bufferRef.current.slice(charsToTake);
+
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (last && last.role === "assistant") {
+            next[next.length - 1] = {
+              ...last,
+              content: last.content + piece,
+            };
+          }
+          return next;
+        });
+
+        timerRef.current = window.setTimeout(tick, 18);
+      } else if (isDoneRef.current) {
+        // Buffer is empty and stream generation is complete
+        if (completionDataRef.current) {
+          const comp = completionDataRef.current;
+          setMessages((prev) => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+            if (last && last.role === "assistant") {
+              next[next.length - 1] = {
+                ...last,
+                suggestions: comp.suggestions,
+                actions: comp.actions,
+              };
+            }
+            return next;
+          });
+        }
+        setIsStreaming(false);
+        setLoading(false);
+        timerRef.current = null;
+      } else {
+        // Still waiting for more network chunks
+        timerRef.current = window.setTimeout(tick, 25);
       }
     };
-  }, [isStreaming]);
+
+    timerRef.current = window.setTimeout(tick, 18);
+  };
 
   const handleSendMessage = async (textToSend?: string) => {
     const query = (textToSend || input).trim();
@@ -153,12 +158,16 @@ export function GopalAIAssistant() {
 
     const previousHistory = messages.filter((m) => m.content.length > 0).slice(-6);
 
-    bufferQueueRef.current = "";
-    pendingCompletionRef.current = null;
+    // Reset typewriter buffer & flags
+    bufferRef.current = "";
+    isDoneRef.current = false;
+    completionDataRef.current = null;
 
     setMessages((prev) => [...prev, userMsg, initialAssistantMsg]);
     setLoading(true);
     setIsStreaming(true);
+
+    startTypewriterLoop();
 
     try {
       await askGopalAiStream({
@@ -167,26 +176,22 @@ export function GopalAIAssistant() {
         resumeUrl: info.resume,
         whatsappNumber: info.whatsapp,
         onChunk: (chunk) => {
-          bufferQueueRef.current += chunk;
-          if (!typingTimerRef.current) {
-            typingTimerRef.current = window.setTimeout(() => {
-              typingTimerRef.current = null;
-            }, 0);
-          }
+          bufferRef.current += chunk;
         },
         onComplete: ({ suggestions, actions }) => {
-          pendingCompletionRef.current = { suggestions, actions };
+          completionDataRef.current = { suggestions, actions };
+          isDoneRef.current = true;
           if (!isOpen) {
             setHasUnread(true);
           }
         },
         onError: (err) => {
           console.error("AI assistant stream error:", err);
-          bufferQueueRef.current +=
-            "\n\nI encountered a momentary connection issue. You can explore Gopal's projects or reach out directly at " +
+          bufferRef.current +=
+            "\n\nGopal is open for software engineering opportunities! You can contact him directly at " +
             info.email +
-            ".";
-          pendingCompletionRef.current = {
+            " or on WhatsApp.";
+          completionDataRef.current = {
             suggestions: ["What projects has Gopal built?", "Tell me about his DSA skills"],
             actions: [
               {
@@ -197,12 +202,12 @@ export function GopalAIAssistant() {
               { label: "📄 Download Resume", url: info.resume, action: "resume" },
             ],
           };
+          isDoneRef.current = true;
         },
       });
     } catch (err) {
       console.error("Failed to query AI assistant:", err);
-      setIsStreaming(false);
-      setLoading(false);
+      isDoneRef.current = true;
     }
   };
 
@@ -229,8 +234,13 @@ export function GopalAIAssistant() {
   };
 
   const handleClearHistory = () => {
-    bufferQueueRef.current = "";
-    pendingCompletionRef.current = null;
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    bufferRef.current = "";
+    isDoneRef.current = false;
+    completionDataRef.current = null;
     setIsStreaming(false);
     setLoading(false);
     setMessages([createWelcomeMessage()]);
@@ -358,7 +368,7 @@ export function GopalAIAssistant() {
                 );
               })}
 
-            {/* Initial Typing indicator before first token arrives */}
+            {/* Initial Typing indicator before first character arrives */}
             {loading && !messages[messages.length - 1]?.content && (
               <div className="w-full rounded-2xl rounded-tl-xs border border-border/80 bg-card/95 px-4 py-3 text-xs sm:text-sm text-card-foreground backdrop-blur-md shadow-soft animate-in fade-in-50">
                 <div className="flex items-center gap-1.5 text-[11px] font-mono font-medium text-primary mb-2 border-b border-border/50 pb-1.5">

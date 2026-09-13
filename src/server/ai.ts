@@ -367,7 +367,11 @@ export async function handleAiChatStream(
         process.env?.["VITE_GEMINI_API_KEY"] ||
         process.env?.["AI_API_KEY"] ||
         process.env?.["GOOGLE_AI_KEY"])) ||
-    "";
+    (typeof import.meta !== "undefined" && import.meta.env
+      ? (import.meta.env["VITE_GEMINI_API_KEY"] as string) ||
+        (import.meta.env["GEMINI_API_KEY"] as string) ||
+        ""
+      : "");
 
   const encoder = new TextEncoder();
 
