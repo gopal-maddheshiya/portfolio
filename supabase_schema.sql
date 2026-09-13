@@ -56,3 +56,16 @@ CREATE POLICY "Authenticated Update Portfolio Media"
   FOR UPDATE
   TO authenticated
   USING (bucket_id = 'portfolio-media');
+
+-- 7. Enable Supabase Realtime Replication (Live sync without page reload)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' 
+    AND schemaname = 'public' 
+    AND tablename = 'portfolio_data'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.portfolio_data;
+  END IF;
+END $$;

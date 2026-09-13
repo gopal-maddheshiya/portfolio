@@ -1,9 +1,13 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
 import {
   DEFAULT_PORTFOLIO_DATA,
+  RECORD_ID,
+  TABLE_NAME,
   fetchPortfolioData,
+  parsePortfolioContent,
   savePortfolioData,
+  supabase,
   type PortfolioData,
 } from "@/lib/supabase";
 
@@ -24,21 +28,86 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
-  const loadData = async () => {
+  const loadData = useCallback(async (silent = false) => {
     try {
-      setIsLoading(true);
+      if (!silent) setIsLoading(true);
       const remoteData = await fetchPortfolioData();
       setData(remoteData);
     } catch (err) {
       console.error("Failed to load portfolio data:", err);
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadData();
-  }, []);
+
+    // 1. Supabase Realtime Channel Subscription (WebSocket)
+    const channel = supabase
+      .channel("portfolio-realtime-channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: TABLE_NAME,
+          filter: `id=eq.${RECORD_ID}`,
+        },
+        (payload) => {
+          console.log("⚡ [Realtime Sync] Supabase update received:", payload);
+          if (payload.new && typeof payload.new === "object" && "content" in payload.new) {
+            const raw = payload.new as { content?: unknown; updated_at?: string };
+            const parsed = parsePortfolioContent(raw.content, raw.updated_at);
+            setData(parsed);
+          } else {
+            loadData(true);
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log("⚡ Supabase Realtime sync status:", status);
+      });
+
+    // 2. Multi-Tab Instant Sync via BroadcastChannel
+    let broadcast: BroadcastChannel | null = null;
+    if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+      try {
+        broadcast = new BroadcastChannel("gopal_portfolio_tab_sync");
+        broadcast.onmessage = (event) => {
+          if (event.data?.type === "PORTFOLIO_SAVED" && event.data?.payload) {
+            console.log("⚡ [Cross-Tab Sync] Instant sync received from Admin Studio");
+            setData(parsePortfolioContent(event.data.payload, new Date().toISOString()));
+          }
+        };
+      } catch (e) {
+        console.warn("BroadcastChannel error:", e);
+      }
+    }
+
+    // 3. Tab Focus / Visibility Auto-Refresh
+    const handleVisibility = () => {
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        loadData(true);
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("focus", handleVisibility);
+      document.addEventListener("visibilitychange", handleVisibility);
+    }
+
+    return () => {
+      supabase.removeChannel(channel);
+      if (broadcast) {
+        broadcast.close();
+      }
+      if (typeof window !== "undefined") {
+        window.removeEventListener("focus", handleVisibility);
+        document.removeEventListener("visibilitychange", handleVisibility);
+      }
+    };
+  }, [loadData]);
 
   const updateData = (
     updater: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData)
@@ -57,7 +126,20 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       const res = await savePortfolioData(dataToSave);
       if (res.success) {
         toast.success("Portfolio changes saved live!");
-        setData({ ...dataToSave, updatedAt: new Date().toISOString() });
+        const updated = { ...dataToSave, updatedAt: new Date().toISOString() };
+        setData(updated);
+
+        // Notify all open tabs instantly in < 5ms without page reload
+        if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+          try {
+            const bc = new BroadcastChannel("gopal_portfolio_tab_sync");
+            bc.postMessage({ type: "PORTFOLIO_SAVED", payload: dataToSave });
+            bc.close();
+          } catch {
+            // Handled by Supabase Realtime channel
+          }
+        }
+
         return true;
       } else {
         toast.error(`Save failed: ${res.error || "Unknown error"}`);

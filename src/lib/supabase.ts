@@ -77,8 +77,56 @@ export const DEFAULT_PORTFOLIO_DATA: PortfolioData = {
   contactData: CONTACT_DATA,
 };
 
-const TABLE_NAME = "portfolio_data";
-const RECORD_ID = "gopal_portfolio";
+export const TABLE_NAME = "portfolio_data";
+export const RECORD_ID = "gopal_portfolio";
+
+/**
+ * Parses raw JSON content into safe PortfolioData with defaults.
+ */
+export function parsePortfolioContent(c: any, updatedAt?: string): PortfolioData {
+  if (!c || typeof c !== "object") return DEFAULT_PORTFOLIO_DATA;
+  return {
+    ...DEFAULT_PORTFOLIO_DATA,
+    ...c,
+    personalInfo: {
+      ...DEFAULT_PORTFOLIO_DATA.personalInfo,
+      ...(c.personalInfo || {}),
+    },
+    heroData: {
+      ...DEFAULT_PORTFOLIO_DATA.heroData,
+      ...(c.heroData || {}),
+    },
+    aboutData: {
+      ...DEFAULT_PORTFOLIO_DATA.aboutData,
+      ...(c.aboutData || {}),
+      snapshot: {
+        ...DEFAULT_PORTFOLIO_DATA.aboutData.snapshot,
+        ...(c.aboutData?.snapshot || {}),
+      },
+    },
+    dsaInfo: {
+      ...DEFAULT_PORTFOLIO_DATA.dsaInfo,
+      ...(c.dsaInfo || {}),
+    },
+    resumeCTA: {
+      ...DEFAULT_PORTFOLIO_DATA.resumeCTA,
+      ...(c.resumeCTA || {}),
+    },
+    contactData: {
+      ...DEFAULT_PORTFOLIO_DATA.contactData,
+      ...(c.contactData || {}),
+    },
+    projects: Array.isArray(c.projects) ? c.projects : DEFAULT_PORTFOLIO_DATA.projects,
+    highlights: Array.isArray(c.highlights) ? c.highlights : DEFAULT_PORTFOLIO_DATA.highlights,
+    focusAreas: Array.isArray(c.focusAreas) ? c.focusAreas : DEFAULT_PORTFOLIO_DATA.focusAreas,
+    skillGroups: Array.isArray(c.skillGroups) ? c.skillGroups : DEFAULT_PORTFOLIO_DATA.skillGroups,
+    codingProfiles: Array.isArray(c.codingProfiles) ? c.codingProfiles : DEFAULT_PORTFOLIO_DATA.codingProfiles,
+    journey: Array.isArray(c.journey) ? c.journey : DEFAULT_PORTFOLIO_DATA.journey,
+    education: Array.isArray(c.education) ? c.education : DEFAULT_PORTFOLIO_DATA.education,
+    certifications: Array.isArray(c.certifications) ? c.certifications : DEFAULT_PORTFOLIO_DATA.certifications,
+    updatedAt: updatedAt || c.updatedAt,
+  };
+}
 
 /**
  * Fetch portfolio data from Supabase, falling back to local constants.
@@ -97,40 +145,7 @@ export async function fetchPortfolioData(): Promise<PortfolioData> {
     }
 
     if (data && data.content) {
-      const c = data.content;
-      return {
-        ...DEFAULT_PORTFOLIO_DATA,
-        ...c,
-        personalInfo: {
-          ...DEFAULT_PORTFOLIO_DATA.personalInfo,
-          ...(c.personalInfo || {}),
-        },
-        heroData: {
-          ...DEFAULT_PORTFOLIO_DATA.heroData,
-          ...(c.heroData || {}),
-        },
-        aboutData: {
-          ...DEFAULT_PORTFOLIO_DATA.aboutData,
-          ...(c.aboutData || {}),
-          snapshot: {
-            ...DEFAULT_PORTFOLIO_DATA.aboutData.snapshot,
-            ...(c.aboutData?.snapshot || {}),
-          },
-        },
-        dsaInfo: {
-          ...DEFAULT_PORTFOLIO_DATA.dsaInfo,
-          ...(c.dsaInfo || {}),
-        },
-        resumeCTA: {
-          ...DEFAULT_PORTFOLIO_DATA.resumeCTA,
-          ...(c.resumeCTA || {}),
-        },
-        contactData: {
-          ...DEFAULT_PORTFOLIO_DATA.contactData,
-          ...(c.contactData || {}),
-        },
-        updatedAt: data.updated_at,
-      };
+      return parsePortfolioContent(data.content, data.updated_at);
     }
   } catch (err) {
     console.warn("Network / Supabase error (using local fallback):", err);
