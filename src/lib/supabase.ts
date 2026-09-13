@@ -97,9 +97,38 @@ export async function fetchPortfolioData(): Promise<PortfolioData> {
     }
 
     if (data && data.content) {
+      const c = data.content;
       return {
         ...DEFAULT_PORTFOLIO_DATA,
-        ...data.content,
+        ...c,
+        personalInfo: {
+          ...DEFAULT_PORTFOLIO_DATA.personalInfo,
+          ...(c.personalInfo || {}),
+        },
+        heroData: {
+          ...DEFAULT_PORTFOLIO_DATA.heroData,
+          ...(c.heroData || {}),
+        },
+        aboutData: {
+          ...DEFAULT_PORTFOLIO_DATA.aboutData,
+          ...(c.aboutData || {}),
+          snapshot: {
+            ...DEFAULT_PORTFOLIO_DATA.aboutData.snapshot,
+            ...(c.aboutData?.snapshot || {}),
+          },
+        },
+        dsaInfo: {
+          ...DEFAULT_PORTFOLIO_DATA.dsaInfo,
+          ...(c.dsaInfo || {}),
+        },
+        resumeCTA: {
+          ...DEFAULT_PORTFOLIO_DATA.resumeCTA,
+          ...(c.resumeCTA || {}),
+        },
+        contactData: {
+          ...DEFAULT_PORTFOLIO_DATA.contactData,
+          ...(c.contactData || {}),
+        },
         updatedAt: data.updated_at,
       };
     }
