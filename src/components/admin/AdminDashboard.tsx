@@ -24,6 +24,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import defaultProfilePhoto from "@/assets/gopal-profile.jpg";
 import { usePortfolio } from "@/context/PortfolioContext";
 import { uploadPortfolioFile, uploadPortfolioImage } from "@/lib/supabase";
 import {
@@ -63,6 +64,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
   // Safe accessors with fallbacks
   const info = data.personalInfo;
+  const currentProfilePhoto =
+    info.profilePhoto && info.profilePhoto !== "/assets/gopal-profile.jpg"
+      ? info.profilePhoto
+      : defaultProfilePhoto;
   const hero = data.heroData || HERO_DATA;
   const about = data.aboutData || ABOUT_DATA;
   const cta = data.resumeCTA || RESUME_CTA_DATA;
@@ -690,12 +695,18 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
                   <div className="flex flex-col md:flex-row gap-5 items-start md:items-center">
                     {/* Live Thumbnail Preview */}
-                    <div className="relative w-28 h-36 rounded-2xl overflow-hidden border-2 border-border bg-card shrink-0 shadow-sm ring-2 ring-primary/20">
+                    <div className="relative w-28 h-36 rounded-2xl overflow-hidden border-2 border-border bg-card shrink-0 shadow-sm ring-2 ring-primary/20 flex items-center justify-center">
                       <img
-                        src={info.profilePhoto || "/assets/gopal-profile.jpg"}
-                        alt="Profile Preview"
+                        src={currentProfilePhoto}
+                        alt="Current Homepage Profile Preview"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = defaultProfilePhoto;
+                        }}
                         className="w-full h-full object-cover object-[center_18%]"
                       />
+                      <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-md bg-black/75 backdrop-blur-xs text-[10px] font-semibold text-white">
+                        Live Preview
+                      </div>
                     </div>
 
                     <div className="flex-1 space-y-3 w-full">
@@ -750,7 +761,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                 <div className="sm:col-span-2 rounded-2xl border-2 border-border/80 bg-surface/50 p-5 space-y-4 shadow-2xs">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-border/60 pb-2.5">
                     <label className="block text-sm font-bold text-foreground">
-                      Resume PDF Document (Direct Upload &amp; Link)
+                      Resume PDF Document (Universal Single Source)
                     </label>
                     <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
                       Format: .PDF document
@@ -789,7 +800,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Upload your latest single-page resume PDF here. It uploads directly to Supabase Storage and connects with the Hero "View Resume" button, Navbar "Resume", Resume CTA banner, and AI Chat Assistant.
+                    ℹ️ <strong>Universal Single Source of Truth:</strong> When you upload or update your resume PDF here, it automatically syncs across the entire portfolio — including the <strong>Hero "View Resume" button</strong>, <strong>Desktop Navbar "Resume" button</strong>, <strong>Mobile Menu "Download Resume" button</strong>, <strong>Resume CTA Banner</strong>, and the <strong>Ask Gopal AI Chat Assistant</strong>.
                   </p>
                 </div>
               </div>

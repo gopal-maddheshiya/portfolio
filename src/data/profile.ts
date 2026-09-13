@@ -3,6 +3,7 @@ import tradingCompanyImage from "@/assets/trading-company.webp";
 import chatImage from "@/assets/node-chat.png";
 import jobsImage from "@/assets/job-card.png";
 import weatherImage from "@/assets/weather.png";
+import defaultProfilePhoto from "@/assets/gopal-profile.jpg";
 
 export interface PersonalInfo {
   name: string;
@@ -42,6 +43,7 @@ export const PERSONAL_INFO: PersonalInfo = {
   ogImage: "https://gopal-maddheshiya.vercel.app/og-image.jpg",
   siteDescription:
     "Computer Science student focused on Java, Data Structures & Algorithms and full-stack web development with React, Node.js and MongoDB.",
+  profilePhoto: defaultProfilePhoto,
 };
 
 export interface HeroData {

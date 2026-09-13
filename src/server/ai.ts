@@ -503,18 +503,31 @@ export async function askGopalAiStream({
   onChunk,
   onComplete,
   onError,
+  resumeUrl,
+  whatsappNumber,
 }: {
   message: string;
   history?: ChatMessage[] | undefined;
   onChunk: (chunk: string) => void;
   onComplete: (data: { suggestions: string[]; actions?: ChatAction[] | undefined }) => void;
   onError: (err: Error) => void;
+  resumeUrl?: string | undefined;
+  whatsappNumber?: string | undefined;
 }): Promise<void> {
+  const activeResume = resumeUrl || PERSONAL_INFO.resume;
+  const activeWhatsapp = whatsappNumber || PERSONAL_INFO.whatsapp;
+
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message, history, stream: true }),
+      body: JSON.stringify({
+        message,
+        history,
+        stream: true,
+        resumeUrl: activeResume,
+        whatsappNumber: activeWhatsapp,
+      }),
     });
 
     if (res.ok && res.body) {
@@ -548,9 +561,20 @@ export async function askGopalAiStream({
                 }
 
                 if (data.done) {
+                  // If actions are provided, ensure resume & whatsapp urls match the current dynamic values
+                  const sanitizedActions = data.actions?.map((act) => {
+                    if (act.action === "resume") {
+                      return { ...act, url: activeResume };
+                    }
+                    if (act.action === "whatsapp") {
+                      return { ...act, url: `https://wa.me/${activeWhatsapp}` };
+                    }
+                    return act;
+                  });
+
                   onComplete({
                     suggestions: data.suggestions ?? [],
-                    actions: data.actions,
+                    actions: sanitizedActions,
                   });
                   return;
                 }
@@ -569,10 +593,10 @@ export async function askGopalAiStream({
           "Download Gopal's Resume",
         ],
         actions: [
-          { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" },
+          { label: "📄 Download Resume", url: activeResume, action: "resume" },
           {
             label: "💬 Message on WhatsApp",
-            url: `https://wa.me/${PERSONAL_INFO.whatsapp}`,
+            url: `https://wa.me/${activeWhatsapp}`,
             action: "whatsapp",
           },
         ],
@@ -602,10 +626,10 @@ export async function askGopalAiStream({
           "Download his resume",
         ],
         actions: [
-          { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" as const },
+          { label: "📄 Download Resume", url: activeResume, action: "resume" as const },
           {
             label: "💬 Message on WhatsApp",
-            url: `https://wa.me/${PERSONAL_INFO.whatsapp}`,
+            url: `https://wa.me/${activeWhatsapp}`,
             action: "whatsapp" as const,
           },
         ],

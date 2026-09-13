@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { PERSONAL_INFO } from "@/data/profile";
+import { usePortfolio } from "@/context/PortfolioContext";
 import { cn } from "@/lib/utils";
 import { askGopalAiStream, type ChatMessage } from "@/server/ai";
 import { AIChatMessage } from "./AIChatMessage";
@@ -27,25 +28,30 @@ const INITIAL_SUGGESTIONS = [
   "Download Gopal's Resume",
 ];
 
-const WELCOME_MESSAGE: ChatMessage = {
+const createWelcomeMessage = (resumeUrl: string, whatsapp: string): ChatMessage => ({
   role: "assistant",
   content: `Hello! I'm **Ask Gopal**, the intelligent assistant for **Gopal Maddheshiya**.\n\nI can answer questions about Gopal's **full-stack projects**, **Java & DSA problem-solving**, **academic background at SRMU**, **skills**, and **internship opportunities**.\n\nWhat would you like to know?`,
   suggestions: INITIAL_SUGGESTIONS.slice(0, 3),
   actions: [
-    { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" },
+    { label: "📄 Download Resume", url: resumeUrl, action: "resume" },
     { label: "🚀 View Projects", action: "projects" },
     {
       label: "💬 Message on WhatsApp",
-      url: `https://wa.me/${PERSONAL_INFO.whatsapp}`,
+      url: `https://wa.me/${whatsapp}`,
       action: "whatsapp",
     },
   ],
-};
+});
 
 export function GopalAIAssistant() {
+  const { data } = usePortfolio();
+  const info = data?.personalInfo || PERSONAL_INFO;
+
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [
+    createWelcomeMessage(info.resume, info.whatsapp || PERSONAL_INFO.whatsapp),
+  ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
@@ -97,6 +103,8 @@ export function GopalAIAssistant() {
       await askGopalAiStream({
         message: query,
         history: previousHistory,
+        resumeUrl: info.resume,
+        whatsappNumber: info.whatsapp,
         onChunk: (chunk) => {
           setMessages((prev) => {
             const next = [...prev];
@@ -138,14 +146,14 @@ export function GopalAIAssistant() {
                 ...last,
                 content:
                   last.content ||
-                  "I apologize, but I encountered a momentary issue processing your request. Please feel free to try again or reach out to Gopal directly at [gopalmaddheshiya138@gmail.com](mailto:gopalmaddheshiya138@gmail.com).",
+                  `I apologize, but I encountered a momentary issue processing your request. Please feel free to try again or reach out to Gopal directly at [${info.email}](mailto:${info.email}).`,
                 actions: [
                   {
                     label: "💬 Message on WhatsApp",
-                    url: `https://wa.me/${PERSONAL_INFO.whatsapp}`,
+                    url: `https://wa.me/${info.whatsapp || PERSONAL_INFO.whatsapp}`,
                     action: "whatsapp",
                   },
-                  { label: "📄 Download Resume", url: PERSONAL_INFO.resume, action: "resume" },
+                  { label: "📄 Download Resume", url: info.resume, action: "resume" },
                 ],
               };
             }
@@ -176,14 +184,14 @@ export function GopalAIAssistant() {
       const el = document.getElementById("contact");
       el?.scrollIntoView({ behavior: "smooth" });
     } else if (action.action === "resume") {
-      window.open(PERSONAL_INFO.resume, "_blank", "noopener,noreferrer");
+      window.open(info.resume || PERSONAL_INFO.resume, "_blank", "noopener,noreferrer");
     } else if (action.action === "whatsapp") {
-      window.open(`https://wa.me/${PERSONAL_INFO.whatsapp}`, "_blank", "noopener,noreferrer");
+      window.open(`https://wa.me/${info.whatsapp || PERSONAL_INFO.whatsapp}`, "_blank", "noopener,noreferrer");
     }
   };
 
   const handleClearHistory = () => {
-    setMessages([WELCOME_MESSAGE]);
+    setMessages([createWelcomeMessage(info.resume, info.whatsapp || PERSONAL_INFO.whatsapp)]);
   };
 
   return (

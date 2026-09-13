@@ -223,7 +223,12 @@ export function Hero() {
             {/* Main Photo Card Container */}
             <div className="relative overflow-hidden rounded-2xl border-2 border-border bg-card shadow-soft">
               <img
-                src={(info as { profilePhoto?: string }).profilePhoto || profilePhoto}
+                src={
+                  (info as { profilePhoto?: string }).profilePhoto &&
+                  (info as { profilePhoto?: string }).profilePhoto !== "/assets/gopal-profile.jpg"
+                    ? (info as { profilePhoto?: string }).profilePhoto!
+                    : profilePhoto
+                }
                 alt={info.name || "Gopal Maddheshiya"}
                 width={420}
                 height={500}
