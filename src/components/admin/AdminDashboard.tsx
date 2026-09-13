@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { usePortfolio } from "@/context/PortfolioContext";
-import { uploadPortfolioImage } from "@/lib/supabase";
+import { uploadPortfolioFile, uploadPortfolioImage } from "@/lib/supabase";
 import {
   ABOUT_DATA,
   CONTACT_DATA,
@@ -67,6 +67,8 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<TabType>("hero");
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const [uploadingProfilePhoto, setUploadingProfilePhoto] = useState<boolean>(false);
+  const [uploadingResume, setUploadingResume] = useState<boolean>(false);
+  const [uploadingCertIndex, setUploadingCertIndex] = useState<number | null>(null);
 
   // Safe accessors with fallbacks
   const info = data.personalInfo;
@@ -100,6 +102,31 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
     }
   };
 
+  // Helper for uploading resume PDF document
+  const handleResumePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingResume(true);
+      toast.info("Uploading resume PDF to Supabase Storage...");
+      const res = await uploadPortfolioFile(file, "resumes");
+      if (res.url) {
+        updateData({
+          personalInfo: { ...info, resume: res.url },
+        });
+        toast.success("Resume PDF uploaded successfully! Click 'Save Live' to publish.");
+      } else {
+        toast.error(`Upload error: ${res.error || "Failed to upload resume PDF"}`);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Resume upload failed";
+      toast.error(msg);
+    } finally {
+      setUploadingResume(false);
+    }
+  };
+
   // Helper for uploading project image
   const handleProjectImageUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -125,6 +152,34 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
       toast.error(msg);
     } finally {
       setUploadingIndex(null);
+    }
+  };
+
+  // Helper for uploading certificate PDF or image
+  const handleCertFileUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingCertIndex(index);
+      toast.info("Uploading certificate file to Supabase Storage...");
+      const res = await uploadPortfolioFile(file, "certificates");
+      if (res.url) {
+        const existing = data.certifications[index];
+        if (existing) {
+          const updatedCerts = [...data.certifications];
+          updatedCerts[index] = { ...existing, certificateUrl: res.url };
+          updateData({ certifications: updatedCerts });
+          toast.success("Certificate uploaded! Remember to click 'Save Live'.");
+        }
+      } else {
+        toast.error(`Upload error: ${res.error || "Failed to upload certificate"}`);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Certificate upload failed";
+      toast.error(msg);
+    } finally {
+      setUploadingCertIndex(null);
     }
   };
 
@@ -567,14 +622,45 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Resume PDF Link</label>
-                  <input
-                    type="text"
-                    value={info.resume}
-                    onChange={(e) => updateData({ personalInfo: { ...info, resume: e.target.value } })}
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
-                  />
+                {/* Resume PDF Upload & URL */}
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-medium text-foreground mb-1">
+                    Resume PDF Document (File Upload &amp; Link)
+                  </label>
+                  <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                    <input
+                      type="text"
+                      placeholder="Resume URL (/gopal-cv.pdf or Supabase URL)"
+                      value={info.resume || ""}
+                      onChange={(e) => updateData({ personalInfo: { ...info, resume: e.target.value } })}
+                      className="flex-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none font-mono text-xs"
+                    />
+                    <label className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface px-3.5 py-2 text-xs font-medium text-foreground hover:bg-secondary cursor-pointer transition-colors shrink-0">
+                      <Upload className="size-3.5 text-primary" />
+                      <span>{uploadingResume ? "Uploading PDF..." : "Upload New PDF Resume"}</span>
+                      <input
+                        type="file"
+                        accept="application/pdf,.pdf"
+                        className="hidden"
+                        disabled={uploadingResume}
+                        onChange={handleResumePdfUpload}
+                      />
+                    </label>
+                    {info.resume && (
+                      <a
+                        href={info.resume}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors shrink-0"
+                      >
+                        <ExternalLink className="size-3.5" />
+                        <span>View PDF</span>
+                      </a>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    Upload your latest resume PDF directly. It saves to Supabase Storage and connects with Hero "View Resume", Navbar "Resume", Resume CTA banner, and AI Chat Assistant.
+                  </p>
                 </div>
 
                 {/* Profile Photo Upload */}
@@ -1576,19 +1662,45 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">Certificate PDF / URL Link</label>
-                      <input
-                        type="text"
-                        value={cert.certificateUrl || ""}
-                        placeholder="/certificates/... or https://..."
-                        onChange={(e) => {
-                          const updated = [...data.certifications];
-                          updated[idx] = { ...cert, certificateUrl: e.target.value };
-                          updateData({ certifications: updated });
-                        }}
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none font-mono text-xs"
-                      />
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-medium text-foreground mb-1">
+                        Certificate PDF / Image Document
+                      </label>
+                      <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                        <input
+                          type="text"
+                          value={cert.certificateUrl || ""}
+                          placeholder="/certificates/... or Supabase URL"
+                          onChange={(e) => {
+                            const updated = [...data.certifications];
+                            updated[idx] = { ...cert, certificateUrl: e.target.value };
+                            updateData({ certifications: updated });
+                          }}
+                          className="flex-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none font-mono text-xs"
+                        />
+                        <label className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary cursor-pointer transition-colors shrink-0">
+                          <Upload className="size-3.5 text-primary" />
+                          <span>{uploadingCertIndex === idx ? "Uploading..." : "Upload Certificate File"}</span>
+                          <input
+                            type="file"
+                            accept="application/pdf,image/*"
+                            className="hidden"
+                            disabled={uploadingCertIndex === idx}
+                            onChange={(e) => handleCertFileUpload(idx, e)}
+                          />
+                        </label>
+                        {cert.certificateUrl && (
+                          <a
+                            href={cert.certificateUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center gap-1 rounded-lg border border-border bg-surface px-2.5 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors shrink-0"
+                          >
+                            <ExternalLink className="size-3.5" />
+                            <span>View</span>
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1867,6 +1979,43 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     }
                     className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
+                </div>
+
+                <div className="sm:col-span-2 pt-3 border-t border-border">
+                  <label className="block text-xs font-medium text-foreground mb-1">
+                    Attached Resume PDF File (Direct Upload &amp; Link)
+                  </label>
+                  <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                    <input
+                      type="text"
+                      placeholder="Resume URL (/gopal-cv.pdf or Supabase URL)"
+                      value={info.resume || ""}
+                      onChange={(e) => updateData({ personalInfo: { ...info, resume: e.target.value } })}
+                      className="flex-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none font-mono text-xs"
+                    />
+                    <label className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface px-3.5 py-2 text-xs font-medium text-foreground hover:bg-secondary cursor-pointer transition-colors shrink-0">
+                      <Upload className="size-3.5 text-primary" />
+                      <span>{uploadingResume ? "Uploading PDF..." : "Upload New PDF Resume"}</span>
+                      <input
+                        type="file"
+                        accept="application/pdf,.pdf"
+                        className="hidden"
+                        disabled={uploadingResume}
+                        onChange={handleResumePdfUpload}
+                      />
+                    </label>
+                    {info.resume && (
+                      <a
+                        href={info.resume}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors shrink-0"
+                      >
+                        <ExternalLink className="size-3.5" />
+                        <span>View Current</span>
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

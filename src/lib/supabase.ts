@@ -136,21 +136,22 @@ export async function savePortfolioData(content: PortfolioData): Promise<{ succe
 }
 
 /**
- * Upload an image to Supabase Storage bucket 'portfolio-media'
+ * Upload a file (PDF resume, document, screenshot, photo) to Supabase Storage bucket 'portfolio-media'
  */
-export async function uploadPortfolioImage(
+export async function uploadPortfolioFile(
   file: File,
-  folder = "projects"
+  folder = "resumes"
 ): Promise<{ url?: string; error?: string }> {
   try {
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+    const cleanFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const fileName = `${folder}/${Date.now()}-${cleanFileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from("portfolio-media")
       .upload(fileName, file, {
         cacheControl: "3600",
         upsert: true,
+        ...(file.type ? { contentType: file.type } : {}),
       });
 
     if (uploadError) {
@@ -160,7 +161,17 @@ export async function uploadPortfolioImage(
     const { data } = supabase.storage.from("portfolio-media").getPublicUrl(fileName);
     return { url: data.publicUrl };
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Image upload failed";
+    const msg = err instanceof Error ? err.message : "File upload failed";
     return { error: msg };
   }
+}
+
+/**
+ * Alias for uploading images to Supabase Storage bucket 'portfolio-media'
+ */
+export async function uploadPortfolioImage(
+  file: File,
+  folder = "projects"
+): Promise<{ url?: string; error?: string }> {
+  return uploadPortfolioFile(file, folder);
 }
