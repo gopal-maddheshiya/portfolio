@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Code2, FileText, Github, Linkedin, MapPin } from "lucide-react";
+import { ArrowRight, Code2, FileText, Github, Linkedin, MapPin, Sparkles } from "lucide-react";
 
 import profilePhoto from "@/assets/gopal-profile.jpg";
 import { PERSONAL_INFO } from "@/data/profile";
@@ -54,6 +54,46 @@ function TypewriterRole() {
   );
 }
 
+function JavaIcon({ className = "size-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M8.5 17.5c2.5.5 5.5.5 7.5-.2 0 0 .5.8-.8 1.4-2.5 1-6.5.9-8.5-.1 0 0-.4-.7 1.8-1.1z"
+        fill="#5382A1"
+      />
+      <path
+        d="M7.8 15.2c2.2.4 4.8.4 6.6-.1 0 0 .4.7-.7 1.2-2.2.9-5.7.8-7.5-.1 0 0-.3-.6 1.6-1z"
+        fill="#5382A1"
+      />
+      <path
+        d="M12.4 11.2c1 .9 2.1 2 1.3 3.5-1.2 2.3-4.5 1.2-6.3.8 0 0-.3.5.3.7 2.1.8 6.5 1 7.6-1.5 1-2.4-.7-3.9-1.9-4.8-.8-.6-1.4-1.3-.8-2.2-1.7.9-1.5 2.5-.2 3.5z"
+        fill="#E76F00"
+      />
+      <path
+        d="M15.1 8.5c.7.8 1.4 1.7.9 3-1 2-3.8 1.1-5.3.7 0 0-.2.5.3.6 1.8.7 5.5.9 6.4-1.3.9-2.1-.6-3.3-1.6-4.1-.7-.5-1.2-1.1-.7-1.9-1.4.8-1.2 2.2 0 3z"
+        fill="#EA2D2E"
+      />
+      <path
+        d="M11 20.3c3.5.2 7-.1 9.5-1.2 0 0 .7.8-.9 1.4-3.2 1.1-8.5 1.1-11.2 0 0 0-.5-.8 2.6-.2z"
+        fill="#5382A1"
+      />
+    </svg>
+  );
+}
+
+function ReactIcon({ className = "size-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="-11.5 -10.23174 23 20.46348" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="0" cy="0" r="2.05" fill="#61DAFB" />
+      <g stroke="#61DAFB" strokeWidth="1" fill="none">
+        <ellipse rx="11" ry="4.2" />
+        <ellipse rx="11" ry="4.2" transform="rotate(60)" />
+        <ellipse rx="11" ry="4.2" transform="rotate(120)" />
+      </g>
+    </svg>
+  );
+}
+
 export function Hero() {
   return (
     <section id="top" className="relative overflow-hidden pt-6 pb-12 sm:py-16 md:py-20 lg:py-24">
@@ -92,22 +132,22 @@ export function Hero() {
           </p>
 
           {/* CTA Buttons */}
-          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row w-full sm:w-auto gap-3 sm:gap-4">
+          <div className="mt-6 sm:mt-8 flex flex-row items-center gap-2.5 sm:gap-4 w-full sm:w-auto">
             <a
               href="#projects"
-              className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-soft transition-opacity hover:opacity-90 active:scale-[0.99] cursor-pointer"
+              className="inline-flex flex-1 sm:flex-initial sm:w-auto items-center justify-center gap-1.5 sm:gap-2 rounded-md bg-primary px-3.5 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-medium text-primary-foreground shadow-soft transition-opacity hover:opacity-90 active:scale-[0.99] cursor-pointer whitespace-nowrap"
             >
               <span>View my work</span>
-              <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
+              <ArrowRight className="size-3.5 sm:size-4 shrink-0" aria-hidden="true" />
             </a>
 
             <a
               href={PERSONAL_INFO.resume}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-md border border-border-strong bg-card px-5 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary active:scale-[0.99] cursor-pointer"
+              className="inline-flex flex-1 sm:flex-initial sm:w-auto items-center justify-center gap-1.5 sm:gap-2 rounded-md border border-border-strong bg-card px-3.5 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-medium text-foreground transition-colors hover:bg-secondary active:scale-[0.99] cursor-pointer whitespace-nowrap"
             >
-              <FileText className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <FileText className="size-3.5 sm:size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
               <span>View Resume</span>
             </a>
           </div>
@@ -150,9 +190,26 @@ export function Hero() {
           </ul>
         </div>
 
-        {/* Right Column: Clean Profile Photo with Online Status Badge */}
+        {/* Right Column: Clean Profile Photo with Floating Badges & Status */}
         <div className="flex justify-center lg:justify-end min-w-0">
           <div className="relative group shrink-0">
+            {/* Floating Mini Tech Badge 1 (Top Left): Java & DSA */}
+            <div className="absolute -top-3.5 -left-2 sm:-top-4 sm:-left-5 z-20 inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/95 dark:bg-card/90 px-3 py-1.5 shadow-lift backdrop-blur-md animate-float-slow transition-transform hover:scale-105 pointer-events-auto select-none">
+              <div className="flex size-5 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/20">
+                <JavaIcon className="size-3.5" />
+              </div>
+              <span className="font-semibold text-xs text-foreground">Java &bull; DSA</span>
+            </div>
+
+            {/* Floating Mini Tech Badge 2 (Bottom Right): Full-Stack */}
+            <div className="absolute -bottom-4 -right-2 sm:-bottom-5 sm:-right-5 z-20 inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/95 dark:bg-card/90 px-3 py-1.5 shadow-lift backdrop-blur-md animate-float-reverse transition-transform hover:scale-105 pointer-events-auto select-none">
+              <div className="flex size-5 items-center justify-center rounded-full bg-cyan-500/10 border border-cyan-500/20">
+                <ReactIcon className="size-3.5" />
+              </div>
+              <span className="font-semibold text-xs text-foreground">Full-Stack</span>
+            </div>
+
+            {/* Main Photo Card Container */}
             <div className="relative overflow-hidden rounded-2xl border-2 border-border bg-card shadow-soft">
               <img
                 src={profilePhoto}
@@ -162,17 +219,20 @@ export function Hero() {
                 className="w-64 h-72 sm:w-72 sm:h-80 md:w-80 md:h-96 lg:w-[21rem] lg:h-[25rem] object-cover object-[center_18%] transition-transform duration-500 group-hover:scale-105"
               />
 
-              {/* Bottom overlay with blinking Online badge */}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent p-4 sm:p-5 flex items-center justify-between">
+              {/* Bottom overlay with dark scrim gradient (eliminates light mode white glare) */}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent p-4 sm:p-5 flex items-center justify-between">
                 <div>
-                  <p className="font-display text-sm sm:text-base font-semibold text-foreground">
+                  <p className="font-display text-sm sm:text-base font-semibold text-white">
                     Gopal Maddheshiya
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-zinc-300">
                     Java &amp; Full-Stack Developer
                   </p>
                 </div>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-2.5 py-1 text-[11px] font-medium text-primary-foreground shadow-xs">
+                <span
+                  title="Available for Summer 2026 SWE / Full-Stack Internships"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-primary px-2.5 py-1 text-[11px] font-medium text-primary-foreground shadow-xs cursor-default transition-transform hover:scale-105"
+                >
                   <span className="relative flex size-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary-foreground opacity-75" />
                     <span className="relative inline-flex size-2 rounded-full bg-primary-foreground" />

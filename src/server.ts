@@ -3,6 +3,7 @@ import "./lib/error-capture";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 import { handleAiChatStream, processAiChatRequest } from "./server/ai";
+import { fetchLeetCodeStats } from "./server/leetcode";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -75,6 +76,25 @@ export default {
         } catch (apiErr) {
           console.error("API /api/chat error:", apiErr);
           return new Response(JSON.stringify({ error: "Failed to process AI chat request" }), {
+            status: 500,
+            headers: { "content-type": "application/json; charset=utf-8" },
+          });
+        }
+      }
+
+      if (url.pathname === "/api/leetcode" && (request.method === "GET" || request.method === "POST")) {
+        try {
+          const stats = await fetchLeetCodeStats();
+          return new Response(JSON.stringify(stats), {
+            status: 200,
+            headers: {
+              "content-type": "application/json; charset=utf-8",
+              "cache-control": "public, s-maxage=300, stale-while-revalidate=600",
+            },
+          });
+        } catch (lcErr) {
+          console.error("API /api/leetcode error:", lcErr);
+          return new Response(JSON.stringify({ error: "Failed to fetch LeetCode statistics" }), {
             status: 500,
             headers: { "content-type": "application/json; charset=utf-8" },
           });

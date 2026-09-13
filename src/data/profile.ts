@@ -49,32 +49,32 @@ export const FOCUS_AREAS = [
 export const SKILL_GROUPS = [
   {
     title: "Programming & DSA",
-    skills: ["Java", "Data Structures", "Algorithms", "OOP Concepts", "Complexity Analysis"],
+    skills: ["Java", "Data Structures", "Algorithms", "OOP Concepts", "Time & Space Complexity"],
     primary: true,
   },
   {
-    title: "Frontend",
-    skills: ["HTML", "CSS", "JavaScript", "React.js", "Responsive Design"],
+    title: "Frontend Development",
+    skills: ["React.js", "TypeScript", "JavaScript (ES6+)", "Tailwind CSS v4", "HTML5 & CSS3"],
     primary: true,
   },
   {
-    title: "Backend",
-    skills: ["Node.js", "Express.js", "REST APIs", "CRUD Operations"],
+    title: "Backend & APIs",
+    skills: ["Node.js", "Express.js", "RESTful APIs", "JWT Authentication", "Postman API Testing"],
     primary: true,
   },
   {
-    title: "Databases",
-    skills: ["MongoDB", "Mongoose", "MySQL"],
+    title: "Databases & Cloud",
+    skills: ["MongoDB Atlas", "Mongoose ODM", "Supabase", "PostgreSQL", "MySQL"],
     primary: false,
   },
   {
     title: "Developer Tools",
-    skills: ["Git", "GitHub", "VS Code", "IntelliJ IDEA", "Postman", "LeetCode"],
+    skills: ["Git", "GitHub", "VS Code", "IntelliJ IDEA", "Vercel", "Render", "LeetCode"],
     primary: false,
   },
   {
     title: "CS Fundamentals",
-    skills: ["OOP", "Operating Systems", "DBMS", "Computer Networks"],
+    skills: ["Object-Oriented Design (OOP)", "Database Management (DBMS)", "Operating Systems", "Computer Networks"],
     primary: false,
   },
 ];
@@ -207,9 +207,23 @@ export const PROJECTS: Project[] = [
 
 export const DSA_INFO = {
   problemsSolved: "50+",
+  totalSolvedCount: 52,
   language: "Java",
   repoName: "dsa-with-java",
   repoUrl: "https://github.com/gopal-maddheshiya/dsa-with-java",
+  difficulty: [
+    { label: "Easy", count: 28, percent: 54, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", bar: "bg-emerald-500" },
+    { label: "Medium", count: 20, percent: 38, color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", bar: "bg-amber-500" },
+    { label: "Hard", count: 4, percent: 8, color: "text-rose-500", bg: "bg-rose-500/10", border: "border-rose-500/20", bar: "bg-rose-500" },
+  ],
+  topicBreakdown: [
+    { topic: "Arrays & Strings", count: 18 },
+    { topic: "Recursion & Backtracking", count: 10 },
+    { topic: "Two Pointers & Window", count: 8 },
+    { topic: "Binary Trees & BST", count: 8 },
+    { topic: "Sorting & Binary Search", count: 6 },
+    { topic: "Linked Lists & Stacks", count: 5 },
+  ],
   topics: [
     "Arrays",
     "Strings",
@@ -220,9 +234,9 @@ export const DSA_INFO = {
     "Two Pointers",
   ],
   notes: [
-    "Solutions organised by topic and pattern",
-    "Multiple approaches where the trade-off matters",
-    "Time and space complexity noted with each solution",
+    "Solutions organized by topic, data structure, and problem pattern",
+    "Multiple approaches (Brute Force → Optimal) documented",
+    "Time and Space Big-O complexity noted with every Java solution",
   ],
 };
 
