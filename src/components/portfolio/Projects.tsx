@@ -1,23 +1,26 @@
-import { ArrowUpRight, CheckCircle2, Code2, ExternalLink, Github } from "lucide-react";
+import { useState } from "react";
+import { ArrowUpRight, CheckCircle2, Code2, ExternalLink, Github, Sparkles } from "lucide-react";
 
 import { PROJECTS, type Project } from "@/data/profile";
 import { cn } from "@/lib/utils";
 import { Reveal } from "./Reveal";
 import { Section, SectionHeading } from "./Section";
 
+const CATEGORIES = ["All", "Full-Stack", "Backend & APIs", "Frontend"] as const;
+
 function ProjectLinks({ project }: { project: Project }) {
   return (
-    <div className="mt-5 sm:mt-6 flex flex-wrap items-center gap-3">
+    <div className="mt-4 pt-3 border-t border-border/80 flex items-center gap-2.5">
       {/* Live Demo */}
       {project.liveUrl ? (
         <a
           href={project.liveUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-medium text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98] shadow-soft cursor-pointer"
+          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs sm:text-sm font-medium text-primary-foreground shadow-soft transition-all hover:opacity-90 active:scale-[0.98] cursor-pointer"
         >
           <span>Live Demo</span>
-          <ExternalLink className="size-3.5 sm:size-4 shrink-0" aria-hidden="true" />
+          <ExternalLink className="size-3.5 shrink-0" aria-hidden="true" />
           <span className="sr-only"> for {project.title}</span>
         </a>
       ) : null}
@@ -27,13 +30,13 @@ function ProjectLinks({ project }: { project: Project }) {
         href={project.githubUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center justify-center gap-2 rounded-lg border border-border-strong bg-secondary/60 px-4 py-2.5 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-medium text-foreground transition-all hover:bg-secondary active:scale-[0.98] cursor-pointer"
+        className={cn(
+          "inline-flex items-center justify-center gap-1.5 rounded-lg border border-border-strong bg-secondary/70 px-3.5 py-2 text-xs sm:text-sm font-medium text-foreground transition-all hover:bg-secondary active:scale-[0.98] cursor-pointer",
+          !project.liveUrl && "flex-1",
+        )}
       >
-        <Github className="size-3.5 sm:size-4 shrink-0" aria-hidden="true" />
-        <span>
-          Source Code
-          <span className="sr-only"> for {project.title}</span>
-        </span>
+        <Github className="size-3.5 shrink-0" aria-hidden="true" />
+        <span>Source Code</span>
       </a>
     </div>
   );
@@ -41,195 +44,187 @@ function ProjectLinks({ project }: { project: Project }) {
 
 function TechList({ items }: { items: string[] }) {
   return (
-    <div className="mt-4 flex flex-wrap gap-1.5 sm:gap-2">
-      {items.map((tech) => (
+    <div className="mt-3 flex flex-wrap gap-1.5">
+      {items.slice(0, 5).map((tech) => (
         <span
           key={tech}
-          className="inline-flex items-center rounded-md border border-border bg-secondary/80 px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:border-border-strong"
+          className="inline-flex items-center rounded-md border border-border bg-secondary/80 px-2 py-0.5 text-[11px] font-mono text-muted-foreground transition-colors hover:text-foreground"
         >
           {tech}
         </span>
       ))}
+      {items.length > 5 ? (
+        <span className="inline-flex items-center rounded-md border border-border/60 bg-secondary/40 px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground/80">
+          +{items.length - 5}
+        </span>
+      ) : null}
     </div>
   );
 }
 
-/** Project preview container with browser-like frame styling and smooth hover animation */
-function ProjectVisual({
-  title,
-  image,
-  liveUrl,
-  className,
-}: {
-  title: string;
-  image?: string | undefined;
-  liveUrl?: string | undefined;
-  className?: string | undefined;
-}) {
-  const content = (
-    <div
-      className={cn(
-        "relative flex flex-col overflow-hidden rounded-xl border border-border bg-surface/50 transition-all duration-300 hover:border-border-strong hover:shadow-lift",
-        className,
-      )}
+function ProjectCard({ project, index }: { project: Project; index: number }) {
+  return (
+    <Reveal
+      as="article"
+      delay={index * 40}
+      className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card shadow-xs transition-all duration-300 hover:border-primary/50 hover:shadow-lift"
     >
-      {/* Mockup browser window header */}
-      <div className="flex h-8 w-full items-center justify-between border-b border-border/80 bg-surface px-3">
-        <div className="flex items-center gap-1.5">
-          <span className="size-2.5 rounded-full bg-destructive/60" />
-          <span className="size-2.5 rounded-full bg-primary/40" />
-          <span className="size-2.5 rounded-full bg-accent/40" />
-        </div>
-        <div className="truncate px-2 text-[11px] font-mono text-muted-foreground/70">
-          {title.toLowerCase().replace(/\s+/g, "-")}.dev
-        </div>
-        <div className="w-8" />
-      </div>
-
-      {/* Image frame with isolated hover state */}
-      <div className="group/image relative aspect-[16/10] w-full overflow-hidden bg-muted/20">
-        {image ? (
-          <>
-            <img
-              src={image}
-              alt={`${title} project preview`}
-              loading="lazy"
-              width={1200}
-              height={750}
-              className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover/image:scale-105"
-            />
-            {liveUrl ? (
-              <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-[2px] opacity-0 transition-opacity duration-300 group-hover/image:opacity-100">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground shadow-lift">
-                  <span>View Live Project</span>
-                  <ArrowUpRight className="size-3.5" />
-                </span>
-              </div>
-            ) : null}
-          </>
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-surface">
-            <Code2 className="size-10 text-muted-foreground/40" />
+      <div>
+        {/* Visual Mockup Header */}
+        <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted/20 border-b border-border/80">
+          {/* Mockup browser window header */}
+          <div className="absolute top-0 inset-x-0 z-10 flex h-7 items-center justify-between border-b border-border/80 bg-surface/90 px-3 backdrop-blur-xs">
+            <div className="flex items-center gap-1">
+              <span className="size-2 rounded-full bg-destructive/60" />
+              <span className="size-2 rounded-full bg-primary/40" />
+              <span className="size-2 rounded-full bg-accent/40" />
+            </div>
+            <div className="truncate px-2 text-[10px] font-mono text-muted-foreground/70">
+              {project.title.toLowerCase().replace(/[^a-z0-9]/g, "-")}.dev
+            </div>
+            <div className="w-5" />
           </div>
-        )}
+
+          {/* Project Screenshot / Cover */}
+          {project.image ? (
+            <div className="relative h-full w-full pt-7 overflow-hidden">
+              <img
+                src={project.image}
+                alt={`${project.title} project preview`}
+                loading="lazy"
+                width={800}
+                height={450}
+                className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
+              />
+              {project.liveUrl ? (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Open live demo for ${project.title}`}
+                  className="absolute inset-0 pt-7 flex items-center justify-center bg-background/50 backdrop-blur-[2px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                >
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-lift">
+                    <span>View Live Project</span>
+                    <ArrowUpRight className="size-3.5" />
+                  </span>
+                </a>
+              ) : null}
+            </div>
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-surface pt-7">
+              <Code2 className="size-8 text-muted-foreground/40" />
+            </div>
+          )}
+
+          {/* Featured Badge */}
+          {project.featured ? (
+            <div className="absolute bottom-2.5 left-2.5 z-10">
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/90 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-primary-foreground backdrop-blur-xs shadow-xs">
+                <Sparkles className="size-2.5" />
+                <span>Featured</span>
+              </span>
+            </div>
+          ) : null}
+        </div>
+
+        {/* Card Content */}
+        <div className="p-4 sm:p-5">
+          {/* Category & Year */}
+          <div className="flex items-center justify-between gap-2 font-mono text-xs">
+            <span className="font-semibold text-primary">
+              {project.category || "Full-Stack"}
+            </span>
+            <span className="text-muted-foreground/80">{project.year}</span>
+          </div>
+
+          {/* Title */}
+          <h3 className="mt-2 font-display text-lg sm:text-xl font-bold tracking-tight text-foreground transition-colors group-hover:text-primary">
+            {project.title}
+          </h3>
+
+          {/* Summary */}
+          <p className="mt-2 text-xs sm:text-sm leading-relaxed text-muted-foreground line-clamp-2">
+            {project.summary}
+          </p>
+
+          {/* Key Feature Bullets */}
+          {project.features?.length ? (
+            <ul className="mt-3 space-y-1.5 border-t border-border/60 pt-3 text-[11px] sm:text-xs text-muted-foreground">
+              {project.features.slice(0, 2).map((feature) => (
+                <li key={feature} className="flex items-start gap-1.5">
+                  <CheckCircle2
+                    className="size-3.5 shrink-0 mt-0.5 text-primary/80"
+                    aria-hidden="true"
+                  />
+                  <span className="truncate">{feature}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+
+          {/* Tech Stack */}
+          <TechList items={project.technologies} />
+        </div>
       </div>
-    </div>
+
+      {/* Action Footer Links */}
+      <div className="px-4 pb-4 sm:px-5 sm:pb-5">
+        <ProjectLinks project={project} />
+      </div>
+    </Reveal>
   );
-
-  if (liveUrl) {
-    return (
-      <a
-        href={liveUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={`Open live demo for ${title}`}
-        className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl"
-      >
-        {content}
-      </a>
-    );
-  }
-
-  return content;
 }
 
 export function Projects() {
+  const [activeCategory, setActiveCategory] = useState<string>("All");
+
+  const filteredProjects = PROJECTS.filter((p) => {
+    if (activeCategory === "All") return true;
+    if (activeCategory === "Full-Stack")
+      return p.category?.toLowerCase().includes("full-stack");
+    if (activeCategory === "Backend & APIs")
+      return p.category?.toLowerCase().includes("backend");
+    if (activeCategory === "Frontend")
+      return p.category?.toLowerCase().includes("frontend");
+    return true;
+  });
+
   return (
     <Section id="projects">
       <SectionHeading
         eyebrow="Selected Work"
         title="Featured Projects"
-        description="A showcase of full-stack applications and interactive web systems built with Java, React, Node.js, and modern APIs."
+        description="Full-stack web systems, cloud databases, and developer tools built with React, Node.js, Express, and Supabase."
       />
 
-      <div className="mt-8 sm:mt-12 space-y-10 lg:space-y-14">
-        {PROJECTS.map((project, index) => {
-          const isEven = index % 2 === 1;
-
+      {/* Category Filter Tabs */}
+      <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+        {CATEGORIES.map((category) => {
+          const isActive = activeCategory === category;
           return (
-            <Reveal
-              key={project.title}
-              as="article"
-              delay={index * 60}
-              className="relative rounded-2xl border border-border bg-card p-5 sm:p-7 lg:p-9 transition-all hover:border-border-strong hover:shadow-lift"
+            <button
+              key={category}
+              type="button"
+              onClick={() => setActiveCategory(category)}
+              className={cn(
+                "rounded-full px-3.5 py-1.5 font-mono text-xs font-medium transition-all cursor-pointer",
+                isActive
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "border border-border bg-card text-muted-foreground hover:border-border-strong hover:text-foreground",
+              )}
             >
-              <div className="grid gap-6 sm:gap-8 lg:grid-cols-12 lg:items-center">
-                {/* Visual / Screenshot column */}
-                <div
-                  className={cn(
-                    "lg:col-span-6 xl:col-span-6",
-                    isEven ? "lg:order-2" : "lg:order-1",
-                  )}
-                >
-                  <ProjectVisual
-                    title={project.title}
-                    image={project.image}
-                    liveUrl={project.liveUrl}
-                  />
-                </div>
-
-                {/* Content column */}
-                <div
-                  className={cn(
-                    "flex flex-col justify-center lg:col-span-6 xl:col-span-6",
-                    isEven ? "lg:order-1" : "lg:order-2",
-                  )}
-                >
-                  {/* Top meta */}
-                  <div className="flex items-center gap-2 font-mono text-xs text-muted-foreground">
-                    <span className="text-primary font-medium">Project {index + 1}</span>
-                    <span>•</span>
-                    <span>{project.year}</span>
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-foreground">
-                    {project.title}
-                  </h3>
-
-                  {/* Summary */}
-                  <p className="mt-3 text-sm sm:text-base leading-relaxed text-muted-foreground">
-                    {project.summary}
-                  </p>
-
-                  {/* Problem statement / Goal */}
-                  {project.problem ? (
-                    <div className="mt-3.5 rounded-lg border border-border/70 bg-surface/60 p-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                      <span className="font-medium text-foreground">Goal: </span>
-                      {project.problem}
-                    </div>
-                  ) : null}
-
-                  {/* Key Features */}
-                  {project.features?.length ? (
-                    <div className="mt-4">
-                      <h4 className="font-mono text-xs uppercase tracking-[0.14em] text-primary font-medium">
-                        Key Features
-                      </h4>
-                      <ul className="mt-2 grid gap-1.5 sm:grid-cols-2 text-xs sm:text-sm text-muted-foreground">
-                        {project.features.map((feature) => (
-                          <li key={feature} className="flex items-start gap-2">
-                            <CheckCircle2
-                              className="size-3.5 shrink-0 mt-0.5 text-primary/80"
-                              aria-hidden="true"
-                            />
-                            <span>{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-
-                  {/* Tech stack */}
-                  <TechList items={project.technologies} />
-
-                  {/* Action links */}
-                  <ProjectLinks project={project} />
-                </div>
-              </div>
-            </Reveal>
+              {category}
+            </button>
           );
         })}
+      </div>
+
+      {/* 2-Column Responsive Grid */}
+      <div className="mt-6 sm:mt-8 grid gap-5 sm:gap-6 md:grid-cols-2">
+        {filteredProjects.map((project, index) => (
+          <ProjectCard key={project.title} project={project} index={index} />
+        ))}
       </div>
     </Section>
   );

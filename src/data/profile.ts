@@ -1,3 +1,5 @@
+import dsaTrackerImage from "@/assets/dsa-tracker.webp";
+import tradingCompanyImage from "@/assets/trading-company.webp";
 import chatImage from "@/assets/node-chat.png";
 import jobsImage from "@/assets/job-card.png";
 import weatherImage from "@/assets/weather.png";
@@ -80,8 +82,9 @@ export const SKILL_GROUPS = [
 export type Project = {
   title: string;
   year: string;
+  category?: string;
   summary: string;
-  problem: string;
+  problem?: string;
   technologies: string[];
   features: string[];
   image?: string;
@@ -92,10 +95,55 @@ export type Project = {
 
 export const PROJECTS: Project[] = [
   {
-    title: "Node.js & MongoDB Message API",
-    year: "2025",
+    title: "DSA & Interview Prep Tracker",
+    year: "2026",
+    category: "Full-Stack MERN",
     summary:
-      "A RESTful message API built with Node.js, Express.js, MongoDB and Mongoose, implementing complete CRUD operations with persistent cloud database storage.",
+      "A production-ready preparation platform to track problem-solving velocity, log multi-attempt learnings, and prioritize revision using an interval-based spaced repetition model.",
+    problem:
+      "Engineered to solve unstructured coding practice with automated revision queues, difficulty distribution trends, and developer heatmap insights.",
+    technologies: ["React.js", "Node.js", "Express.js", "MongoDB Atlas", "JWT Auth", "Recharts", "Tailwind CSS"],
+    features: [
+      "Spaced-repetition revision queue",
+      "Native MongoDB analytics aggregations",
+      "20-week practice activity heatmap",
+      "Velocity & difficulty distribution charts",
+      "Multi-attempt timeline logging",
+      "JWT authentication & protected API",
+    ],
+    image: dsaTrackerImage,
+    githubUrl: "https://github.com/gopal-maddheshiya/dsa-tracker",
+    liveUrl: "https://dsa-tracker-xi-weld.vercel.app",
+    featured: true,
+  },
+  {
+    title: "Arun Gopal Traders — E-Commerce",
+    year: "2026",
+    category: "Full-Stack & Cloud",
+    summary:
+      "A production-ready bilingual grocery and retail e-commerce platform with live order tracking, Supabase PostgreSQL with RLS, realtime sync, Gemini AI, and automated billing.",
+    problem:
+      "Built for commercial retail operations with real-time stock and order management, localized dual language catalog, and AI-assisted admin intelligence.",
+    technologies: ["React 19", "TanStack Start", "TypeScript", "Supabase", "PostgreSQL", "Tailwind CSS v4", "Gemini AI"],
+    features: [
+      "Supabase PostgreSQL with RLS policies",
+      "Realtime Pub/Sub order status sync",
+      "Bilingual i18n support (Hindi & English)",
+      "Gemini AI product intelligence & search",
+      "Automated PDF invoicing & billing",
+      "Customer order tracking & admin dashboard",
+    ],
+    image: tradingCompanyImage,
+    githubUrl: "https://github.com/gopal-maddheshiya/trading-company",
+    liveUrl: "https://gopal-maddheshiya.vercel.app",
+    featured: true,
+  },
+  {
+    title: "Node.js & MongoDB Message REST API",
+    year: "2025",
+    category: "Backend & APIs",
+    summary:
+      "A RESTful message API built with Node.js, Express.js, MongoDB and Mongoose, implementing complete CRUD operations with persistent cloud database storage on Render.",
     problem:
       "Built to understand how persistent data flows across the web stack — connecting Express REST endpoints with Mongoose schema modeling and MongoDB Atlas.",
     technologies: ["Node.js", "Express.js", "MongoDB", "Mongoose", "JavaScript", "HTML/CSS"],
@@ -115,6 +163,7 @@ export const PROJECTS: Project[] = [
   {
     title: "Weather Forecast Web App",
     year: "2025",
+    category: "Frontend",
     summary:
       "A client-side weather application integrating the OpenWeatherMap API with asynchronous JavaScript, browser geolocation, temperature conversion and responsive UI.",
     problem:
@@ -126,18 +175,17 @@ export const PROJECTS: Project[] = [
       "Browser Geolocation API",
       "Celsius/Fahrenheit conversion",
       "Dynamic weather rendering",
-      "Error handling",
-      "Responsive UI",
       "GitHub Pages deployment",
     ],
     image: weatherImage,
     githubUrl: "https://github.com/gopal-maddheshiya/weather-app",
     liveUrl: "https://gopal-maddheshiya.github.io/weather-app/",
-    featured: true,
+    featured: false,
   },
   {
     title: "Job Listing Cards — React",
     year: "2026",
+    category: "Frontend",
     summary:
       "A React component practice project focused on reusable components, props-driven rendering and responsive card layouts.",
     problem:
@@ -148,13 +196,12 @@ export const PROJECTS: Project[] = [
       "Props-driven rendering",
       "Structured job listing data",
       "Modular component styling",
-      "Responsive card layout",
       "Render deployment",
     ],
     image: jobsImage,
     githubUrl: "https://github.com/gopal-maddheshiya/react-learning/tree/main/04-cards-project",
     liveUrl: "https://react-learning-gyof.onrender.com/",
-    featured: true,
+    featured: false,
   },
 ];
 
