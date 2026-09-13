@@ -91,13 +91,18 @@ RESPONSE FORMATTING GUIDELINES:
 4. Keep answers concise (2 to 4 short paragraphs or bulleted lists) so visitors get fast, crisp insights without information overload.`;
 }
 
-// Ultra-fast and stable models in order of priority
+// Ultra-fast and stable models verified on Google Gemini API in priority order
 const STABLE_FAST_MODELS = [
+  "gemini-flash-lite-latest",
+  "gemini-3.1-flash-lite",
+  "gemini-3.5-flash-lite",
+  "gemini-3.5-flash",
+  "gemini-3.6-flash",
+  "gemini-3-flash-preview",
+  "gemini-flash-latest",
   "gemini-1.5-flash",
-  "gemini-1.5-flash-latest",
   "gemini-2.0-flash",
-  "gemini-1.5-pro",
-  "gemini-2.5-flash",
+  "gemma-4-26b-a4b-it",
 ];
 
 function formatConversationContents(
