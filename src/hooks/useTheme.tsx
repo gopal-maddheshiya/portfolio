@@ -11,13 +11,13 @@ function applyTheme(theme: Theme) {
 
 /** Theme state persisted in localStorage, defaulting to the system preference. */
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initial: Theme = stored ?? (prefersDark ? "dark" : "light");
+    const isDark = document.documentElement.classList.contains("dark");
+    const initial: Theme = stored ?? (isDark ? "dark" : "light");
     setTheme(initial);
     applyTheme(initial);
     setMounted(true);

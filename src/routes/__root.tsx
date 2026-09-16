@@ -83,6 +83,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content: "B.Tech CSE student focused on Java, DSA and full-stack web development.",
       },
       { name: "author", content: "Gopal Maddheshiya" },
+      { name: "theme-color", content: "#161618" },
       { property: "og:site_name", content: "Gopal Maddheshiya" },
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${PERSONAL_INFO.siteUrl}/` },
@@ -138,8 +139,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var s=localStorage.getItem('portfolio-theme');var p=window.matchMedia('(prefers-color-scheme: dark)').matches;var t=s?s:(p?'dark':'dark');if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.style.colorScheme='light';}else{document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark';}}catch(e){}})();`,
+          }}
+        />
         <HeadContent />
       </head>
       <body>
