@@ -2,12 +2,53 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
-import { handleAiChatStream, processAiChatRequest } from "./server/ai";
+import { handleAiChatStream } from "./server/ai";
 import { fetchLeetCodeStats } from "./server/leetcode";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
 };
+
+// Simple in-memory rate limiter for the public AI endpoint (per IP).
+// Vercel edge/serverless instances are isolated per region, so this is a
+// best-effort throttle against casual abuse, not a hard global quota.
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_BUDGET = 20;
+const rateBuckets = new Map<string, { count: number; windowStart: number }>();
+
+function getClientIp(request: Request): string {
+  return (
+    request.headers.get("cf-connecting-ip") ||
+    request.headers.get("x-real-ip") ||
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown"
+  );
+}
+
+function isRateLimited(request: Request): boolean {
+  const key = getClientIp(request);
+  const now = Date.now();
+  const bucket = rateBuckets.get(key);
+
+  if (!bucket || now - bucket.windowStart >= RATE_LIMIT_WINDOW_MS) {
+    rateBuckets.set(key, { count: 1, windowStart: now });
+    return false;
+  }
+
+  bucket.count += 1;
+  return bucket.count > RATE_LIMIT_BUDGET;
+}
+
+function tooManyRequests(): Response {
+  return new Response(JSON.stringify({ error: "Too many requests. Please slow down." }), {
+    status: 429,
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "retry-after": "60",
+      "cache-control": "no-store",
+    },
+  });
+}
 
 let serverEntryPromise: Promise<ServerEntry> | undefined;
 
@@ -51,6 +92,10 @@ export default {
     try {
       const url = new URL(request.url);
       if (url.pathname === "/api/chat" && request.method === "POST") {
+        if (isRateLimited(request)) {
+          return tooManyRequests();
+        }
+
         try {
           const body = (await request.json()) as {
             message?: string;
@@ -64,15 +109,7 @@ export default {
             unknown
           >;
 
-          if (body.stream !== false) {
-            return await handleAiChatStream(message, history, serverEnv);
-          }
-
-          const result = await processAiChatRequest(message, history, serverEnv);
-          return new Response(JSON.stringify(result), {
-            status: 200,
-            headers: { "content-type": "application/json; charset=utf-8" },
-          });
+          return await handleAiChatStream(message, history, serverEnv);
         } catch (apiErr) {
           console.error("API /api/chat error:", apiErr);
           return new Response(JSON.stringify({ error: "Failed to process AI chat request" }), {
@@ -82,7 +119,10 @@ export default {
         }
       }
 
-      if (url.pathname === "/api/leetcode" && (request.method === "GET" || request.method === "POST")) {
+      if (
+        url.pathname === "/api/leetcode" &&
+        (request.method === "GET" || request.method === "POST")
+      ) {
         try {
           const stats = await fetchLeetCodeStats();
           return new Response(JSON.stringify(stats), {

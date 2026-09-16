@@ -1,14 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  ArrowUp,
-  Bot,
-  Loader2,
-  Maximize2,
-  Minimize2,
-  RotateCcw,
-  Sparkles,
-  X,
-} from "lucide-react";
+import { ArrowUp, Bot, Loader2, Maximize2, Minimize2, RotateCcw, Sparkles, X } from "lucide-react";
 
 import { PERSONAL_INFO } from "@/data/profile";
 import { usePortfolio } from "@/context/PortfolioContext";
@@ -46,7 +37,10 @@ export function GopalAIAssistant() {
   // Typewriter Streaming Engine Refs
   const bufferRef = useRef<string>("");
   const isDoneRef = useRef<boolean>(false);
-  const completionDataRef = useRef<{ suggestions: string[]; actions?: ChatAction[] | undefined } | null>(null);
+  const completionDataRef = useRef<{
+    suggestions: string[];
+    actions?: ChatAction[] | undefined;
+  } | null>(null);
   const timerRef = useRef<number | null>(null);
 
   // Auto-scroll to bottom smoothly
@@ -93,7 +87,8 @@ export function GopalAIAssistant() {
       if (bufferRef.current.length > 0) {
         // Natural typewriter cadence:
         // Speed up dynamically if network delivers a large chunk so it never falls behind
-        const charsToTake = bufferRef.current.length > 80 ? 4 : bufferRef.current.length > 30 ? 2 : 1;
+        const charsToTake =
+          bufferRef.current.length > 80 ? 4 : bufferRef.current.length > 30 ? 2 : 1;
         const piece = bufferRef.current.slice(0, charsToTake);
         bufferRef.current = bufferRef.current.slice(charsToTake);
 
@@ -229,7 +224,11 @@ export function GopalAIAssistant() {
     } else if (action.action === "resume") {
       window.open(info.resume || PERSONAL_INFO.resume, "_blank", "noopener,noreferrer");
     } else if (action.action === "whatsapp") {
-      window.open(`https://wa.me/${info.whatsapp || PERSONAL_INFO.whatsapp}`, "_blank", "noopener,noreferrer");
+      window.open(
+        `https://wa.me/${info.whatsapp || PERSONAL_INFO.whatsapp}`,
+        "_blank",
+        "noopener,noreferrer",
+      );
     }
   };
 
@@ -309,9 +308,7 @@ export function GopalAIAssistant() {
                     Assistant
                   </span>
                 </div>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
-                  Portfolio Representative
-                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Portfolio Representative</p>
               </div>
             </div>
 
@@ -355,8 +352,7 @@ export function GopalAIAssistant() {
             {messages
               .filter((msg) => msg.content.length > 0)
               .map((msg, index) => {
-                const isLastAssistant =
-                  index === messages.length - 1 && msg.role === "assistant";
+                const isLastAssistant = index === messages.length - 1 && msg.role === "assistant";
                 return (
                   <AIChatMessage
                     key={index}

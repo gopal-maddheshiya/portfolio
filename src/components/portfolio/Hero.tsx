@@ -1,8 +1,15 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, Code2, FileText, Github, Linkedin, MapPin } from "lucide-react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import profilePhoto from "@/assets/gopal-profile.jpg";
 import { usePortfolio } from "@/context/PortfolioContext";
+import { handleAnchorClick } from "@/lib/scroll";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 const DEFAULT_TYPING_ROLES = [
   "Java & DSA Developer",
@@ -11,14 +18,31 @@ const DEFAULT_TYPING_ROLES = [
   "B.Tech CSE Student",
 ];
 
-function TypewriterRole({ roles = DEFAULT_TYPING_ROLES }: { roles?: string[] }) {
+const REDUCED_MOTION =
+  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function TypewriterRole({
+  roles = DEFAULT_TYPING_ROLES,
+  startDelay = 0,
+}: {
+  roles?: string[];
+  startDelay?: number;
+}) {
   const [roleIndex, setRoleIndex] = useState(0);
   const [currentText, setCurrentText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [started, setStarted] = useState(startDelay <= 0 || REDUCED_MOTION);
+
+  useEffect(() => {
+    if (started || startDelay <= 0) return;
+    const timeout = setTimeout(() => setStarted(true), startDelay);
+    return () => clearTimeout(timeout);
+  }, [started, startDelay]);
 
   const activeRoles = roles && roles.length > 0 ? roles : DEFAULT_TYPING_ROLES;
 
   useEffect(() => {
+    if (!started) return;
     const currentRole = activeRoles[roleIndex % activeRoles.length] || "";
     const typingSpeed = isDeleting ? 35 : 75;
     const pauseTime = isDeleting ? 300 : 2000;
@@ -43,7 +67,7 @@ function TypewriterRole({ roles = DEFAULT_TYPING_ROLES }: { roles?: string[] }) 
     }, typingSpeed);
 
     return () => clearTimeout(timeout);
-  }, [currentText, isDeleting, roleIndex, activeRoles]);
+  }, [started, currentText, isDeleting, roleIndex, activeRoles]);
 
   return (
     <span className="text-primary inline-flex items-baseline whitespace-nowrap">
@@ -85,7 +109,12 @@ function JavaIcon({ className = "size-4" }: { className?: string }) {
 
 function ReactIcon({ className = "size-4" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="-11.5 -10.23174 23 20.46348" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      className={className}
+      viewBox="-11.5 -10.23174 23 20.46348"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <circle cx="0" cy="0" r="2.05" fill="#61DAFB" />
       <g stroke="#61DAFB" strokeWidth="1" fill="none">
         <ellipse rx="11" ry="4.2" />
@@ -93,6 +122,41 @@ function ReactIcon({ className = "size-4" }: { className?: string }) {
         <ellipse rx="11" ry="4.2" transform="rotate(120)" />
       </g>
     </svg>
+  );
+}
+
+/* Magnetic hover lift for the primary CTA buttons */
+function MagneticWrap({
+  children,
+  className,
+  strength = 0.25,
+}: {
+  children: ReactNode;
+  className?: string;
+  strength?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const handleMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!ref.current || REDUCED_MOTION) return;
+      const rect = ref.current.getBoundingClientRect();
+      const x = (e.clientX - rect.left - rect.width / 2) * strength;
+      const y = (e.clientY - rect.top - rect.height / 2) * strength;
+      gsap.to(ref.current, { x, y, duration: 0.35, ease: "power2.out" });
+    },
+    [strength],
+  );
+
+  const handleLeave = useCallback(() => {
+    if (!ref.current) return;
+    gsap.to(ref.current, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.4)" });
+  }, []);
+
+  return (
+    <div ref={ref} className={className} onMouseMove={handleMove} onMouseLeave={handleLeave}>
+      {children}
+    </div>
   );
 }
 
@@ -108,91 +172,261 @@ export function Hero() {
     availabilityStatus: "Online",
   };
 
-  return (
-    <section id="top" className="relative overflow-hidden pt-6 pb-12 sm:py-16 md:py-20 lg:py-24">
-      {/* Background grid */}
-      <div aria-hidden="true" className="grid-backdrop pointer-events-none absolute inset-0" />
+  const containerRef = useRef<HTMLElement>(null);
+  const hasAnimatedRef = useRef(false);
 
-      <div className="container-page relative grid gap-10 sm:gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-center">
+  // Cinematic first-page entrance sequence.
+  useEffect(() => {
+    if (hasAnimatedRef.current || !containerRef.current) return;
+    if (REDUCED_MOTION) return;
+
+    hasAnimatedRef.current = true;
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" }, delay: 0.15 });
+
+      // Ambient backdrop settles behind everything
+      tl.fromTo(
+        ".hero-anim-grid",
+        { opacity: 0 },
+        { opacity: 1, duration: 1.2, ease: "power2.out", clearProps: "opacity" },
+        0,
+      )
+        .fromTo(
+          ".hero-anim-badge",
+          { opacity: 0, y: -14, scale: 0.9 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "back.out(1.7)", clearProps: "all" },
+          0.3,
+        )
+        .fromTo(
+          ".hero-anim-line-inner",
+          { opacity: 0, yPercent: 115, filter: "blur(6px)" },
+          {
+            opacity: 1,
+            yPercent: 0,
+            filter: "blur(0px)",
+            duration: 0.85,
+            stagger: 0.16,
+            ease: "expo.out",
+            clearProps: "all",
+          },
+          0.5,
+        )
+        .fromTo(
+          ".hero-anim-bio",
+          { opacity: 0, y: 22 },
+          { opacity: 1, y: 0, duration: 0.6, clearProps: "all" },
+          0.98,
+        )
+        .fromTo(
+          ".hero-anim-location",
+          { opacity: 0, x: -16 },
+          { opacity: 1, x: 0, duration: 0.5, clearProps: "all" },
+          1.12,
+        )
+        .fromTo(
+          ".hero-anim-btn",
+          { opacity: 0, y: 16, scale: 0.96 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.55,
+            stagger: 0.09,
+            ease: "back.out(1.5)",
+            clearProps: "all",
+          },
+          1.22,
+        )
+        .fromTo(
+          ".hero-anim-social",
+          { opacity: 0, y: 12 },
+          { opacity: 1, y: 0, duration: 0.45, stagger: 0.07, clearProps: "all" },
+          1.5,
+        )
+        .fromTo(
+          ".hero-anim-photo",
+          { opacity: 0, clipPath: "inset(10% 16% 10% 16% round 16px)" },
+          {
+            opacity: 1,
+            clipPath: "inset(0% 0% 0% 0% round 16px)",
+            duration: 1.05,
+            ease: "expo.inOut",
+            clearProps: "all",
+          },
+          0.65,
+        )
+        .fromTo(
+          ".hero-anim-photo-name",
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.55, ease: "power3.out", clearProps: "all" },
+          1.55,
+        )
+        // Float badges: opacity-only so the CSS float keyframes own the transform.
+        .fromTo(
+          ".hero-anim-float",
+          { opacity: 0 },
+          { opacity: 1, duration: 0.6, stagger: 0.14, ease: "power2.out", clearProps: "opacity" },
+          1.7,
+        )
+        .fromTo(
+          ".hero-anim-scroll",
+          { opacity: 0 },
+          { opacity: 1, duration: 0.6, clearProps: "all" },
+          2.1,
+        );
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // Scroll-connected fade-out + background parallax for a cinematic exit.
+  useEffect(() => {
+    if (!containerRef.current) return;
+    if (REDUCED_MOTION) return;
+
+    const ctx = gsap.context(() => {
+      gsap.to(".hero-anim-content", {
+        opacity: 0,
+        y: -36,
+        ease: "none",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: "bottom 28%",
+          scrub: 0.6,
+        },
+      });
+
+      gsap.to(".hero-anim-grid", {
+        yPercent: 28,
+        ease: "none",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: 0.6,
+        },
+      });
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <section
+      ref={containerRef}
+      id="top"
+      className="relative overflow-hidden pt-6 pb-16 sm:py-16 md:py-20 lg:py-24"
+    >
+      {/* Background grid */}
+      <div
+        aria-hidden="true"
+        className="hero-anim-grid grid-backdrop pointer-events-none absolute inset-0"
+      />
+
+      {/* Scroll cue */}
+      <div className="hero-anim-scroll pointer-events-none absolute inset-x-0 bottom-3 z-20 hidden sm:flex justify-center opacity-0">
+        <div className="flex flex-col items-center gap-2">
+          <span className="font-mono text-[10px] font-medium uppercase tracking-[0.25em] text-muted-foreground">
+            Scroll
+          </span>
+          <span className="hero-scroll-line" aria-hidden="true" />
+        </div>
+      </div>
+
+      <div className="hero-anim-content container-page relative grid gap-10 sm:gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-center">
         {/* Left Column: Intro & Call to Actions */}
         <div className="flex flex-col items-start min-w-0">
           {/* Greeting Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 font-mono text-xs text-muted-foreground">
+          <div className="hero-anim-badge inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 font-mono text-xs text-muted-foreground">
             <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
             <span>{hero.greetingBadge || `Hi, I'm ${info.name}`}</span>
           </div>
 
-          {/* Heading with Typewriter */}
-          <h1 className="mt-4 sm:mt-6 text-2xl sm:text-3xl md:text-4xl lg:text-[3.1rem] font-bold leading-[1.22] tracking-tight text-foreground">
-            <span>{hero.headlinePrefix || "Building software as a"} </span>
-            <br />
-            <span className="inline-block min-h-[1.25em] whitespace-nowrap">
-              <TypewriterRole roles={hero.typewriterRoles} />
+          {/* Heading with masked line reveals + typewriter that starts after the reveal */}
+          <h1 className="hero-anim-title mt-4 sm:mt-6 text-2xl sm:text-3xl md:text-4xl lg:text-[3.1rem] font-bold leading-[1.22] tracking-tight text-foreground">
+            <span className="hero-anim-line block overflow-hidden">
+              <span className="hero-anim-line-inner block">
+                {hero.headlinePrefix || "Building software as a"}
+              </span>
+            </span>
+            <span className="hero-anim-line block overflow-hidden pt-0.5">
+              <span className="hero-anim-line-inner block min-h-[1.25em]">
+                <TypewriterRole roles={hero.typewriterRoles} startDelay={1200} />
+              </span>
             </span>
           </h1>
 
           {/* Bio Description */}
-          <p className="mt-4 sm:mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-muted-foreground">
+          <p className="hero-anim-bio mt-4 sm:mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-muted-foreground">
             {info.siteDescription}
           </p>
 
           {/* Location */}
-          <p className="mt-3 sm:mt-4 inline-flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+          <p className="hero-anim-location mt-3 sm:mt-4 inline-flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
             <MapPin className="size-4 text-primary shrink-0" aria-hidden="true" />
             <span>{info.location}</span>
           </p>
 
-          {/* CTA Buttons */}
-          <div className="mt-6 sm:mt-8 flex flex-row items-center gap-2.5 sm:gap-4 w-full sm:w-auto">
-            <a
-              href="#projects"
-              className="inline-flex flex-1 sm:flex-initial sm:w-auto items-center justify-center gap-1.5 sm:gap-2 rounded-md bg-primary px-3.5 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-medium text-primary-foreground shadow-soft transition-opacity hover:opacity-90 active:scale-[0.99] cursor-pointer whitespace-nowrap"
-            >
-              <span>View my work</span>
-              <ArrowRight className="size-3.5 sm:size-4 shrink-0" aria-hidden="true" />
-            </a>
+          {/* CTA Buttons with magnetic hover */}
+          <div className="mt-6 sm:mt-8 flex flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
+            <MagneticWrap className="flex-1 sm:flex-initial sm:w-auto">
+              <a
+                onClick={handleAnchorClick}
+                href="#projects"
+                className="hero-anim-btn inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-medium text-primary-foreground shadow-soft transition-opacity hover:opacity-90 active:scale-[0.99] cursor-pointer whitespace-nowrap"
+              >
+                <span>View my work</span>
+                <ArrowRight className="size-3.5 sm:size-4 shrink-0" aria-hidden="true" />
+              </a>
+            </MagneticWrap>
 
-            <a
-              href={info.resume}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex flex-1 sm:flex-initial sm:w-auto items-center justify-center gap-1.5 sm:gap-2 rounded-md border border-border-strong bg-card px-3.5 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-medium text-foreground transition-colors hover:bg-secondary active:scale-[0.99] cursor-pointer whitespace-nowrap"
-            >
-              <FileText className="size-3.5 sm:size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-              <span>View Resume</span>
-            </a>
+            <MagneticWrap className="flex-1 sm:flex-initial sm:w-auto">
+              <a
+                href={info.resume}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hero-anim-btn inline-flex w-full items-center justify-center gap-2 rounded-md border border-border-strong bg-card px-4 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-medium text-foreground transition-colors hover:bg-secondary active:scale-[0.99] cursor-pointer whitespace-nowrap"
+              >
+                <FileText
+                  className="size-3.5 sm:size-4 shrink-0 text-muted-foreground"
+                  aria-hidden="true"
+                />
+                <span>View Resume</span>
+              </a>
+            </MagneticWrap>
           </div>
 
           {/* Social Profiles */}
           <ul className="mt-7 sm:mt-8 flex flex-wrap items-center gap-3.5 sm:gap-5">
-            <li>
+            <li className="hero-anim-social">
               <a
                 className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-xs sm:text-sm text-muted-foreground transition-colors hover:border-border-strong hover:bg-secondary hover:text-foreground"
                 href={info.github}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener noreferrer me"
               >
                 <Github className="size-4 shrink-0" aria-hidden="true" />
                 <span>GitHub</span>
               </a>
             </li>
-            <li>
+            <li className="hero-anim-social">
               <a
                 className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-xs sm:text-sm text-muted-foreground transition-colors hover:border-border-strong hover:bg-secondary hover:text-foreground"
                 href={info.leetcode}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener noreferrer me"
               >
                 <Code2 className="size-4 shrink-0" aria-hidden="true" />
                 <span>LeetCode</span>
               </a>
             </li>
-            <li>
+            <li className="hero-anim-social">
               <a
                 className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-xs sm:text-sm text-muted-foreground transition-colors hover:border-border-strong hover:bg-secondary hover:text-foreground"
                 href={info.linkedin}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener noreferrer me"
               >
                 <Linkedin className="size-4 shrink-0" aria-hidden="true" />
                 <span>LinkedIn</span>
@@ -201,27 +435,31 @@ export function Hero() {
           </ul>
         </div>
 
-        {/* Right Column: Clean Profile Photo with Floating Badges & Status */}
+        {/* Right Column: Clean Profile Photo with Floating Badges */}
         <div className="flex justify-center lg:justify-end min-w-0">
           <div className="relative group shrink-0">
-            {/* Floating Mini Tech Badge 1 (Top Left): Java & DSA */}
-            <div className="absolute -top-3.5 -left-2 sm:-top-4 sm:-left-5 z-20 inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/95 dark:bg-card/90 px-3 py-1.5 shadow-lift backdrop-blur-md animate-float-slow transition-transform hover:scale-105 pointer-events-auto select-none">
+            {/* Floating Mini Tech Badge 1 */}
+            <div className="hero-anim-float absolute -top-3.5 -left-2 sm:-top-4 sm:-left-5 z-20 inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/95 dark:bg-card/90 px-3 py-1.5 shadow-lift backdrop-blur-md animate-float-slow transition-transform hover:scale-105 pointer-events-auto select-none">
               <div className="flex size-5 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/20">
                 <JavaIcon className="size-3.5" />
               </div>
-              <span className="font-semibold text-xs text-foreground">{hero.floatingBadge1 || "Java • DSA"}</span>
+              <span className="font-semibold text-xs text-foreground">
+                {hero.floatingBadge1 || "Java • DSA"}
+              </span>
             </div>
 
-            {/* Floating Mini Tech Badge 2 (Bottom Right): Full-Stack */}
-            <div className="absolute -bottom-4 -right-2 sm:-bottom-5 sm:-right-5 z-20 inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/95 dark:bg-card/90 px-3 py-1.5 shadow-lift backdrop-blur-md animate-float-reverse transition-transform hover:scale-105 pointer-events-auto select-none">
+            {/* Floating Mini Tech Badge 2 */}
+            <div className="hero-anim-float absolute -bottom-4 -right-2 sm:-bottom-5 sm:-right-5 z-20 inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/95 dark:bg-card/90 px-3 py-1.5 shadow-lift backdrop-blur-md animate-float-reverse transition-transform hover:scale-105 pointer-events-auto select-none">
               <div className="flex size-5 items-center justify-center rounded-full bg-cyan-500/10 border border-cyan-500/20">
                 <ReactIcon className="size-3.5" />
               </div>
-              <span className="font-semibold text-xs text-foreground">{hero.floatingBadge2 || "Full-Stack"}</span>
+              <span className="font-semibold text-xs text-foreground">
+                {hero.floatingBadge2 || "Full-Stack"}
+              </span>
             </div>
 
             {/* Main Photo Card Container */}
-            <div className="relative overflow-hidden rounded-2xl border-2 border-border bg-card shadow-soft">
+            <div className="hero-anim-photo relative overflow-hidden rounded-2xl border-2 border-border bg-card shadow-soft">
               <img
                 src={
                   info.profilePhoto &&
@@ -240,14 +478,12 @@ export function Hero() {
                 className="w-64 h-72 sm:w-72 sm:h-80 md:w-80 md:h-96 lg:w-[21rem] lg:h-[25rem] object-cover object-[center_18%] transition-transform duration-500 group-hover:scale-105"
               />
 
-              {/* Bottom overlay with dark scrim gradient (Structured full-width text) */}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-4 sm:p-5 text-left">
+              {/* Bottom overlay with dark scrim gradient */}
+              <div className="hero-anim-photo-name absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-4 sm:p-5 text-left">
                 <p className="font-display text-base sm:text-lg font-bold text-white tracking-tight leading-tight">
                   {info.name}
                 </p>
-                <p className="mt-1 text-xs text-zinc-300 leading-snug">
-                  {info.subtitle}
-                </p>
+                <p className="mt-1 text-xs text-zinc-300 leading-snug">{info.subtitle}</p>
               </div>
             </div>
           </div>

@@ -11,6 +11,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 import { usePortfolio } from "@/context/PortfolioContext";
+import { handleAnchorClick } from "@/lib/scroll";
 
 const ICONS_MAP: Record<string, LucideIcon> = {
   grad: GraduationCap,
@@ -181,10 +182,12 @@ export function Highlights() {
               <a
                 key={`${item.label}-${index}`}
                 href={item.section ? `#${item.section}` : undefined}
-                onClick={(e) => {
+                onClick={(event) => {
                   if (hasDraggedRef.current) {
-                    e.preventDefault();
+                    event.preventDefault();
+                    return;
                   }
+                  handleAnchorClick(event);
                 }}
                 className="group inline-flex items-center gap-3 sm:gap-3.5 rounded-2xl border border-border bg-card px-4 py-3 sm:px-5 sm:py-3.5 shadow-xs transition-all duration-300 hover:border-primary/50 hover:bg-card hover:shadow-soft active:scale-[0.98]"
               >

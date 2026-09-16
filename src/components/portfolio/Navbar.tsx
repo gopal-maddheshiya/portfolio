@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Download, FileText, Menu, Moon, Sun, X } from "lucide-react";
+import { gsap } from "gsap";
 
 import { usePortfolio } from "@/context/PortfolioContext";
 import { NAV_LINKS } from "@/data/profile";
 import { useActiveSection } from "@/hooks/useActiveSection";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
+import { handleAnchorClick } from "@/lib/scroll";
 
 const SECTION_IDS = NAV_LINKS.map((link) => link.id);
 
@@ -17,6 +19,31 @@ export function Navbar() {
   const active = useActiveSection(SECTION_IDS);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  const headerRef = useRef<HTMLElement>(null);
+  const hasAnimatedRef = useRef(false);
+
+  // Premium entrance: the glass pill drops in from above, items cascade.
+  useEffect(() => {
+    if (hasAnimatedRef.current || !headerRef.current) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    hasAnimatedRef.current = true;
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: "expo.out" }, delay: 0.05 });
+      tl.fromTo(
+        ".nav-anim-bar",
+        { yPercent: -130, opacity: 0 },
+        { yPercent: 0, opacity: 1, duration: 0.9 },
+      ).fromTo(
+        ".nav-anim-item",
+        { opacity: 0, y: 12 },
+        { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, clearProps: "all" },
+        "-=0.55",
+      );
+    }, headerRef);
+    return () => ctx.revert();
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -35,8 +62,11 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none px-3 sm:px-4 pt-2 sm:pt-4 transition-all duration-300">
-      <div className="w-full max-w-7xl pointer-events-auto flex flex-col items-center">
+    <header
+      ref={headerRef}
+      className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none px-3 sm:px-4 pt-2 sm:pt-4 transition-all duration-300"
+    >
+      <div className="nav-anim-bar w-full max-w-7xl pointer-events-auto flex flex-col items-center">
         {/* Main Nav Bar — glass pill */}
         <div className="relative w-full flex items-center justify-center">
           <nav
@@ -50,8 +80,9 @@ export function Navbar() {
           >
             {/* Brand Logo & Name */}
             <a
+              onClick={handleAnchorClick}
               href="#top"
-              className="group flex items-center gap-2.5 sm:gap-3 font-display text-sm sm:text-[0.9375rem] font-bold tracking-tight shrink-0 pl-0.5"
+              className="nav-anim-item group flex items-center gap-2.5 sm:gap-3 font-display text-sm sm:text-[0.9375rem] font-bold tracking-tight shrink-0 pl-0.5"
             >
               <span className="flex size-8 sm:size-9 shrink-0 items-center justify-center rounded-full bg-primary font-mono text-xs font-bold text-primary-foreground shadow-soft transition-transform duration-200 group-hover:scale-105">
                 GM
@@ -74,10 +105,11 @@ export function Navbar() {
                 return (
                   <li key={link.id}>
                     <a
+                      onClick={handleAnchorClick}
                       href={`#${link.id}`}
                       aria-current={isActive ? "true" : undefined}
                       className={cn(
-                        "rounded-full px-4 py-1.5 text-[0.875rem] font-medium transition-all duration-200",
+                        "nav-anim-item rounded-full px-4 py-1.5 text-[0.875rem] font-medium transition-all duration-200",
                         isActive
                           ? "bg-primary/15 text-primary font-semibold shadow-[inset_0_0_0_1px_rgba(var(--primary),0.2)]"
                           : "text-foreground/70 dark:text-foreground/80 hover:text-foreground hover:bg-foreground/[0.05] dark:hover:bg-white/[0.06]",
@@ -91,7 +123,7 @@ export function Navbar() {
             </ul>
 
             {/* Right Actions — inside the pill */}
-            <div className="flex items-center gap-2 shrink-0 pr-0.5">
+            <div className="nav-anim-item flex items-center gap-2 shrink-0 pr-0.5">
               <button
                 type="button"
                 onClick={toggleTheme}
@@ -149,8 +181,11 @@ export function Navbar() {
                 return (
                   <li key={link.id}>
                     <a
+                      onClick={(event) => {
+                        handleAnchorClick(event);
+                        setOpen(false);
+                      }}
                       href={`#${link.id}`}
-                      onClick={() => setOpen(false)}
                       className={cn(
                         "group flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200",
                         isActive

@@ -1,8 +1,8 @@
 import dsaTrackerImage from "@/assets/dsa-tracker.webp";
 import tradingCompanyImage from "@/assets/trading-company.webp";
-import chatImage from "@/assets/node-chat.png";
-import jobsImage from "@/assets/job-card.png";
-import weatherImage from "@/assets/weather.png";
+import chatImage from "@/assets/node-chat.webp";
+import jobsImage from "@/assets/job-card.webp";
+import weatherImage from "@/assets/weather.webp";
 import defaultProfilePhoto from "@/assets/gopal-profile.jpg";
 
 export interface PersonalInfo {
@@ -228,7 +228,12 @@ export const SKILL_GROUPS: SkillGroup[] = [
   },
   {
     title: "CS Fundamentals",
-    skills: ["Object-Oriented Design (OOP)", "Database Management (DBMS)", "Operating Systems", "Computer Networks"],
+    skills: [
+      "Object-Oriented Design (OOP)",
+      "Database Management (DBMS)",
+      "Operating Systems",
+      "Computer Networks",
+    ],
     primary: false,
   },
 ];
@@ -256,7 +261,15 @@ export const PROJECTS: Project[] = [
       "A production-ready preparation platform to track problem-solving velocity, log multi-attempt learnings, and prioritize revision using an interval-based spaced repetition model.",
     problem:
       "Engineered to solve unstructured coding practice with automated revision queues, difficulty distribution trends, and developer heatmap insights.",
-    technologies: ["React.js", "Node.js", "Express.js", "MongoDB Atlas", "JWT Auth", "Recharts", "Tailwind CSS"],
+    technologies: [
+      "React.js",
+      "Node.js",
+      "Express.js",
+      "MongoDB Atlas",
+      "JWT Auth",
+      "Recharts",
+      "Tailwind CSS",
+    ],
     features: [
       "Spaced-repetition revision queue",
       "Native MongoDB analytics aggregations",
@@ -278,7 +291,15 @@ export const PROJECTS: Project[] = [
       "A production-ready bilingual grocery and retail e-commerce platform with live order tracking, Supabase PostgreSQL with RLS, realtime sync, Gemini AI, and automated billing.",
     problem:
       "Built for commercial retail operations with real-time stock and order management, localized dual language catalog, and AI-assisted admin intelligence.",
-    technologies: ["React 19", "TanStack Start", "TypeScript", "Supabase", "PostgreSQL", "Tailwind CSS v4", "Gemini AI"],
+    technologies: [
+      "React 19",
+      "TanStack Start",
+      "TypeScript",
+      "Supabase",
+      "PostgreSQL",
+      "Tailwind CSS v4",
+      "Gemini AI",
+    ],
     features: [
       "Supabase PostgreSQL with RLS policies",
       "Realtime Pub/Sub order status sync",
@@ -360,15 +381,39 @@ export const PROJECTS: Project[] = [
 ];
 
 export const DSA_INFO = {
-  problemsSolved: "50+",
-  totalSolvedCount: 52,
+  problemsSolved: "53+",
+  totalSolvedCount: 53,
   language: "Java",
   repoName: "dsa-with-java",
   repoUrl: "https://github.com/gopal-maddheshiya/dsa-with-java",
   difficulty: [
-    { label: "Easy", count: 28, percent: 54, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", bar: "bg-emerald-500" },
-    { label: "Medium", count: 20, percent: 38, color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", bar: "bg-amber-500" },
-    { label: "Hard", count: 4, percent: 8, color: "text-rose-500", bg: "bg-rose-500/10", border: "border-rose-500/20", bar: "bg-rose-500" },
+    {
+      label: "Easy",
+      count: 29,
+      percent: 55,
+      color: "text-emerald-500",
+      bg: "bg-emerald-500/10",
+      border: "border-emerald-500/20",
+      bar: "bg-emerald-500",
+    },
+    {
+      label: "Medium",
+      count: 22,
+      percent: 41,
+      color: "text-amber-500",
+      bg: "bg-amber-500/10",
+      border: "border-amber-500/20",
+      bar: "bg-amber-500",
+    },
+    {
+      label: "Hard",
+      count: 2,
+      percent: 4,
+      color: "text-rose-500",
+      bg: "bg-rose-500/10",
+      border: "border-rose-500/20",
+      bar: "bg-rose-500",
+    },
   ],
   topicBreakdown: [
     { topic: "Arrays & Strings", count: 18 },

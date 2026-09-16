@@ -212,7 +212,10 @@ function renderTextLines(rawText: string, isStreaming?: boolean) {
     if (trimmed.startsWith("- ") || trimmed.startsWith("* ") || trimmed.startsWith("• ")) {
       const bulletText = trimmed.slice(2);
       return (
-        <div key={lineIdx} className="flex items-start gap-2 my-1 text-xs sm:text-sm leading-relaxed">
+        <div
+          key={lineIdx}
+          className="flex items-start gap-2 my-1 text-xs sm:text-sm leading-relaxed"
+        >
           <span className="size-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
           <span className="flex-1">
             {formatInline(bulletText)}
@@ -228,7 +231,10 @@ function renderTextLines(rawText: string, isStreaming?: boolean) {
     const numMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
     if (numMatch && numMatch[1] && numMatch[2]) {
       return (
-        <div key={lineIdx} className="flex items-start gap-2 my-1 text-xs sm:text-sm leading-relaxed">
+        <div
+          key={lineIdx}
+          className="flex items-start gap-2 my-1 text-xs sm:text-sm leading-relaxed"
+        >
           <span className="font-mono text-[11px] font-bold text-primary shrink-0 mt-0.5 bg-primary/10 size-4 rounded-full flex items-center justify-center">
             {numMatch[1]}
           </span>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Camera,
   Video,
@@ -20,7 +20,10 @@ import type { AcademicMediaItem } from "@/data/profile";
 
 export function AcademicGallery() {
   const { data } = usePortfolio();
-  const galleryItems: AcademicMediaItem[] = data.academicGallery || [];
+  const galleryItems: AcademicMediaItem[] = useMemo<AcademicMediaItem[]>(
+    () => data.academicGallery || [],
+    [data.academicGallery],
+  );
 
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [activeItem, setActiveItem] = useState<AcademicMediaItem | null>(null);
@@ -35,29 +38,62 @@ export function AcademicGallery() {
   );
 
   // Filter items based on active tab
-  const filteredItems = galleryItems.filter((item) => {
-    if (selectedCategory === "all") return true;
-    if (selectedCategory === "photos") return item.type === "image";
-    if (selectedCategory === "videos") return item.type === "video";
-    return item.category?.toLowerCase() === selectedCategory.toLowerCase();
-  });
+  const filteredItems = useMemo(() => {
+    return galleryItems.filter((item) => {
+      if (selectedCategory === "all") return true;
+      if (selectedCategory === "photos") return item.type === "image";
+      if (selectedCategory === "videos") return item.type === "video";
+      return item.category?.toLowerCase() === selectedCategory.toLowerCase();
+    });
+  }, [galleryItems, selectedCategory]);
 
   // Modal navigation helpers
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (!activeItem || filteredItems.length <= 1) return;
     const currentIndex = filteredItems.findIndex((i) => i.id === activeItem.id);
     const nextIndex = (currentIndex + 1) % filteredItems.length;
     const nextItem = filteredItems[nextIndex];
     if (nextItem) setActiveItem(nextItem);
-  };
+  }, [activeItem, filteredItems]);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     if (!activeItem || filteredItems.length <= 1) return;
     const currentIndex = filteredItems.findIndex((i) => i.id === activeItem.id);
     const prevIndex = (currentIndex - 1 + filteredItems.length) % filteredItems.length;
     const prevItem = filteredItems[prevIndex];
     if (prevItem) setActiveItem(prevItem);
-  };
+  }, [activeItem, filteredItems]);
+
+  // Lightbox accessibility: focus management, ESC/arrow keys, body scroll lock
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!activeItem) return;
+
+    restoreFocusRef.current = document.activeElement as HTMLElement | null;
+    closeButtonRef.current?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setActiveItem(null);
+      } else if (event.key === "ArrowRight") {
+        handleNext();
+      } else if (event.key === "ArrowLeft") {
+        handlePrev();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+      restoreFocusRef.current?.focus();
+      restoreFocusRef.current = null;
+    };
+  }, [activeItem, filteredItems.length, handleNext, handlePrev]);
 
   return (
     <Section id="gallery">
@@ -82,7 +118,8 @@ export function AcademicGallery() {
               Academic Gallery Under Curation
             </h3>
             <p className="mt-2 text-xs sm:text-sm text-muted-foreground max-w-lg leading-relaxed">
-              Campus highlights, hackathon presentations, lab sessions, and academic event photos/videos will be featured here soon.
+              Campus highlights, hackathon presentations, lab sessions, and academic event
+              photos/videos will be featured here soon.
             </p>
 
             <div className="mt-6 flex flex-wrap justify-center gap-2 font-mono text-[11px] text-muted-foreground">
@@ -143,7 +180,9 @@ export function AcademicGallery() {
             )}
 
             {categories.map((cat) => {
-              const count = galleryItems.filter((i) => i.category?.toLowerCase() === cat.toLowerCase()).length;
+              const count = galleryItems.filter(
+                (i) => i.category?.toLowerCase() === cat.toLowerCase(),
+              ).length;
               return (
                 <button
                   key={cat}
@@ -155,7 +194,9 @@ export function AcademicGallery() {
                   }`}
                 >
                   <Tag className="size-3" />
-                  <span>{cat} ({count})</span>
+                  <span>
+                    {cat} ({count})
+                  </span>
                 </button>
               );
             })}
@@ -292,6 +333,9 @@ export function AcademicGallery() {
       {/* LIGHTBOX / VIDEO MODAL */}
       {activeItem && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${activeItem.title} — media viewer`}
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 sm:p-6 animate-in fade-in duration-200"
           onClick={() => setActiveItem(null)}
         >
@@ -331,8 +375,10 @@ export function AcademicGallery() {
                   </a>
                 )}
                 <button
+                  ref={closeButtonRef}
                   onClick={() => setActiveItem(null)}
                   className="p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                  aria-label="Close media viewer"
                   title="Close (ESC)"
                 >
                   <X className="size-4" />

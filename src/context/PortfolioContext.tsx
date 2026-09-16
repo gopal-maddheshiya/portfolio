@@ -73,7 +73,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           } else {
             loadData(true);
           }
-        }
+        },
       )
       .subscribe((status) => {
         console.log("⚡ Supabase Realtime sync status:", status);
@@ -130,7 +130,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   }, [loadData]);
 
   const updateData = (
-    updater: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData)
+    updater: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData),
   ) => {
     // Mark as dirty — prevents remote sync from overwriting local edits
     isDirtyRef.current = true;

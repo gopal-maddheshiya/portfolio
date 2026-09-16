@@ -3,6 +3,8 @@ import { Link } from "@tanstack/react-router";
 
 import { usePortfolio } from "@/context/PortfolioContext";
 import { NAV_LINKS } from "@/data/profile";
+import { handleAnchorClick } from "@/lib/scroll";
+import { Reveal } from "./Reveal";
 
 export function Footer() {
   const { data } = usePortfolio();
@@ -10,12 +12,10 @@ export function Footer() {
 
   return (
     <footer className="border-t border-border py-8 sm:py-12">
-      <div className="container-page flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+      <Reveal className="container-page flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="font-display text-base font-semibold">{info.name}</p>
-          <p className="mt-1 max-w-xs text-xs sm:text-sm text-muted-foreground">
-            {info.role}
-          </p>
+          <p className="mt-1 max-w-xs text-xs sm:text-sm text-muted-foreground">{info.role}</p>
         </div>
 
         <nav aria-label="Footer">
@@ -23,6 +23,7 @@ export function Footer() {
             {NAV_LINKS.map((link) => (
               <li key={link.id}>
                 <a
+                  onClick={handleAnchorClick}
                   href={`#${link.id}`}
                   className="text-muted-foreground transition-colors hover:text-foreground"
                 >
@@ -77,21 +78,24 @@ export function Footer() {
             </a>
           </li>
         </ul>
-      </div>
+      </Reveal>
 
-      <div className="container-page mt-8 sm:mt-10 border-t border-border pt-5 sm:pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <Reveal
+        delay={80}
+        className="container-page mt-8 sm:mt-10 border-t border-border pt-5 sm:pt-6 flex flex-col sm:flex-row items-center justify-between gap-3"
+      >
         <p className="text-[11px] sm:text-xs text-muted-foreground">
-          © {new Date().getFullYear()} {info.name}. Built with code and continuous
-          learning.
+          © {new Date().getFullYear()} {info.name}. Built with code and continuous learning.
         </p>
         <Link
           to="/admin"
-          className="inline-flex items-center gap-1.5 text-[11px] font-mono text-muted-foreground/50 hover:text-primary transition-colors"
+          aria-label="Admin Access"
+          title="Studio Dashboard"
+          className="inline-flex items-center gap-1 text-[11px] font-mono text-muted-foreground/30 hover:text-muted-foreground transition-opacity"
         >
-          <ShieldCheck className="size-3" />
-          <span>Studio Dashboard</span>
+          <ShieldCheck className="size-3.5 opacity-40 hover:opacity-100 transition-opacity" />
         </Link>
-      </div>
+      </Reveal>
     </footer>
   );
 }

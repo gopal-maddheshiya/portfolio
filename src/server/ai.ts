@@ -29,9 +29,7 @@ export type ChatMessage = {
  * Builds the comprehensive prompt including all profile data (Education, Schooling, Projects, DSA, Skills).
  */
 function generateSystemContext(): string {
-  const skillsList = SKILL_GROUPS.map(
-    (g) => `${g.title}: ${g.skills.join(", ")}`,
-  ).join("\n- ");
+  const skillsList = SKILL_GROUPS.map((g) => `${g.title}: ${g.skills.join(", ")}`).join("\n- ");
 
   const projectsList = PROJECTS.map(
     (p, i) =>
@@ -63,7 +61,7 @@ KEY FACTS ABOUT GOPAL MADDHESHIYA:
 - Email: ${PERSONAL_INFO.email}
 - WhatsApp / Phone: +${PERSONAL_INFO.whatsapp}
 - GitHub: ${PERSONAL_INFO.github}
-- LeetCode: ${PERSONAL_INFO.leetcode} (174+ Problems Solved in Java)
+- LeetCode: ${PERSONAL_INFO.leetcode} (${DSA_INFO.totalSolvedCount}+ Problems Solved in Java)
 - LinkedIn: ${PERSONAL_INFO.linkedin}
 - Resume: ${PERSONAL_INFO.resume}
 - Availability: Open for Software Engineering & Full-Stack Web Development internships and opportunities.
@@ -78,7 +76,7 @@ FEATURED PROJECTS:
 ${projectsList}
 
 DATA STRUCTURES & ALGORITHMS (DSA):
-- 174+ LeetCode problems solved primarily in Java (Arrays, Strings, HashMaps, Trees, Graphs, Dynamic Programming).
+- ${DSA_INFO.totalSolvedCount}+ LeetCode problems solved primarily in Java (Arrays, Strings, HashMaps, Trees, Graphs, Dynamic Programming).
 - GitHub DSA Repo: ${DSA_INFO.repoName} (${DSA_INFO.repoUrl})
 
 CERTIFICATIONS:
@@ -215,8 +213,8 @@ export function generateInstantKnowledgeResponse(
   ) {
     return {
       reply: isHindi
-        ? `Gopal **Java & DSA** me kafi active hain:\n\n- **174+ LeetCode Problems Solved** (Arrays, Strings, HashMaps, Trees, Graphs, DP).\n- **LeetCode Profile:** [@${PERSONAL_INFO.leetcodeUsername}](${PERSONAL_INFO.leetcode})\n- **GitHub Repo:** [${DSA_INFO.repoName}](${DSA_INFO.repoUrl})\n\nWo regular practice aur time/space complexity optimization par deliberate focus rakhte hain.`
-        : `Gopal has a strong foundation in **Data Structures & Algorithms (Java)**:\n\n- **174+ LeetCode Problems Solved** across Arrays, Strings, HashMaps, Binary Trees, Graphs, and DP.\n- **LeetCode Profile:** [@${PERSONAL_INFO.leetcodeUsername}](${PERSONAL_INFO.leetcode})\n- **GitHub Repository:** [${DSA_INFO.repoName}](${DSA_INFO.repoUrl})\n\nHe practices structured problem solving daily with clean object-oriented code.`,
+        ? `Gopal **Java & DSA** me kafi active hain:\n\n- **${DSA_INFO.totalSolvedCount}+ LeetCode Problems Solved** (Arrays, Strings, HashMaps, Trees, Graphs, DP).\n- **LeetCode Profile:** [@${PERSONAL_INFO.leetcodeUsername}](${PERSONAL_INFO.leetcode})\n- **GitHub Repo:** [${DSA_INFO.repoName}](${DSA_INFO.repoUrl})\n\nWo regular practice aur time/space complexity optimization par deliberate focus rakhte hain.`
+        : `Gopal has a strong foundation in **Data Structures & Algorithms (Java)**:\n\n- **${DSA_INFO.totalSolvedCount}+ LeetCode Problems Solved** across Arrays, Strings, HashMaps, Binary Trees, Graphs, and DP.\n- **LeetCode Profile:** [@${PERSONAL_INFO.leetcodeUsername}](${PERSONAL_INFO.leetcode})\n- **GitHub Repository:** [${DSA_INFO.repoName}](${DSA_INFO.repoUrl})\n\nHe practices structured problem solving daily with clean object-oriented code.`,
       suggestions: [
         "What projects has Gopal built?",
         "What is his college & CGPA?",
@@ -336,8 +334,8 @@ export function generateInstantKnowledgeResponse(
   // Default friendly response
   return {
     reply: isHindi
-      ? `Gopal **SRMU me B.Tech CSE (2024–2028, CGPA 7.62)** ke student hain jo **Java & DSA (174+ LeetCode)** aur **Full-Stack Development (React, Node.js, Express, MongoDB)** par focus karte hain.\n\nAap Gopal ke projects, skills, education ya resume ke baare me poochh sakte hain!`
-      : `Gopal is a **B.Tech Computer Science student at SRMU** (CGPA 7.62, 2024–2028) specializing in **Java & DSA (174+ LeetCode problems solved)** and **Full-Stack Web Development** (React, Node.js, Express, MongoDB, Supabase).\n\nFeel free to ask about his projects, technical skills, problem solving, or internship availability!`,
+      ? `Gopal **SRMU me B.Tech CSE (2024–2028, CGPA 7.62)** ke student hain jo **Java & DSA (${DSA_INFO.totalSolvedCount}+ LeetCode)** aur **Full-Stack Development (React, Node.js, Express, MongoDB)** par focus karte hain.\n\nAap Gopal ke projects, skills, education ya resume ke baare me poochh sakte hain!`
+      : `Gopal is a **B.Tech Computer Science student at SRMU** (CGPA 7.62, 2024–2028) specializing in **Java & DSA (${DSA_INFO.totalSolvedCount}+ LeetCode problems solved)** and **Full-Stack Web Development** (React, Node.js, Express, MongoDB, Supabase).\n\nFeel free to ask about his projects, technical skills, problem solving, or internship availability!`,
     suggestions: [
       "What projects has Gopal built?",
       "Tell me about his DSA skills",
@@ -385,7 +383,9 @@ export async function handleAiChatStream(
         let idx = 0;
         const chunkSize = 4;
         while (idx < words.length) {
-          const piece = words.slice(idx, idx + chunkSize).join(" ") + (idx + chunkSize < words.length ? " " : "");
+          const piece =
+            words.slice(idx, idx + chunkSize).join(" ") +
+            (idx + chunkSize < words.length ? " " : "");
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ chunk: piece })}\n\n`));
           idx += chunkSize;
         }
@@ -461,7 +461,9 @@ export async function handleAiChatStream(
         let idx = 0;
         const chunkSize = 4;
         while (idx < words.length) {
-          const piece = words.slice(idx, idx + chunkSize).join(" ") + (idx + chunkSize < words.length ? " " : "");
+          const piece =
+            words.slice(idx, idx + chunkSize).join(" ") +
+            (idx + chunkSize < words.length ? " " : "");
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ chunk: piece })}\n\n`));
           idx += chunkSize;
         }
@@ -564,21 +566,6 @@ export async function handleAiChatStream(
 }
 
 /**
- * Server-side processor for /api/chat requests (Non-streaming fallback).
- */
-export async function processAiChatRequest(
-  message: string,
-  history?: ChatMessage[],
-  serverEnv?: Record<string, unknown>,
-): Promise<{
-  reply: string;
-  suggestions: string[];
-  actions?: ChatAction[] | undefined;
-}> {
-  return generateInstantKnowledgeResponse(message);
-}
-
-/**
  * Frontend client helper: Real-time SSE streaming reader with guaranteed 0-lag fallback
  */
 export async function askGopalAiStream({
@@ -649,7 +636,8 @@ export async function askGopalAiStream({
                 if (data.done) {
                   const sanitizedActions = data.actions?.map((act) => {
                     if (act.action === "resume") return { ...act, url: activeResume };
-                    if (act.action === "whatsapp") return { ...act, url: `https://wa.me/${activeWhatsapp}` };
+                    if (act.action === "whatsapp")
+                      return { ...act, url: `https://wa.me/${activeWhatsapp}` };
                     return act;
                   });
 
@@ -672,7 +660,11 @@ export async function askGopalAiStream({
           suggestions: ["What projects has Gopal built?", "Tell me about his DSA skills"],
           actions: [
             { label: "📄 Download Resume", url: activeResume, action: "resume" },
-            { label: "💬 Message on WhatsApp", url: `https://wa.me/${activeWhatsapp}`, action: "whatsapp" },
+            {
+              label: "💬 Message on WhatsApp",
+              url: `https://wa.me/${activeWhatsapp}`,
+              action: "whatsapp",
+            },
           ],
         });
         return;
@@ -699,19 +691,4 @@ export async function askGopalAiStream({
       });
     }
   }, 35);
-}
-
-/**
- * Frontend client helper (Non-streaming legacy wrapper)
- */
-export async function askGopalAi({
-  data,
-}: {
-  data: { message: string; history?: ChatMessage[] | undefined };
-}): Promise<{
-  reply: string;
-  suggestions: string[];
-  actions?: ChatAction[] | undefined;
-}> {
-  return generateInstantKnowledgeResponse(data.message);
 }

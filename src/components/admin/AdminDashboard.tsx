@@ -135,7 +135,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
   };
 
   // Helper for uploading project image
-  const handleProjectImageUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProjectImageUpload = async (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -286,7 +289,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
     }
   };
 
-  const handleGalleryMediaUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGalleryMediaUpload = async (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -314,7 +320,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
     }
   };
 
-  const handleGalleryThumbnailUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGalleryThumbnailUpload = async (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -510,9 +519,13 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
           >
             <Briefcase className="size-4" />
             <span>3. Projects</span>
-            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-              activeTab === "projects" ? "bg-white/20 text-white" : "bg-secondary text-muted-foreground"
-            }`}>
+            <span
+              className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                activeTab === "projects"
+                  ? "bg-white/20 text-white"
+                  : "bg-secondary text-muted-foreground"
+              }`}
+            >
               {data.projects.length}
             </span>
           </button>
@@ -527,9 +540,13 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
           >
             <Layers className="size-4" />
             <span>4. Skills &amp; Stack</span>
-            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-              activeTab === "skills" ? "bg-white/20 text-white" : "bg-secondary text-muted-foreground"
-            }`}>
+            <span
+              className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                activeTab === "skills"
+                  ? "bg-white/20 text-white"
+                  : "bg-secondary text-muted-foreground"
+              }`}
+            >
               {data.skillGroups.length}
             </span>
           </button>
@@ -556,9 +573,13 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
           >
             <Award className="size-4" />
             <span>6. Certificates</span>
-            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-              activeTab === "certifications" ? "bg-white/20 text-white" : "bg-secondary text-muted-foreground"
-            }`}>
+            <span
+              className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                activeTab === "certifications"
+                  ? "bg-white/20 text-white"
+                  : "bg-secondary text-muted-foreground"
+              }`}
+            >
               {data.certifications.length}
             </span>
           </button>
@@ -573,9 +594,13 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
           >
             <Camera className="size-4" />
             <span>7. Academic Media &amp; Gallery</span>
-            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-              activeTab === "gallery" ? "bg-white/20 text-white" : "bg-secondary text-muted-foreground"
-            }`}>
+            <span
+              className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                activeTab === "gallery"
+                  ? "bg-white/20 text-white"
+                  : "bg-secondary text-muted-foreground"
+              }`}
+            >
               {(data.academicGallery || []).length}
             </span>
           </button>
@@ -619,7 +644,8 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   Hero Headline, Typewriter &amp; Greeting
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Configure primary identity, headline badges, rotating typewriter roles, and contact info.
+                  Configure primary identity, headline badges, rotating typewriter roles, and
+                  contact info.
                 </p>
               </div>
 
@@ -631,7 +657,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   <input
                     type="text"
                     value={info.name}
-                    onChange={(e) => updateData({ personalInfo: { ...info, name: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ personalInfo: { ...info, name: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
@@ -643,7 +671,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   <input
                     type="text"
                     value={info.role}
-                    onChange={(e) => updateData({ personalInfo: { ...info, role: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ personalInfo: { ...info, role: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
@@ -656,7 +686,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     type="text"
                     placeholder="Hi, I'm Gopal Maddheshiya"
                     value={hero.greetingBadge || ""}
-                    onChange={(e) => updateData({ heroData: { ...hero, greetingBadge: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ heroData: { ...hero, greetingBadge: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
@@ -669,7 +701,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     type="text"
                     placeholder="Building software as a"
                     value={hero.headlinePrefix || ""}
-                    onChange={(e) => updateData({ heroData: { ...hero, headlinePrefix: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ heroData: { ...hero, headlinePrefix: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
@@ -685,7 +719,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       updateData({
                         heroData: {
                           ...hero,
-                          typewriterRoles: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                          typewriterRoles: e.target.value
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean),
                         },
                       })
                     }
@@ -700,7 +737,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   <textarea
                     rows={2}
                     value={info.subtitle}
-                    onChange={(e) => updateData({ personalInfo: { ...info, subtitle: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ personalInfo: { ...info, subtitle: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
@@ -712,7 +751,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   <textarea
                     rows={3}
                     value={info.siteDescription}
-                    onChange={(e) => updateData({ personalInfo: { ...info, siteDescription: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ personalInfo: { ...info, siteDescription: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm leading-relaxed text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-2xs min-h-[90px]"
                   />
                 </div>
@@ -725,7 +766,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     type="text"
                     placeholder="Java • DSA"
                     value={hero.floatingBadge1 || ""}
-                    onChange={(e) => updateData({ heroData: { ...hero, floatingBadge1: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ heroData: { ...hero, floatingBadge1: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
@@ -738,7 +781,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     type="text"
                     placeholder="Full-Stack"
                     value={hero.floatingBadge2 || ""}
-                    onChange={(e) => updateData({ heroData: { ...hero, floatingBadge2: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ heroData: { ...hero, floatingBadge2: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
@@ -751,7 +796,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     type="text"
                     placeholder="Online"
                     value={hero.availabilityStatus || ""}
-                    onChange={(e) => updateData({ heroData: { ...hero, availabilityStatus: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ heroData: { ...hero, availabilityStatus: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
@@ -763,7 +810,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   <input
                     type="text"
                     value={info.location}
-                    onChange={(e) => updateData({ personalInfo: { ...info, location: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ personalInfo: { ...info, location: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
@@ -775,7 +824,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   <input
                     type="email"
                     value={info.email}
-                    onChange={(e) => updateData({ personalInfo: { ...info, email: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ personalInfo: { ...info, email: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
@@ -787,7 +838,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   <input
                     type="text"
                     value={info.phone}
-                    onChange={(e) => updateData({ personalInfo: { ...info, phone: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ personalInfo: { ...info, phone: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
@@ -800,7 +853,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     type="text"
                     placeholder="916388354988"
                     value={info.whatsapp || ""}
-                    onChange={(e) => updateData({ personalInfo: { ...info, whatsapp: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ personalInfo: { ...info, whatsapp: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
@@ -838,7 +893,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           type="text"
                           placeholder="Image URL or upload from device"
                           value={info.profilePhoto || ""}
-                          onChange={(e) => updateData({ personalInfo: { ...info, profilePhoto: e.target.value } })}
+                          onChange={(e) =>
+                            updateData({ personalInfo: { ...info, profilePhoto: e.target.value } })
+                          }
                           className="flex-1 w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none font-mono"
                         />
                         <label className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary hover:bg-primary/90 px-4 py-2.5 text-xs font-semibold text-primary-foreground cursor-pointer transition-all shrink-0 shadow-sm">
@@ -857,24 +914,33 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       {/* Dimensions & Sizing Guidelines Box */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-muted-foreground font-mono">
                         <div className="bg-card rounded-lg border border-border p-2">
-                          <span className="text-[10px] text-muted-foreground block uppercase font-sans font-bold">Aspect Ratio</span>
+                          <span className="text-[10px] text-muted-foreground block uppercase font-sans font-bold">
+                            Aspect Ratio
+                          </span>
                           <strong className="text-foreground">4:5 or 1:1</strong>
                         </div>
                         <div className="bg-card rounded-lg border border-border p-2">
-                          <span className="text-[10px] text-muted-foreground block uppercase font-sans font-bold">Ideal Resolution</span>
+                          <span className="text-[10px] text-muted-foreground block uppercase font-sans font-bold">
+                            Ideal Resolution
+                          </span>
                           <strong className="text-foreground">800 × 1000 px</strong>
                         </div>
                         <div className="bg-card rounded-lg border border-border p-2">
-                          <span className="text-[10px] text-muted-foreground block uppercase font-sans font-bold">Supported Formats</span>
+                          <span className="text-[10px] text-muted-foreground block uppercase font-sans font-bold">
+                            Supported Formats
+                          </span>
                           <strong className="text-foreground">JPG, PNG, WEBP</strong>
                         </div>
                         <div className="bg-card rounded-lg border border-border p-2">
-                          <span className="text-[10px] text-muted-foreground block uppercase font-sans font-bold">Max File Size</span>
+                          <span className="text-[10px] text-muted-foreground block uppercase font-sans font-bold">
+                            Max File Size
+                          </span>
                           <strong className="text-foreground">&lt; 5 MB</strong>
                         </div>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        💡 <strong>Photo Tip:</strong> For best look on both desktop and mobile, upload a portrait photo where your face and shoulders are well-centered.
+                        💡 <strong>Photo Tip:</strong> For best look on both desktop and mobile,
+                        upload a portrait photo where your face and shoulders are well-centered.
                       </p>
                     </div>
                   </div>
@@ -896,7 +962,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       type="text"
                       placeholder="Resume URL (/gopal-cv.pdf or Supabase URL)"
                       value={info.resume || ""}
-                      onChange={(e) => updateData({ personalInfo: { ...info, resume: e.target.value } })}
+                      onChange={(e) =>
+                        updateData({ personalInfo: { ...info, resume: e.target.value } })
+                      }
                       className="flex-1 w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none font-mono"
                     />
                     <label className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary hover:bg-primary/90 px-4 py-2.5 text-xs font-semibold text-primary-foreground cursor-pointer transition-all shrink-0 shadow-sm">
@@ -923,7 +991,13 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    ℹ️ <strong>Universal Single Source of Truth:</strong> When you upload or update your resume PDF here, it automatically syncs across the entire portfolio — including the <strong>Hero "View Resume" button</strong>, <strong>Desktop Navbar "Resume" button</strong>, <strong>Mobile Menu "Download Resume" button</strong>, <strong>Resume CTA Banner</strong>, and the <strong>Ask Gopal AI Chat Assistant</strong>.
+                    ℹ️ <strong>Universal Single Source of Truth:</strong> When you upload or update
+                    your resume PDF here, it automatically syncs across the entire portfolio —
+                    including the <strong>Hero "View Resume" button</strong>,{" "}
+                    <strong>Desktop Navbar "Resume" button</strong>,{" "}
+                    <strong>Mobile Menu "Download Resume" button</strong>,{" "}
+                    <strong>Resume CTA Banner</strong>, and the{" "}
+                    <strong>Ask Gopal AI Chat Assistant</strong>.
                   </p>
                 </div>
               </div>
@@ -946,7 +1020,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   <input
                     type="text"
                     value={info.github}
-                    onChange={(e) => updateData({ personalInfo: { ...info, github: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ personalInfo: { ...info, github: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none font-mono"
                   />
                 </div>
@@ -958,7 +1034,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   <input
                     type="text"
                     value={info.linkedin}
-                    onChange={(e) => updateData({ personalInfo: { ...info, linkedin: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ personalInfo: { ...info, linkedin: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none font-mono"
                   />
                 </div>
@@ -970,7 +1048,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   <input
                     type="text"
                     value={info.leetcode}
-                    onChange={(e) => updateData({ personalInfo: { ...info, leetcode: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ personalInfo: { ...info, leetcode: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none font-mono"
                   />
                 </div>
@@ -1002,7 +1082,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   <input
                     type="text"
                     value={about.eyebrow}
-                    onChange={(e) => updateData({ aboutData: { ...about, eyebrow: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ aboutData: { ...about, eyebrow: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
@@ -1026,7 +1108,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   <textarea
                     rows={2}
                     value={about.description}
-                    onChange={(e) => updateData({ aboutData: { ...about, description: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ aboutData: { ...about, description: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
@@ -1038,7 +1122,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   <input
                     type="text"
                     value={about.storyTitle}
-                    onChange={(e) => updateData({ aboutData: { ...about, storyTitle: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ aboutData: { ...about, storyTitle: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-semibold text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
@@ -1088,7 +1174,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Degree Title</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Degree Title
+                  </label>
                   <input
                     type="text"
                     value={about.snapshot?.degree || ""}
@@ -1105,7 +1193,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">CGPA</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    CGPA
+                  </label>
                   <input
                     type="text"
                     value={about.snapshot?.cgpa || ""}
@@ -1122,7 +1212,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">DSA Practice Count</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    DSA Practice Count
+                  </label>
                   <input
                     type="text"
                     value={about.snapshot?.dsaPractice || ""}
@@ -1139,7 +1231,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Core Tech Stack</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Core Tech Stack
+                  </label>
                   <input
                     type="text"
                     value={about.snapshot?.stack || ""}
@@ -1156,7 +1250,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Graduating Batch</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Graduating Batch
+                  </label>
                   <input
                     type="text"
                     value={about.snapshot?.batch || ""}
@@ -1173,7 +1269,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">University Name</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    University Name
+                  </label>
                   <input
                     type="text"
                     value={about.snapshot?.university || ""}
@@ -1209,9 +1307,14 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
               <div className="space-y-4">
                 {data.education.map((edu, idx) => (
-                  <div key={idx} className="rounded-xl border border-border bg-surface/50 p-4 space-y-3">
+                  <div
+                    key={idx}
+                    className="rounded-xl border border-border bg-surface/50 p-4 space-y-3"
+                  >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono font-bold text-primary">Degree #{idx + 1}</span>
+                      <span className="text-xs font-mono font-bold text-primary">
+                        Degree #{idx + 1}
+                      </span>
                       <button
                         onClick={() => handleDeleteEducation(idx)}
                         className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors"
@@ -1222,7 +1325,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div>
-                        <label className="block text-xs font-semibold text-muted-foreground mb-1">Degree Title</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                          Degree Title
+                        </label>
                         <input
                           type="text"
                           value={edu.title}
@@ -1236,7 +1341,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-muted-foreground mb-1">University / Institute</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                          University / Institute
+                        </label>
                         <input
                           type="text"
                           value={edu.org}
@@ -1250,7 +1357,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-muted-foreground mb-1">Period (Years)</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                          Period (Years)
+                        </label>
                         <input
                           type="text"
                           value={edu.period}
@@ -1264,7 +1373,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-muted-foreground mb-1">CGPA / Details</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                          CGPA / Details
+                        </label>
                         <input
                           type="text"
                           value={edu.detail}
@@ -1303,7 +1414,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       updateData({
                         aboutData: {
                           ...about,
-                          coursework: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                          coursework: e.target.value
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean),
                         },
                       })
                     }
@@ -1320,7 +1434,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     value={(data.focusAreas || []).join(", ")}
                     onChange={(e) =>
                       updateData({
-                        focusAreas: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                        focusAreas: e.target.value
+                          .split(",")
+                          .map((s) => s.trim())
+                          .filter(Boolean),
                       })
                     }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
@@ -1342,7 +1459,8 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   Projects Manager ({data.projects.length})
                 </h2>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Add, reorder, edit titles, problem statements, features, and upload live project screenshots.
+                  Add, reorder, edit titles, problem statements, features, and upload live project
+                  screenshots.
                 </p>
               </div>
               <button
@@ -1559,7 +1677,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           const updated = [...data.projects];
                           updated[idx] = {
                             ...project,
-                            technologies: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                            technologies: e.target.value
+                              .split(",")
+                              .map((s) => s.trim())
+                              .filter(Boolean),
                           };
                           updateData({ projects: updated });
                         }}
@@ -1578,7 +1699,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           const updated = [...data.projects];
                           updated[idx] = {
                             ...project,
-                            features: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean),
+                            features: e.target.value
+                              .split("\n")
+                              .map((s) => s.trim())
+                              .filter(Boolean),
                           };
                           updateData({ projects: updated });
                         }}
@@ -1638,7 +1762,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             />
                             <label className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary hover:bg-primary/90 px-4 py-2.5 text-xs font-semibold text-primary-foreground cursor-pointer transition-all shrink-0 shadow-sm">
                               <Upload className="size-4" />
-                              <span>{uploadingIndex === idx ? "Uploading..." : "Upload Screenshot"}</span>
+                              <span>
+                                {uploadingIndex === idx ? "Uploading..." : "Upload Screenshot"}
+                              </span>
                               <input
                                 type="file"
                                 accept="image/jpeg,image/png,image/webp,image/jpg"
@@ -1660,7 +1786,8 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             )}
                           </div>
                           <p className="text-xs text-muted-foreground">
-                            Uploads screenshot directly to Supabase Storage bucket (`portfolio-media/projects`).
+                            Uploads screenshot directly to Supabase Storage bucket
+                            (`portfolio-media/projects`).
                           </p>
                         </div>
                       </div>
@@ -1679,7 +1806,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                         }}
                         className="rounded border-border text-primary focus:ring-primary size-4.5 cursor-pointer"
                       />
-                      <label htmlFor={`featured-${idx}`} className="text-sm text-foreground font-semibold cursor-pointer">
+                      <label
+                        htmlFor={`featured-${idx}`}
+                        className="text-sm text-foreground font-semibold cursor-pointer"
+                      >
                         Mark as Featured Flagship Project (Displayed with badge in Hero / Projects)
                       </label>
                     </div>
@@ -1714,9 +1844,14 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
             <div className="space-y-4">
               {data.skillGroups.map((group, idx) => (
-                <div key={idx} className="rounded-2xl border border-border bg-card p-6 shadow-soft space-y-4">
+                <div
+                  key={idx}
+                  className="rounded-2xl border border-border bg-card p-6 shadow-soft space-y-4"
+                >
                   <div className="flex items-center justify-between border-b border-border pb-3">
-                    <span className="text-xs font-mono font-bold text-primary">Skill Category #{idx + 1}</span>
+                    <span className="text-xs font-mono font-bold text-primary">
+                      Skill Category #{idx + 1}
+                    </span>
                     <button
                       onClick={() => handleDeleteSkillGroup(idx)}
                       className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors"
@@ -1727,7 +1862,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Category Title</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        Category Title
+                      </label>
                       <input
                         type="text"
                         value={group.title}
@@ -1752,7 +1889,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                         }}
                         className="rounded border-border text-primary size-4.5 cursor-pointer"
                       />
-                      <label htmlFor={`primary-skill-${idx}`} className="text-xs text-foreground font-semibold cursor-pointer">
+                      <label
+                        htmlFor={`primary-skill-${idx}`}
+                        className="text-xs text-foreground font-semibold cursor-pointer"
+                      >
                         Highlight as Primary Category (Emphasized Card)
                       </label>
                     </div>
@@ -1768,7 +1908,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           const updated = [...data.skillGroups];
                           updated[idx] = {
                             ...group,
-                            skills: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                            skills: e.target.value
+                              .split(",")
+                              .map((s) => s.trim())
+                              .filter(Boolean),
                           };
                           updateData({ skillGroups: updated });
                         }}
@@ -1796,7 +1939,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Problems Solved Badge Text</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Problems Solved Badge Text
+                  </label>
                   <input
                     type="text"
                     value={data.dsaInfo.problemsSolved}
@@ -1810,7 +1955,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Primary Problem Solving Language</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Primary Problem Solving Language
+                  </label>
                   <input
                     type="text"
                     value={data.dsaInfo.language}
@@ -1824,7 +1971,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">GitHub DSA Repo Name</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    GitHub DSA Repo Name
+                  </label>
                   <input
                     type="text"
                     value={data.dsaInfo.repoName}
@@ -1838,7 +1987,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">GitHub DSA Repo URL</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    GitHub DSA Repo URL
+                  </label>
                   <input
                     type="text"
                     value={data.dsaInfo.repoUrl}
@@ -1864,14 +2015,19 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
               <div className="space-y-4">
                 {data.codingProfiles.map((prof, idx) => (
-                  <div key={idx} className="rounded-xl border border-border bg-surface/50 p-4 space-y-3">
+                  <div
+                    key={idx}
+                    className="rounded-xl border border-border bg-surface/50 p-4 space-y-3"
+                  >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-foreground">{prof.name} Profile</span>
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div>
-                        <label className="block text-[11px] text-muted-foreground font-semibold mb-1">Profile Link (URL)</label>
+                        <label className="block text-[11px] text-muted-foreground font-semibold mb-1">
+                          Profile Link (URL)
+                        </label>
                         <input
                           type="text"
                           value={prof.url}
@@ -1885,7 +2041,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       </div>
 
                       <div>
-                        <label className="block text-[11px] text-muted-foreground font-semibold mb-1">Username / Handle</label>
+                        <label className="block text-[11px] text-muted-foreground font-semibold mb-1">
+                          Username / Handle
+                        </label>
                         <input
                           type="text"
                           value={prof.username}
@@ -1899,7 +2057,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       </div>
 
                       <div className="sm:col-span-2">
-                        <label className="block text-[11px] text-muted-foreground font-semibold mb-1">Description / Subtitle</label>
+                        <label className="block text-[11px] text-muted-foreground font-semibold mb-1">
+                          Description / Subtitle
+                        </label>
                         <input
                           type="text"
                           value={prof.description}
@@ -1929,7 +2089,8 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   Certifications &amp; Contests ({data.certifications.length})
                 </h2>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Add or edit verified certifications, issuing universities, and credential PDF/URL links.
+                  Add or edit verified certifications, issuing universities, and credential PDF/URL
+                  links.
                 </p>
               </div>
               <button
@@ -1964,9 +2125,14 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
             <div className="space-y-5">
               {data.certifications.map((cert, idx) => (
-                <div key={idx} className="rounded-2xl border border-border bg-card p-6 shadow-soft space-y-4">
+                <div
+                  key={idx}
+                  className="rounded-2xl border border-border bg-card p-6 shadow-soft space-y-4"
+                >
                   <div className="flex items-center justify-between border-b border-border pb-3">
-                    <span className="text-xs font-mono font-bold text-primary">Certificate #{idx + 1}</span>
+                    <span className="text-xs font-mono font-bold text-primary">
+                      Certificate #{idx + 1}
+                    </span>
                     <button
                       onClick={() => handleDeleteCertification(idx)}
                       className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors"
@@ -1977,7 +2143,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="sm:col-span-2">
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Title</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        Title
+                      </label>
                       <input
                         type="text"
                         value={cert.title}
@@ -1991,7 +2159,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Issuing Organization</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        Issuing Organization
+                      </label>
                       <input
                         type="text"
                         value={cert.org}
@@ -2005,7 +2175,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Period / Date</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        Period / Date
+                      </label>
                       <input
                         type="text"
                         value={cert.period}
@@ -2019,7 +2191,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     </div>
 
                     <div className="sm:col-span-2">
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Description / Impact</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        Description / Impact
+                      </label>
                       <textarea
                         rows={2}
                         value={cert.detail}
@@ -2043,7 +2217,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           const updated = [...data.certifications];
                           updated[idx] = {
                             ...cert,
-                            skills: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                            skills: e.target.value
+                              .split(",")
+                              .map((s) => s.trim())
+                              .filter(Boolean),
                           };
                           updateData({ certifications: updated });
                         }}
@@ -2109,7 +2286,8 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   Academic Media &amp; Gallery ({(data.academicGallery || []).length})
                 </h2>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Upload and manage your university event photos, hackathon pictures, lab demo videos, and context descriptions.
+                  Upload and manage your university event photos, hackathon pictures, lab demo
+                  videos, and context descriptions.
                 </p>
               </div>
               <button
@@ -2129,7 +2307,8 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   Academic Media &amp; Context Details:
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  Each photo/video includes a dedicated bottom context box explaining what it relates to (event, team role, or achievement).
+                  Each photo/video includes a dedicated bottom context box explaining what it
+                  relates to (event, team role, or achievement).
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 text-xs font-mono">
@@ -2143,7 +2322,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
             </div>
 
             {/* Empty State when no items */}
-            {(!data.academicGallery || data.academicGallery.length === 0) ? (
+            {!data.academicGallery || data.academicGallery.length === 0 ? (
               <div className="rounded-2xl border-2 border-dashed border-border bg-card/60 p-10 text-center flex flex-col items-center justify-center space-y-3">
                 <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
                   <Camera className="size-6" />
@@ -2152,7 +2331,8 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   No Academic Media Added Yet
                 </h3>
                 <p className="text-xs text-muted-foreground max-w-md">
-                  Your portfolio gallery section is currently blank as requested. Click the button below to add your first photo or video.
+                  Your portfolio gallery section is currently blank as requested. Click the button
+                  below to add your first photo or video.
                 </p>
                 <button
                   onClick={handleAddGalleryItem}
@@ -2324,7 +2504,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          Write what this photo/video relates to (e.g. which project was demonstrated, what problem was solved, team members involved, or university contest details):
+                          Write what this photo/video relates to (e.g. which project was
+                          demonstrated, what problem was solved, team members involved, or
+                          university contest details):
                         </p>
                         <textarea
                           rows={2}
@@ -2342,7 +2524,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       {/* Media File Upload & Direct URL */}
                       <div className="sm:col-span-2 rounded-xl border border-border bg-surface/50 p-4 space-y-3">
                         <label className="block text-xs font-bold text-foreground">
-                          {item.type === "video" ? "Video File or Embed URL" : "Photo Image File or Direct URL"}
+                          {item.type === "video"
+                            ? "Video File or Embed URL"
+                            : "Photo Image File or Direct URL"}
                         </label>
                         <div className="flex flex-col sm:flex-row gap-2.5 items-start sm:items-center">
                           <input
@@ -2366,8 +2550,8 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                               {uploadingGalleryIndex === idx
                                 ? "Uploading..."
                                 : item.type === "video"
-                                ? "Upload Video"
-                                : "Upload Photo"}
+                                  ? "Upload Video"
+                                  : "Upload Photo"}
                             </span>
                             <input
                               type="file"
@@ -2411,7 +2595,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                               <label className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card hover:bg-secondary px-3 py-1.5 text-xs font-medium text-foreground cursor-pointer transition-colors shrink-0">
                                 <ImageIcon className="size-3.5 text-primary" />
                                 <span>
-                                  {uploadingGalleryThumbIndex === idx ? "Uploading..." : "Upload Poster"}
+                                  {uploadingGalleryThumbIndex === idx
+                                    ? "Uploading..."
+                                    : "Upload Poster"}
                                 </span>
                                 <input
                                   type="file"
@@ -2438,7 +2624,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                               ) : (
                                 <div className="text-center text-zinc-400 p-4 space-y-1">
                                   <Video className="size-8 mx-auto text-primary" />
-                                  <p className="text-[11px] font-mono truncate max-w-xs">{item.url}</p>
+                                  <p className="text-[11px] font-mono truncate max-w-xs">
+                                    {item.url}
+                                  </p>
                                 </div>
                               )
                             ) : (
@@ -2473,9 +2661,14 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
               <div className="space-y-3">
                 {data.highlights.map((hl, idx) => (
-                  <div key={idx} className="rounded-xl border border-border bg-surface/50 p-4 grid gap-3 sm:grid-cols-2">
+                  <div
+                    key={idx}
+                    className="rounded-xl border border-border bg-surface/50 p-4 grid gap-3 sm:grid-cols-2"
+                  >
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Highlight Label</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                        Highlight Label
+                      </label>
                       <input
                         type="text"
                         value={hl.label}
@@ -2489,7 +2682,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Detail Text</label>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                        Detail Text
+                      </label>
                       <input
                         type="text"
                         value={hl.detail}
@@ -2524,9 +2719,14 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
               <div className="space-y-4">
                 {data.journey.map((m, idx) => (
-                  <div key={idx} className="rounded-xl border border-border bg-surface/50 p-4 space-y-3">
+                  <div
+                    key={idx}
+                    className="rounded-xl border border-border bg-surface/50 p-4 space-y-3"
+                  >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono font-bold text-primary">Phase {m.phase}</span>
+                      <span className="text-xs font-mono font-bold text-primary">
+                        Phase {m.phase}
+                      </span>
                       <button
                         onClick={() => handleDeleteMilestone(idx)}
                         className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors"
@@ -2537,7 +2737,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
                     <div className="grid gap-3 sm:grid-cols-3">
                       <div>
-                        <label className="block text-xs font-semibold text-muted-foreground mb-1">Phase Code</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                          Phase Code
+                        </label>
                         <input
                           type="text"
                           value={m.phase}
@@ -2551,7 +2753,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-muted-foreground mb-1">Title</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                          Title
+                        </label>
                         <input
                           type="text"
                           value={m.title}
@@ -2565,7 +2769,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-muted-foreground mb-1">Status</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                          Status
+                        </label>
                         <select
                           value={m.status}
                           onChange={(e) => {
@@ -2585,7 +2791,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       </div>
 
                       <div className="sm:col-span-3">
-                        <label className="block text-xs font-semibold text-muted-foreground mb-1">Description</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                          Description
+                        </label>
                         <textarea
                           rows={2}
                           value={m.detail}
@@ -2599,7 +2807,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       </div>
 
                       <div className="sm:col-span-3">
-                        <label className="block text-xs font-semibold text-muted-foreground mb-1">Tags (Comma separated)</label>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                          Tags (Comma separated)
+                        </label>
                         <input
                           type="text"
                           value={(m.tags || []).join(", ")}
@@ -2607,7 +2817,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                             const updated = [...data.journey];
                             updated[idx] = {
                               ...m,
-                              tags: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                              tags: e.target.value
+                                .split(",")
+                                .map((s) => s.trim())
+                                .filter(Boolean),
                             };
                             updateData({ journey: updated });
                           }}
@@ -2636,31 +2849,43 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Eyebrow Tag</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Eyebrow Tag
+                  </label>
                   <input
                     type="text"
                     value={contact.eyebrow}
-                    onChange={(e) => updateData({ contactData: { ...contact, eyebrow: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ contactData: { ...contact, eyebrow: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Title</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Title
+                  </label>
                   <input
                     type="text"
                     value={contact.title}
-                    onChange={(e) => updateData({ contactData: { ...contact, title: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ contactData: { ...contact, title: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-semibold text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Description</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Description
+                  </label>
                   <textarea
                     rows={2}
                     value={contact.description}
-                    onChange={(e) => updateData({ contactData: { ...contact, description: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ contactData: { ...contact, description: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none min-h-[70px]"
                   />
                 </div>
@@ -2673,7 +2898,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     type="text"
                     value={contact.availabilityNote || ""}
                     placeholder="Open to Summer 2026 SWE & Full-Stack Internships"
-                    onChange={(e) => updateData({ contactData: { ...contact, availabilityNote: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ contactData: { ...contact, availabilityNote: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
@@ -2691,7 +2918,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Eyebrow</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Eyebrow
+                  </label>
                   <input
                     type="text"
                     value={cta.eyebrow}
@@ -2701,7 +2930,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Title</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Title
+                  </label>
                   <input
                     type="text"
                     value={cta.title}
@@ -2711,17 +2942,23 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Description</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Description
+                  </label>
                   <textarea
                     rows={2}
                     value={cta.description}
-                    onChange={(e) => updateData({ resumeCTA: { ...cta, description: e.target.value } })}
+                    onChange={(e) =>
+                      updateData({ resumeCTA: { ...cta, description: e.target.value } })
+                    }
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none min-h-[70px]"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Pill Tags (Comma separated)</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Pill Tags (Comma separated)
+                  </label>
                   <input
                     type="text"
                     value={(cta.tags || []).join(", ")}
@@ -2729,7 +2966,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       updateData({
                         resumeCTA: {
                           ...cta,
-                          tags: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                          tags: e.target.value
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean),
                         },
                       })
                     }
@@ -2746,7 +2986,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                       type="text"
                       placeholder="Resume URL (/gopal-cv.pdf or Supabase URL)"
                       value={info.resume || ""}
-                      onChange={(e) => updateData({ personalInfo: { ...info, resume: e.target.value } })}
+                      onChange={(e) =>
+                        updateData({ personalInfo: { ...info, resume: e.target.value } })
+                      }
                       className="flex-1 w-full rounded-lg border border-border-strong bg-card px-3.5 py-2 text-xs text-foreground focus:border-primary focus:outline-none font-mono"
                     />
                     <label className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary hover:bg-primary/90 px-3.5 py-2 text-xs font-semibold text-primary-foreground cursor-pointer transition-all shrink-0 shadow-xs">

@@ -86,22 +86,33 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "Gopal Maddheshiya" },
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${PERSONAL_INFO.siteUrl}/` },
-      { property: "og:title", content: "Gopal Maddheshiya | B.Tech CSE Student | Java & Full-Stack Developer" },
+      {
+        property: "og:title",
+        content: "Gopal Maddheshiya | B.Tech CSE Student | Java & Full-Stack Developer",
+      },
       {
         property: "og:description",
-        content: "Portfolio of Gopal Maddheshiya — B.Tech CSE student focused on Java, Data Structures & Algorithms, and Full-Stack Web Development.",
+        content:
+          "Portfolio of Gopal Maddheshiya — B.Tech CSE student focused on Java, Data Structures & Algorithms, and Full-Stack Web Development.",
       },
       { property: "og:image", content: PERSONAL_INFO.ogImage },
       { property: "og:image:secure_url", content: PERSONAL_INFO.ogImage },
       { property: "og:image:type", content: "image/jpeg" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
-      { property: "og:image:alt", content: "Gopal Maddheshiya — Java & Full-Stack Developer Portfolio" },
+      {
+        property: "og:image:alt",
+        content: "Gopal Maddheshiya — Java & Full-Stack Developer Portfolio",
+      },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Gopal Maddheshiya | B.Tech CSE Student | Java & Full-Stack Developer" },
+      {
+        name: "twitter:title",
+        content: "Gopal Maddheshiya | B.Tech CSE Student | Java & Full-Stack Developer",
+      },
       {
         name: "twitter:description",
-        content: "Portfolio of Gopal Maddheshiya — B.Tech CSE student focused on Java, Data Structures & Algorithms, and Full-Stack Web Development.",
+        content:
+          "Portfolio of Gopal Maddheshiya — B.Tech CSE student focused on Java, Data Structures & Algorithms, and Full-Stack Web Development.",
       },
       { name: "twitter:image", content: PERSONAL_INFO.ogImage },
     ],

@@ -64,10 +64,5 @@ function AdminPage() {
     return <AdminLogin onSuccess={checkSession} />;
   }
 
-  return (
-    <AdminDashboard
-      onSignOut={handleSignOut}
-      userEmail={session.user.email || "Admin"}
-    />
-  );
+  return <AdminDashboard onSignOut={handleSignOut} userEmail={session.user.email || "Admin"} />;
 }

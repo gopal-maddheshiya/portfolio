@@ -83,7 +83,7 @@ export function AdminLogin({ onSuccess }: AdminLoginProps) {
       }
 
       toast.success(
-        `Supabase verification email sent to ${email.trim()}! Check your inbox to securely reset your password.`
+        `Supabase verification email sent to ${email.trim()}! Check your inbox to securely reset your password.`,
       );
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to send reset email";
@@ -222,9 +222,7 @@ export function AdminLogin({ onSuccess }: AdminLoginProps) {
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-medium text-foreground">
-                    Password
-                  </label>
+                  <label className="block text-xs font-medium text-foreground">Password</label>
                   <button
                     type="button"
                     onClick={handleForgotPassword}
@@ -267,7 +265,11 @@ export function AdminLogin({ onSuccess }: AdminLoginProps) {
           {/* Footer note */}
           <div className="mt-6 pt-4 border-t border-border/60 text-center">
             <p className="text-[11px] text-muted-foreground">
-              Only authorized administrator (<span className="font-mono text-foreground font-medium">gopalmaddheshiya138@gmail.com</span>) can access this dashboard.
+              Only authorized administrator (
+              <span className="font-mono text-foreground font-medium">
+                gopalmaddheshiya138@gmail.com
+              </span>
+              ) can access this dashboard.
             </p>
           </div>
         </div>

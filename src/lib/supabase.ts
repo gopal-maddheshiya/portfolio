@@ -87,49 +87,87 @@ export const RECORD_ID = "gopal_portfolio";
 /**
  * Parses raw JSON content into safe PortfolioData with defaults.
  */
-export function parsePortfolioContent(c: any, updatedAt?: string): PortfolioData {
-  if (!c || typeof c !== "object") return DEFAULT_PORTFOLIO_DATA;
+export function parsePortfolioContent(rawContent: unknown, updatedAt?: string): PortfolioData {
+  if (!rawContent || typeof rawContent !== "object") return DEFAULT_PORTFOLIO_DATA;
+
+  const c = rawContent as Record<string, unknown>;
+
+  const pickObject = <T>(key: string): T => {
+    const value = c[key];
+    return (value !== null && typeof value === "object" && !Array.isArray(value) ? value : {}) as T;
+  };
+
+  const pickArray = <T>(key: string, fallback: T[]): T[] => {
+    return Array.isArray(c[key]) ? (c[key] as T[]) : fallback;
+  };
+
+  const resolvedUpdatedAt: string | undefined =
+    updatedAt ?? (typeof c["updatedAt"] === "string" ? c["updatedAt"] : undefined);
+
   return {
     ...DEFAULT_PORTFOLIO_DATA,
-    ...c,
     personalInfo: {
       ...DEFAULT_PORTFOLIO_DATA.personalInfo,
-      ...(c.personalInfo || {}),
+      ...pickObject<Partial<PortfolioData["personalInfo"]>>("personalInfo"),
     },
     heroData: {
       ...DEFAULT_PORTFOLIO_DATA.heroData,
-      ...(c.heroData || {}),
+      ...pickObject<Partial<PortfolioData["heroData"]>>("heroData"),
     },
     aboutData: {
       ...DEFAULT_PORTFOLIO_DATA.aboutData,
-      ...(c.aboutData || {}),
+      ...pickObject<Partial<PortfolioData["aboutData"]>>("aboutData"),
       snapshot: {
         ...DEFAULT_PORTFOLIO_DATA.aboutData.snapshot,
-        ...(c.aboutData?.snapshot || {}),
+        ...pickObject<Partial<PortfolioData["aboutData"]["snapshot"]>>("snapshot"),
       },
     },
     dsaInfo: {
       ...DEFAULT_PORTFOLIO_DATA.dsaInfo,
-      ...(c.dsaInfo || {}),
+      ...pickObject<Partial<PortfolioData["dsaInfo"]>>("dsaInfo"),
     },
     resumeCTA: {
       ...DEFAULT_PORTFOLIO_DATA.resumeCTA,
-      ...(c.resumeCTA || {}),
+      ...pickObject<Partial<PortfolioData["resumeCTA"]>>("resumeCTA"),
     },
     contactData: {
       ...DEFAULT_PORTFOLIO_DATA.contactData,
-      ...(c.contactData || {}),
+      ...pickObject<Partial<PortfolioData["contactData"]>>("contactData"),
     },
-    projects: Array.isArray(c.projects) ? c.projects : DEFAULT_PORTFOLIO_DATA.projects,
-    highlights: Array.isArray(c.highlights) ? c.highlights : DEFAULT_PORTFOLIO_DATA.highlights,
-    focusAreas: Array.isArray(c.focusAreas) ? c.focusAreas : DEFAULT_PORTFOLIO_DATA.focusAreas,
-    skillGroups: Array.isArray(c.skillGroups) ? c.skillGroups : DEFAULT_PORTFOLIO_DATA.skillGroups,
-    codingProfiles: Array.isArray(c.codingProfiles) ? c.codingProfiles : DEFAULT_PORTFOLIO_DATA.codingProfiles,
-    journey: Array.isArray(c.journey) ? c.journey : DEFAULT_PORTFOLIO_DATA.journey,
-    education: Array.isArray(c.education) ? c.education : DEFAULT_PORTFOLIO_DATA.education,
-    certifications: Array.isArray(c.certifications) ? c.certifications : DEFAULT_PORTFOLIO_DATA.certifications,
-    academicGallery: Array.isArray(c.academicGallery) ? c.academicGallery : DEFAULT_PORTFOLIO_DATA.academicGallery,
-    updatedAt: updatedAt || c.updatedAt,
+    projects: pickArray<PortfolioData["projects"][number]>(
+      "projects",
+      DEFAULT_PORTFOLIO_DATA.projects,
+    ),
+    highlights: pickArray<PortfolioData["highlights"][number]>(
+      "highlights",
+      DEFAULT_PORTFOLIO_DATA.highlights,
+    ),
+    focusAreas: pickArray<PortfolioData["focusAreas"][number]>(
+      "focusAreas",
+      DEFAULT_PORTFOLIO_DATA.focusAreas,
+    ),
+    skillGroups: pickArray<PortfolioData["skillGroups"][number]>(
+      "skillGroups",
+      DEFAULT_PORTFOLIO_DATA.skillGroups,
+    ),
+    codingProfiles: pickArray<PortfolioData["codingProfiles"][number]>(
+      "codingProfiles",
+      DEFAULT_PORTFOLIO_DATA.codingProfiles,
+    ),
+    journey: pickArray<PortfolioData["journey"][number]>("journey", DEFAULT_PORTFOLIO_DATA.journey),
+    education: pickArray<PortfolioData["education"][number]>(
+      "education",
+      DEFAULT_PORTFOLIO_DATA.education,
+    ),
+    certifications: pickArray<PortfolioData["certifications"][number]>(
+      "certifications",
+      DEFAULT_PORTFOLIO_DATA.certifications,
+    ),
+    academicGallery: pickArray<PortfolioData["academicGallery"][number]>(
+      "academicGallery",
+      DEFAULT_PORTFOLIO_DATA.academicGallery,
+    ),
+    ...(resolvedUpdatedAt ? { updatedAt: resolvedUpdatedAt } : {}),
   };
 }
 
@@ -162,7 +200,9 @@ export async function fetchPortfolioData(): Promise<PortfolioData> {
 /**
  * Save / Upsert portfolio data to Supabase.
  */
-export async function savePortfolioData(content: PortfolioData): Promise<{ success: boolean; error?: string }> {
+export async function savePortfolioData(
+  content: PortfolioData,
+): Promise<{ success: boolean; error?: string }> {
   try {
     const { error } = await supabase.from(TABLE_NAME).upsert(
       {
@@ -170,7 +210,7 @@ export async function savePortfolioData(content: PortfolioData): Promise<{ succe
         content,
         updated_at: new Date().toISOString(),
       },
-      { onConflict: "id" }
+      { onConflict: "id" },
     );
 
     if (error) {
@@ -189,7 +229,7 @@ export async function savePortfolioData(content: PortfolioData): Promise<{ succe
  */
 export async function uploadPortfolioFile(
   file: File,
-  folder = "resumes"
+  folder = "resumes",
 ): Promise<{ url?: string; error?: string }> {
   try {
     const cleanFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
@@ -220,7 +260,7 @@ export async function uploadPortfolioFile(
  */
 export async function uploadPortfolioImage(
   file: File,
-  folder = "projects"
+  folder = "projects",
 ): Promise<{ url?: string; error?: string }> {
   return uploadPortfolioFile(file, folder);
 }

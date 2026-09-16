@@ -31,6 +31,10 @@ const EMPTY: FormState = {
   message: "",
 };
 
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_njyc3k2";
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "template_il42ptj";
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "-7KHeknrjHN-f2QH5";
+
 function buildMessage(form: FormState) {
   const subject = form.subject.trim() || "Portfolio enquiry";
   const name = form.name.trim();
@@ -132,8 +136,8 @@ export function Contact() {
 
     try {
       await emailjs.send(
-        "service_njyc3k2",
-        "template_il42ptj",
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
         {
           name: form.name.trim(),
           from_name: form.name.trim(),
@@ -147,7 +151,7 @@ export function Contact() {
           message: form.message.trim(),
         },
         {
-          publicKey: "-7KHeknrjHN-f2QH5",
+          publicKey: EMAILJS_PUBLIC_KEY,
         },
       );
 

@@ -177,19 +177,12 @@
 
   .reveal {
     opacity: 0;
-    transform: translateY(14px);
-    transition:
-      opacity 0.6s ease,
-      transform 0.6s ease;
-  }
-
-  .reveal.is-visible {
-    opacity: 1;
-    transform: none;
+    transform: translateY(26px);
   }
 
   @keyframes float-slow {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0px);
     }
     50% {
@@ -198,7 +191,8 @@
   }
 
   @keyframes float-reverse {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0px);
     }
     50% {
@@ -212,6 +206,25 @@
 
   .animate-float-reverse {
     animation: float-reverse 4.5s ease-in-out infinite;
+  }
+
+  .hero-scroll-line {
+    width: 1.5px;
+    height: 44px;
+    background: linear-gradient(to bottom, transparent, var(--color-primary));
+    animation: scroll-line 2.2s ease-in-out infinite;
+  }
+
+  @keyframes scroll-line {
+    0% {
+      transform: scaleY(0);
+      transform-origin: top;
+    }
+    45%,
+    100% {
+      transform: scaleY(1);
+      transform-origin: top;
+    }
   }
 }
 
