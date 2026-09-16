@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowUpRight, CheckCircle2, Code2, ExternalLink, Github, Sparkles } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -237,13 +237,19 @@ export function Projects() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const headingAnimatedRef = useRef(false);
 
-  const filteredProjects = data.projects.filter((p) => {
-    if (activeCategory === "All") return true;
-    if (activeCategory === "Full-Stack") return p.category?.toLowerCase().includes("full-stack");
-    if (activeCategory === "Backend & APIs") return p.category?.toLowerCase().includes("backend");
-    if (activeCategory === "Frontend") return p.category?.toLowerCase().includes("frontend");
-    return true;
-  });
+  const filteredProjects = useMemo(
+    () =>
+      data.projects.filter((p) => {
+        if (activeCategory === "All") return true;
+        if (activeCategory === "Full-Stack")
+          return p.category?.toLowerCase().includes("full-stack");
+        if (activeCategory === "Backend & APIs")
+          return p.category?.toLowerCase().includes("backend");
+        if (activeCategory === "Frontend") return p.category?.toLowerCase().includes("frontend");
+        return true;
+      }),
+    [data.projects, activeCategory],
+  );
 
   /* ── GSAP ScrollTrigger entrance ── */
   useEffect(() => {

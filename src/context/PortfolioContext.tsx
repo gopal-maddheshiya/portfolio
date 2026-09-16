@@ -21,6 +21,14 @@ interface PortfolioContextType {
   refreshData: () => Promise<void>;
 }
 
+/** Let GSAP ScrollTrigger re-measure positions after remote content swaps layout. */
+function notifyContentUpdate() {
+  if (typeof window === "undefined") return;
+  requestAnimationFrame(() => {
+    window.dispatchEvent(new Event("app:content-updated"));
+  });
+}
+
 const PortfolioContext = createContext<PortfolioContextType | null>(null);
 
 export function PortfolioProvider({ children }: { children: React.ReactNode }) {
@@ -38,6 +46,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       if (!silent) setIsLoading(true);
       const remoteData = await fetchPortfolioData();
       setData(remoteData);
+      notifyContentUpdate();
     } catch (err) {
       console.error("Failed to load portfolio data:", err);
     } finally {
@@ -70,6 +79,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
             const raw = payload.new as { content?: unknown; updated_at?: string };
             const parsed = parsePortfolioContent(raw.content, raw.updated_at);
             setData(parsed);
+            notifyContentUpdate();
           } else {
             loadData(true);
           }
@@ -93,6 +103,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
             }
             console.log("⚡ [Cross-Tab Sync] Instant sync received from Admin Studio");
             setData(parsePortfolioContent(event.data.payload, new Date().toISOString()));
+            notifyContentUpdate();
           }
         };
       } catch (e) {

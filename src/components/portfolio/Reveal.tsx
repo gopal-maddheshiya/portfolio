@@ -11,7 +11,8 @@ if (typeof window !== "undefined") {
 /**
  * Premium scroll reveal driven by GSAP ScrollTrigger for a silky,
  * Lenis-synced fade-up with a subtle blur settle. The `delay` prop
- * staggers siblings cascade-style, matching the old IO component's API.
+ * (in MILLISECONDS) staggers siblings cascade-style, matching the
+ * old IO component's API.
  */
 export function Reveal({
   children,
@@ -21,6 +22,7 @@ export function Reveal({
 }: {
   children: ReactNode;
   className?: string;
+  /** Stagger delay in milliseconds. */
   delay?: number;
   as?: "div" | "li" | "section" | "article";
 }) {
@@ -40,7 +42,7 @@ export function Reveal({
         filter: "blur(0px)",
         duration: 0.75,
         ease: "power3.out",
-        delay,
+        delay: delay / 1000,
         clearProps: "all",
         scrollTrigger: {
           trigger: node,

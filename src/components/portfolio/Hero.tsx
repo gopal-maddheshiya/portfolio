@@ -325,7 +325,7 @@ export function Hero() {
       />
 
       {/* Scroll cue */}
-      <div className="hero-anim-scroll pointer-events-none absolute inset-x-0 bottom-3 z-20 hidden sm:flex justify-center opacity-0">
+      <div className="hero-anim-scroll pointer-events-none absolute inset-x-0 bottom-3 z-20 hidden sm:flex justify-center">
         <div className="flex flex-col items-center gap-2">
           <span className="font-mono text-[10px] font-medium uppercase tracking-[0.25em] text-muted-foreground">
             Scroll

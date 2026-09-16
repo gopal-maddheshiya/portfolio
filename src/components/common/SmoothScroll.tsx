@@ -49,7 +49,17 @@ export function SmoothScrollProvider({ children }: SmoothScrollProps) {
     gsap.ticker.add(tickerUpdate);
     gsap.ticker.lagSmoothing(0);
 
+    // Re-measure all ScrollTrigger start/end positions once Lenis is live so
+    // nothing that lives below the fold stays hidden behind a stale trigger.
+    const refreshId = requestAnimationFrame(() => ScrollTrigger.refresh());
+
+    // Re-measure whenever remotely-synced portfolio content changes layout.
+    const onContentUpdated = () => ScrollTrigger.refresh();
+    window.addEventListener("app:content-updated", onContentUpdated);
+
     return () => {
+      cancelAnimationFrame(refreshId);
+      window.removeEventListener("app:content-updated", onContentUpdated);
       gsap.ticker.remove(tickerUpdate);
       lenis.destroy();
       delete window.__lenis;
