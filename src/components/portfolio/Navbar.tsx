@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Download, FileText, Menu, Moon, Sun, X } from "lucide-react";
+import { Download, Menu, Moon, Sun, X } from "lucide-react";
 import { gsap } from "gsap";
 
 import { usePortfolio } from "@/context/PortfolioContext";
