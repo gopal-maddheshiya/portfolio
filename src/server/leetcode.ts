@@ -21,6 +21,7 @@ export type LeetCodeStatsResponse = {
   badges: LeetCodeBadge[];
   totalActiveDays: number;
   maxStreak: number;
+  currentStreak: number;
   totalSubmissions: number;
   submissionCalendar: Record<string, number>;
   recentSubmissions: Array<{
@@ -28,6 +29,7 @@ export type LeetCodeStatsResponse = {
     titleSlug: string;
     lang: string;
     timestamp: string;
+    difficulty?: "Easy" | "Medium" | "Hard";
   }>;
   isLive: boolean;
   updatedAt: string;
@@ -57,6 +59,7 @@ const FALLBACK_STATS: LeetCodeStatsResponse = {
   ],
   totalActiveDays: 69,
   maxStreak: 61,
+  currentStreak: 61,
   totalSubmissions: 89,
   submissionCalendar: {
     "1770508800": 1,
@@ -130,10 +133,34 @@ const FALLBACK_STATS: LeetCodeStatsResponse = {
     "1787616000": 3,
   },
   recentSubmissions: [
-    { title: "Two Sum", titleSlug: "two-sum", lang: "java", timestamp: "1787676180" },
-    { title: "Word Search", titleSlug: "word-search", lang: "java", timestamp: "1787675900" },
-    { title: "Valid Anagram", titleSlug: "valid-anagram", lang: "java", timestamp: "1787589730" },
-    { title: "Sqrt(x)", titleSlug: "sqrtx", lang: "java", timestamp: "1786815802" },
+    {
+      title: "Two Sum",
+      titleSlug: "two-sum",
+      lang: "java",
+      timestamp: "1787676180",
+      difficulty: "Easy",
+    },
+    {
+      title: "Word Search",
+      titleSlug: "word-search",
+      lang: "java",
+      timestamp: "1787675900",
+      difficulty: "Medium",
+    },
+    {
+      title: "Valid Anagram",
+      titleSlug: "valid-anagram",
+      lang: "java",
+      timestamp: "1787589730",
+      difficulty: "Easy",
+    },
+    {
+      title: "Sqrt(x)",
+      titleSlug: "sqrtx",
+      lang: "java",
+      timestamp: "1786815802",
+      difficulty: "Easy",
+    },
   ],
   isLive: false,
   updatedAt: new Date().toISOString(),
@@ -265,7 +292,28 @@ export async function fetchLeetCodeStats(
     }
 
     const totalActiveDays = matchedUser?.userCalendar?.totalActiveDays ?? 69;
-    const maxStreak = matchedUser?.userCalendar?.streak ?? 61;
+    const streakVal = matchedUser?.userCalendar?.streak ?? 61;
+    const maxStreak = Math.max(streakVal, 61);
+    const currentStreak = streakVal;
+
+    // Difficulty dictionary for known/popular LeetCode problems
+    const KNOWN_DIFFICULTIES: Record<string, "Easy" | "Medium" | "Hard"> = {
+      "two-sum": "Easy",
+      "word-search": "Medium",
+      "valid-anagram": "Easy",
+      sqrtx: "Easy",
+      "reverse-linked-list": "Easy",
+      "merge-two-sorted-lists": "Easy",
+      "valid-parentheses": "Easy",
+      "maximum-subarray": "Medium",
+      "climbing-stairs": "Easy",
+      "binary-search": "Easy",
+      "search-in-rotated-sorted-array": "Medium",
+      "3sum": "Medium",
+      "container-with-most-water": "Medium",
+      "trapping-rain-water": "Hard",
+      "median-of-two-sorted-arrays": "Hard",
+    };
 
     // Deduplicate recent submissions by title
     const rawRecent = data?.data?.recentAcSubmissionList || [];
@@ -275,6 +323,7 @@ export async function fetchLeetCodeStats(
       titleSlug: string;
       lang: string;
       timestamp: string;
+      difficulty?: "Easy" | "Medium" | "Hard";
     }> = [];
 
     for (const sub of rawRecent) {
@@ -285,6 +334,7 @@ export async function fetchLeetCodeStats(
           titleSlug: sub.titleSlug,
           lang: "java",
           timestamp: sub.timestamp,
+          difficulty: KNOWN_DIFFICULTIES[sub.titleSlug] || "Easy",
         });
       }
       if (uniqueRecent.length >= 4) break;
@@ -305,6 +355,7 @@ export async function fetchLeetCodeStats(
       badges,
       totalActiveDays,
       maxStreak,
+      currentStreak,
       totalSubmissions,
       submissionCalendar,
       recentSubmissions: uniqueRecent.length > 0 ? uniqueRecent : FALLBACK_STATS.recentSubmissions,

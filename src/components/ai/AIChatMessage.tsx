@@ -41,8 +41,8 @@ function CodeBlock({ code, language }: { code: string; language?: string | undef
         >
           {copied ? (
             <>
-              <Check className="size-3 text-emerald-500" />
-              <span className="text-emerald-500 text-[10px]">Copied</span>
+              <Check className="size-3 text-primary" />
+              <span className="text-primary text-[10px]">Copied</span>
             </>
           ) : (
             <>
@@ -266,7 +266,7 @@ function getActionIcon(action?: string) {
     case "projects":
       return <Rocket className="size-3.5 text-sky-500" />;
     case "whatsapp":
-      return <MessageCircle className="size-3.5 text-emerald-500" />;
+      return <MessageCircle className="size-3.5 text-primary" />;
     case "dsa":
       return <Code2 className="size-3.5 text-indigo-500" />;
     case "email":

@@ -26,6 +26,7 @@ import {
   Video,
   Play,
   Tag,
+  Cpu,
 } from "lucide-react";
 import { toast } from "sonner";
 import defaultProfilePhoto from "@/assets/gopal-profile.jpg";
@@ -1443,6 +1444,61 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Engineering Tenets & Principles */}
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-4">
+              <div className="border-b border-border pb-3">
+                <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+                  <Cpu className="size-5 text-primary" />
+                  Engineering Tenets &amp; Principles (Inspector Bio Tab)
+                </h2>
+              </div>
+
+              <div className="space-y-4">
+                {(about.principles || ABOUT_DATA.principles).map((principle, pIdx) => (
+                  <div
+                    key={pIdx}
+                    className="rounded-xl border border-border bg-surface/50 p-4 space-y-3"
+                  >
+                    <span className="text-xs font-mono font-bold text-primary">
+                      Pillar #{pIdx + 1}
+                    </span>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <div>
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                          Pillar Title
+                        </label>
+                        <input
+                          type="text"
+                          value={principle.title}
+                          onChange={(e) => {
+                            const updated = [...(about.principles || ABOUT_DATA.principles)];
+                            updated[pIdx] = { ...principle, title: e.target.value };
+                            updateData({ aboutData: { ...about, principles: updated } });
+                          }}
+                          className="w-full rounded-md border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:outline-none"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                          Description
+                        </label>
+                        <input
+                          type="text"
+                          value={principle.description}
+                          onChange={(e) => {
+                            const updated = [...(about.principles || ABOUT_DATA.principles)];
+                            updated[pIdx] = { ...principle, description: e.target.value };
+                            updateData({ aboutData: { ...about, principles: updated } });
+                          }}
+                          className="w-full rounded-md border border-border-strong bg-card px-3 py-2 text-xs text-foreground focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

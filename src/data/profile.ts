@@ -27,8 +27,8 @@ export interface PersonalInfo {
 
 export const PERSONAL_INFO: PersonalInfo = {
   name: "Gopal Maddheshiya",
-  role: "B.Tech CSE Student | Java & Full-Stack Developer",
-  subtitle: "Java & Full-Stack Developer · DSA & API Integration",
+  role: "B.Tech CSE Student | Full-Stack (MERN) Developer",
+  subtitle: "Full-Stack (MERN) Developer · DSA & API Integration",
   location: "Maharajganj, Uttar Pradesh, India",
   email: "gopalmaddheshiya138@gmail.com",
   phone: "+91 6388354988",
@@ -42,7 +42,7 @@ export const PERSONAL_INFO: PersonalInfo = {
   siteUrl: "https://gopal-maddheshiya.vercel.app",
   ogImage: "https://gopal-maddheshiya.vercel.app/og-image.jpg",
   siteDescription:
-    "Computer Science student focused on Java, Data Structures & Algorithms and full-stack web development with React, Node.js and MongoDB.",
+    "Computer Science student building full-stack apps with React, Node.js and MongoDB, and practicing DSA in Java.",
   profilePhoto: defaultProfilePhoto,
 };
 
@@ -94,8 +94,8 @@ export const ABOUT_DATA: AboutData = {
     "A computer science student combining algorithmic rigor in Java with practical full-stack product development.",
   storyTitle: "A developer who learns by building, solving, and iterating.",
   storyParagraphs: [
-    "I'm a Computer Science Engineering student at Shri Ramswaroop Memorial University, actively preparing for software engineering roles. My daily work revolves around two pillars: solving algorithmic problems in Java and engineering end-to-end web applications.",
-    "On the algorithmic side, I practice problem-solving daily on LeetCode with deliberate focus on time and space complexity. On the development side, I turn ideas into responsive React interfaces backed by Express REST APIs and MongoDB databases.",
+    "I'm a Computer Science Engineering student at Shri Ramswaroop Memorial University, preparing for software engineering internships. I build full-stack apps, including a DSA tracker with spaced-repetition analytics and a grocery store platform with WhatsApp checkout and Hindi/English support, and I practice DSA in Java on LeetCode.",
+    "On the algorithmic side, I practice problem-solving regularly on LeetCode with deliberate focus on time and space complexity. On the development side, I turn ideas into responsive React interfaces backed by Express REST APIs and MongoDB databases.",
   ],
   principles: [
     {
@@ -116,9 +116,9 @@ export const ABOUT_DATA: AboutData = {
   ],
   snapshot: {
     degree: "B.Tech CSE",
-    cgpa: "CGPA 7.62",
+    cgpa: "CGPA 7.63",
     dsaPractice: "Java · LeetCode",
-    stack: "Java & Full-Stack",
+    stack: "Full-Stack (MERN)",
     batch: "2028 Batch",
     university: "SRMU University",
   },
@@ -147,7 +147,7 @@ export const RESUME_CTA_DATA: ResumeCTAData = {
   title: "Interested in my profile for an internship or role?",
   description:
     "My single-page resume covers my academic coursework at SRMU, core competencies in Java & DSA, full-stack project portfolio, and coding profile achievements.",
-  tags: ["Single-Page PDF", "Java & Full-Stack Focus"],
+  tags: ["Single-Page PDF", "Full-Stack (MERN) Focus"],
   buttonText: "Download Resume",
 };
 
@@ -174,16 +174,21 @@ export interface HighlightItem {
 }
 
 export const HIGHLIGHTS: HighlightItem[] = [
-  { label: "B.Tech CSE", detail: "2024–2028 · CGPA 7.62", section: "about", icon: "grad" },
+  { label: "B.Tech CSE", detail: "2024–2028 · SRMU", section: "about", icon: "grad" },
   { label: "Java & DSA", detail: "Active LeetCode Practice", section: "dsa", icon: "code" },
   { label: "Full-Stack Dev", detail: "React · Node · Mongo", section: "projects", icon: "db" },
   {
-    label: "Verified Credentials",
+    label: "Certificates",
     detail: "SRMU & Web Certificates",
     section: "certifications",
     icon: "award",
   },
-  { label: "Opportunities", detail: "Open to SWE Roles", section: "contact", icon: "sparkles" },
+  {
+    label: "Opportunities",
+    detail: "Open to SWE Internships",
+    section: "contact",
+    icon: "sparkles",
+  },
 ];
 
 export const FOCUS_AREAS: string[] = [
@@ -258,7 +263,7 @@ export const PROJECTS: Project[] = [
     year: "2026",
     category: "Full-Stack MERN",
     summary:
-      "A production-ready preparation platform to track problem-solving velocity, log multi-attempt learnings, and prioritize revision using an interval-based spaced repetition model.",
+      "A deployed preparation platform to track problem-solving velocity, log multi-attempt learnings, and prioritize revision using an interval-based spaced repetition model.",
     problem:
       "Engineered to solve unstructured coding practice with automated revision queues, difficulty distribution trends, and developer heatmap insights.",
     technologies: [
@@ -280,7 +285,7 @@ export const PROJECTS: Project[] = [
     ],
     image: dsaTrackerImage,
     githubUrl: "https://github.com/gopal-maddheshiya/dsa-tracker",
-    liveUrl: "https://dsa-tracker-xi-weld.vercel.app",
+    liveUrl: "https://dsa-tracker-gopal.vercel.app",
     featured: true,
   },
   {
@@ -288,7 +293,7 @@ export const PROJECTS: Project[] = [
     year: "2026",
     category: "Full-Stack & Cloud",
     summary:
-      "A production-ready bilingual grocery and retail e-commerce platform with live order tracking, Supabase PostgreSQL with RLS, realtime sync, Gemini AI, and automated billing.",
+      "A deployed bilingual grocery and retail e-commerce platform with live order tracking, Supabase PostgreSQL with RLS, realtime sync, Gemini AI, and automated billing.",
     problem:
       "Built for commercial retail operations with real-time stock and order management, localized dual language catalog, and AI-assisted admin intelligence.",
     technologies: [
@@ -309,8 +314,8 @@ export const PROJECTS: Project[] = [
       "Customer order tracking & admin dashboard",
     ],
     image: tradingCompanyImage,
-    githubUrl: "https://github.com/gopal-maddheshiya/trading-company",
-    liveUrl: "https://gopal-maddheshiya.vercel.app",
+    githubUrl: "https://github.com/gopal-maddheshiya/online-shopping-store",
+    liveUrl: "https://arun-gopal-traders.vercel.app",
     featured: true,
   },
   {
@@ -332,7 +337,6 @@ export const PROJECTS: Project[] = [
     ],
     image: chatImage,
     githubUrl: "https://github.com/gopal-maddheshiya/node-chat-api",
-    liveUrl: "https://node-chat-api-luk6.onrender.com/chats",
     featured: true,
   },
   {
@@ -445,6 +449,7 @@ export interface CodingProfile {
   username: string;
   description: string;
   icon: "code" | "terminal" | "codechef" | "trophy";
+  hidden?: boolean;
 }
 
 export const CODING_PROFILES: CodingProfile[] = [
@@ -461,6 +466,7 @@ export const CODING_PROFILES: CodingProfile[] = [
     username: "gopalmaddheshiya",
     description: "Coding practice and data structures learning.",
     icon: "terminal",
+    hidden: true,
   },
   {
     name: "CodeChef",
@@ -468,6 +474,7 @@ export const CODING_PROFILES: CodingProfile[] = [
     username: "gopal_code_96",
     description: "Competitive programming and algorithm practice.",
     icon: "codechef",
+    hidden: true,
   },
   {
     name: "HackerRank",
@@ -475,6 +482,7 @@ export const CODING_PROFILES: CodingProfile[] = [
     username: "gopalmaddheshiy1",
     description: "Problem solving challenges and skills badges.",
     icon: "trophy",
+    hidden: true,
   },
 ];
 
@@ -500,12 +508,12 @@ export const JOURNEY: JourneyMilestone[] = [
     title: "Core Data Structures",
     detail:
       "Arrays, strings, recursion, sorting algorithms, and searching techniques with Big-O complexity analysis.",
-    status: "done",
+    status: "active",
     tags: ["Arrays", "Recursion", "Big-O"],
   },
   {
     phase: "03",
-    title: "Daily LeetCode Problem Solving",
+    title: "LeetCode Problem Solving",
     detail:
       "Practicing Java problem solving with arrays, strings, recursion and common problem-solving patterns.",
     status: "active",
@@ -522,8 +530,7 @@ export const JOURNEY: JourneyMilestone[] = [
   {
     phase: "05",
     title: "Trees, Graphs & Advanced Patterns",
-    detail:
-      "Currently practicing binary search trees, tree traversals, graph algorithms (BFS/DFS), and dynamic programming.",
+    detail: "Planned: BST, tree traversals, BFS/DFS, dynamic programming.",
     status: "next",
     tags: ["Trees", "Graphs", "DP"],
   },
@@ -549,7 +556,7 @@ export const EDUCATION: EducationItem[] = [
     title: "B.Tech, Computer Science Engineering",
     org: "Shri Ramswaroop Memorial University",
     period: "2024 – 2028",
-    detail: "CGPA 7.62",
+    detail: "CGPA 7.63",
   },
   { title: "Class XII", org: "Modern Academy", period: "2024", detail: "" },
   { title: "Class X", org: "Modern Academy", period: "2021", detail: "" },

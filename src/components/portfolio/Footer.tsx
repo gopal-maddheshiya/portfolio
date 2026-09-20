@@ -1,5 +1,4 @@
-import { Code2, Github, Linkedin, Mail, ShieldCheck } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { Code2, Github, Linkedin, Mail } from "lucide-react";
 
 import { usePortfolio } from "@/context/PortfolioContext";
 import { NAV_LINKS } from "@/data/profile";
@@ -20,7 +19,11 @@ export function Footer() {
 
         <nav aria-label="Footer">
           <ul className="grid grid-cols-2 gap-x-6 sm:gap-x-8 gap-y-2 text-xs sm:text-sm">
-            {NAV_LINKS.map((link) => (
+            {NAV_LINKS.filter(
+              (link) =>
+                link.id !== "gallery" ||
+                Boolean(data.academicGallery && data.academicGallery.length > 0),
+            ).map((link) => (
               <li key={link.id}>
                 <a
                   onClick={handleAnchorClick}
@@ -87,14 +90,6 @@ export function Footer() {
         <p className="text-[11px] sm:text-xs text-muted-foreground">
           © {new Date().getFullYear()} {info.name}. Built with code and continuous learning.
         </p>
-        <Link
-          to="/admin"
-          aria-label="Admin Access"
-          title="Studio Dashboard"
-          className="inline-flex items-center gap-1 text-[11px] font-mono text-muted-foreground/30 hover:text-muted-foreground transition-opacity"
-        >
-          <ShieldCheck className="size-3.5 opacity-40 hover:opacity-100 transition-opacity" />
-        </Link>
       </Reveal>
     </footer>
   );

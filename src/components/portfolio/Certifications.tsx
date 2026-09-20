@@ -11,7 +11,7 @@ export function Certifications() {
     <Section id="certifications">
       <SectionHeading
         eyebrow="Certifications &amp; Achievements"
-        title="Verified Credentials"
+        title="Certificates"
         description="Course completions, technical certifications, and university academic achievements."
       />
 

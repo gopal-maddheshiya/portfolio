@@ -77,10 +77,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Gopal Maddheshiya | B.Tech CSE Student | Java & Full-Stack Developer" },
+      { title: "Gopal Maddheshiya | B.Tech CSE Student | Full-Stack (MERN) Developer" },
       {
         name: "description",
-        content: "B.Tech CSE student focused on Java, DSA and full-stack web development.",
+        content:
+          "Portfolio of Gopal Maddheshiya, a CSE student building full-stack apps with React, Node.js and MongoDB, and practicing DSA in Java.",
       },
       { name: "author", content: "Gopal Maddheshiya" },
       { name: "theme-color", content: "#161618" },
@@ -89,12 +90,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:url", content: `${PERSONAL_INFO.siteUrl}/` },
       {
         property: "og:title",
-        content: "Gopal Maddheshiya | B.Tech CSE Student | Java & Full-Stack Developer",
+        content: "Gopal Maddheshiya | B.Tech CSE Student | Full-Stack (MERN) Developer",
       },
       {
         property: "og:description",
         content:
-          "Portfolio of Gopal Maddheshiya — B.Tech CSE student focused on Java, Data Structures & Algorithms, and Full-Stack Web Development.",
+          "Portfolio of Gopal Maddheshiya, a CSE student building full-stack apps with React, Node.js and MongoDB, and practicing DSA in Java.",
       },
       { property: "og:image", content: PERSONAL_INFO.ogImage },
       { property: "og:image:secure_url", content: PERSONAL_INFO.ogImage },
@@ -103,17 +104,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:image:height", content: "630" },
       {
         property: "og:image:alt",
-        content: "Gopal Maddheshiya — Java & Full-Stack Developer Portfolio",
+        content: "Gopal Maddheshiya — Full-Stack (MERN) Developer Portfolio",
       },
       { name: "twitter:card", content: "summary_large_image" },
       {
         name: "twitter:title",
-        content: "Gopal Maddheshiya | B.Tech CSE Student | Java & Full-Stack Developer",
+        content: "Gopal Maddheshiya | B.Tech CSE Student | Full-Stack (MERN) Developer",
       },
       {
         name: "twitter:description",
         content:
-          "Portfolio of Gopal Maddheshiya — B.Tech CSE student focused on Java, Data Structures & Algorithms, and Full-Stack Web Development.",
+          "Portfolio of Gopal Maddheshiya, a CSE student building full-stack apps with React, Node.js and MongoDB, and practicing DSA in Java.",
       },
       { name: "twitter:image", content: PERSONAL_INFO.ogImage },
     ],

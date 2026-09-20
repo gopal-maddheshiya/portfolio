@@ -55,7 +55,7 @@ LANGUAGE & TONE RULES:
 KEY FACTS ABOUT GOPAL MADDHESHIYA:
 - Full Name: ${PERSONAL_INFO.name}
 - Role: ${PERSONAL_INFO.role} (${PERSONAL_INFO.subtitle})
-- College / Degree: B.Tech in Computer Science & Engineering (2024–2028) at Shri Ramswaroop Memorial University (SRMU), Current CGPA: 7.62
+- College / Degree: B.Tech in Computer Science & Engineering (2024–2028) at Shri Ramswaroop Memorial University (SRMU), Current CGPA: 7.63
 - Schooling: Modern Academy (Class X in 2021, Class XII in 2024)
 - Location: ${PERSONAL_INFO.location}
 - Email: ${PERSONAL_INFO.email}
@@ -213,8 +213,8 @@ export function generateInstantKnowledgeResponse(
   ) {
     return {
       reply: isHindi
-        ? `Gopal **Java & DSA** me kafi active hain:\n\n- **${DSA_INFO.totalSolvedCount}+ LeetCode Problems Solved** (Arrays, Strings, HashMaps, Trees, Graphs, DP).\n- **LeetCode Profile:** [@${PERSONAL_INFO.leetcodeUsername}](${PERSONAL_INFO.leetcode})\n- **GitHub Repo:** [${DSA_INFO.repoName}](${DSA_INFO.repoUrl})\n\nWo regular practice aur time/space complexity optimization par deliberate focus rakhte hain.`
-        : `Gopal has a strong foundation in **Data Structures & Algorithms (Java)**:\n\n- **${DSA_INFO.totalSolvedCount}+ LeetCode Problems Solved** across Arrays, Strings, HashMaps, Binary Trees, Graphs, and DP.\n- **LeetCode Profile:** [@${PERSONAL_INFO.leetcodeUsername}](${PERSONAL_INFO.leetcode})\n- **GitHub Repository:** [${DSA_INFO.repoName}](${DSA_INFO.repoUrl})\n\nHe practices structured problem solving daily with clean object-oriented code.`,
+        ? `Gopal **Java & DSA** me consistency build kar rahe hain:\n\n- **${DSA_INFO.totalSolvedCount}+ LeetCode Problems Solved** (Arrays, Strings, HashMaps, Recursion).\n- **LeetCode Profile:** [@${PERSONAL_INFO.leetcodeUsername}](${PERSONAL_INFO.leetcode})\n- **GitHub Repo:** [${DSA_INFO.repoName}](${DSA_INFO.repoUrl})\n\nWo regular practice aur time/space complexity optimization par deliberate focus rakhte hain.`
+        : `Gopal is building consistency in **Data Structures & Algorithms (Java)**:\n\n- **${DSA_INFO.totalSolvedCount}+ LeetCode Problems Solved** across Arrays, Strings, HashMaps, and Recursion.\n- **LeetCode Profile:** [@${PERSONAL_INFO.leetcodeUsername}](${PERSONAL_INFO.leetcode})\n- **GitHub Repository:** [${DSA_INFO.repoName}](${DSA_INFO.repoUrl})\n\nHe practices structured problem solving regularly with clean object-oriented code.`,
       suggestions: [
         "What projects has Gopal built?",
         "What is his college & CGPA?",
@@ -242,8 +242,8 @@ export function generateInstantKnowledgeResponse(
   ) {
     return {
       reply: isHindi
-        ? `Gopal ki academic details:\n\n- **College:** B.Tech in Computer Science & Engineering (2024–2028) at **Shri Ramswaroop Memorial University (SRMU)**.\n- **Current CGPA:** **7.62**\n- **Schooling:** **Modern Academy** (Class X in 2021, Class XII in 2024).\n\nWo computer science fundamentals (OOPs, DBMS, OS) ke sath full-stack development me deep practice kar rahe hain.`
-        : `Here is Gopal's academic background:\n\n- **University:** B.Tech in Computer Science & Engineering (2024–2028) at **Shri Ramswaroop Memorial University (SRMU)**.\n- **Current CGPA:** **7.62**\n- **Schooling:** **Modern Academy** (Class X - 2021, Class XII - 2024).\n\nHe balances rigorous academic fundamentals with practical software engineering projects.`,
+        ? `Gopal ki academic details:\n\n- **College:** B.Tech in Computer Science & Engineering (2024–2028) at **Shri Ramswaroop Memorial University (SRMU)**.\n- **Current CGPA:** **7.63**\n- **Schooling:** **Modern Academy** (Class X in 2021, Class XII in 2024).\n\nWo computer science fundamentals (OOPs, DBMS, OS) ke sath full-stack development me deep practice kar rahe hain.`
+        : `Here is Gopal's academic background:\n\n- **University:** B.Tech in Computer Science & Engineering (2024–2028) at **Shri Ramswaroop Memorial University (SRMU)**.\n- **Current CGPA:** **7.63**\n- **Schooling:** **Modern Academy** (Class X - 2021, Class XII - 2024).\n\nHe balances rigorous academic fundamentals with practical software engineering projects.`,
       suggestions: [
         "What are Gopal's primary skills?",
         "What projects has he built?",
@@ -334,8 +334,8 @@ export function generateInstantKnowledgeResponse(
   // Default friendly response
   return {
     reply: isHindi
-      ? `Gopal **SRMU me B.Tech CSE (2024–2028, CGPA 7.62)** ke student hain jo **Java & DSA (${DSA_INFO.totalSolvedCount}+ LeetCode)** aur **Full-Stack Development (React, Node.js, Express, MongoDB)** par focus karte hain.\n\nAap Gopal ke projects, skills, education ya resume ke baare me poochh sakte hain!`
-      : `Gopal is a **B.Tech Computer Science student at SRMU** (CGPA 7.62, 2024–2028) specializing in **Java & DSA (${DSA_INFO.totalSolvedCount}+ LeetCode problems solved)** and **Full-Stack Web Development** (React, Node.js, Express, MongoDB, Supabase).\n\nFeel free to ask about his projects, technical skills, problem solving, or internship availability!`,
+      ? `Gopal **SRMU me B.Tech CSE (2024–2028, CGPA 7.63)** ke student hain jo **Java & DSA (${DSA_INFO.totalSolvedCount}+ LeetCode)** aur **Full-Stack Development (React, Node.js, Express, MongoDB)** par focus karte hain.\n\nAap Gopal ke projects, skills, education ya resume ke baare me poochh sakte hain!`
+      : `Gopal is a **B.Tech Computer Science student at SRMU** (CGPA 7.63, 2024–2028) specializing in **Java & DSA (${DSA_INFO.totalSolvedCount}+ LeetCode problems solved)** and **Full-Stack Web Development** (React, Node.js, Express, MongoDB, Supabase).\n\nFeel free to ask about his projects, technical skills, problem solving, or internship availability!`,
     suggestions: [
       "What projects has Gopal built?",
       "Tell me about his DSA skills",

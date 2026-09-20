@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowUp, Bot, Loader2, Maximize2, Minimize2, RotateCcw, Sparkles, X } from "lucide-react";
+import { gsap } from "gsap";
 
 import { PERSONAL_INFO } from "@/data/profile";
 import { usePortfolio } from "@/context/PortfolioContext";
@@ -29,10 +30,11 @@ export function GopalAIAssistant() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [hasUnread, setHasUnread] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLElement>(null);
+  const launcherRef = useRef<HTMLDivElement>(null);
 
   // Typewriter Streaming Engine Refs
   const bufferRef = useRef<string>("");
@@ -62,10 +64,68 @@ export function GopalAIAssistant() {
   // Focus input when chat opens
   useEffect(() => {
     if (isOpen) {
-      setHasUnread(false);
       setTimeout(() => inputRef.current?.focus(), 150);
     }
   }, [isOpen]);
+
+  // Page Load Entrance: Assistant button slides in from the right to its resting position
+  useEffect(() => {
+    if (launcherRef.current) {
+      gsap.fromTo(
+        launcherRef.current,
+        {
+          x: 180,
+          opacity: 0,
+        },
+        {
+          x: 0,
+          opacity: 1,
+          duration: 1.1,
+          ease: "power3.out",
+          delay: 0.35,
+        },
+      );
+    }
+  }, []);
+
+  // Animate Chat Window Open with GSAP
+  useEffect(() => {
+    if (isOpen && modalRef.current) {
+      gsap.fromTo(
+        modalRef.current,
+        {
+          opacity: 0,
+          scale: 0.88,
+          y: 24,
+          transformOrigin: "bottom right",
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.38,
+          ease: "back.out(1.25)",
+        },
+      );
+    }
+  }, [isOpen]);
+
+  const handleClose = () => {
+    if (modalRef.current) {
+      gsap.to(modalRef.current, {
+        opacity: 0,
+        scale: 0.9,
+        y: 16,
+        duration: 0.22,
+        ease: "power2.in",
+        onComplete: () => {
+          setIsOpen(false);
+        },
+      });
+    } else {
+      setIsOpen(false);
+    }
+  };
 
   // Cleanup typewriter timer on unmount
   useEffect(() => {
@@ -176,9 +236,6 @@ export function GopalAIAssistant() {
         onComplete: ({ suggestions, actions }) => {
           completionDataRef.current = { suggestions, actions };
           isDoneRef.current = true;
-          if (!isOpen) {
-            setHasUnread(true);
-          }
         },
         onError: (err) => {
           console.error("AI assistant stream error:", err);
@@ -248,46 +305,47 @@ export function GopalAIAssistant() {
   return (
     <>
       {/* Floating Trigger Button in Bottom-Right */}
-      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
-        {!isOpen && (
-          <button
-            type="button"
-            onClick={() => setIsOpen(true)}
-            aria-label="Open Ask Gopal AI Portfolio Assistant"
-            className="group relative flex items-center gap-2.5 rounded-full border border-border/90 bg-card/95 px-3.5 py-2.5 sm:px-4 sm:py-3 text-foreground shadow-lift backdrop-blur-xl transition-all duration-300 hover:border-primary/50 hover:bg-card hover:scale-105 active:scale-95 cursor-pointer"
-          >
-            {/* Bot Avatar */}
-            <div className="flex size-7 sm:size-8 items-center justify-center rounded-full bg-primary font-mono text-xs font-bold text-primary-foreground shadow-sm">
-              <Bot className="size-4 shrink-0 transition-transform group-hover:rotate-12 duration-200" />
-            </div>
-
-            <div className="flex flex-col text-left">
-              <div className="flex items-center gap-1">
-                <span className="font-display text-xs sm:text-sm font-bold text-foreground group-hover:text-primary transition-colors">
-                  Ask Gopal
-                </span>
-                <Sparkles className="size-3 text-primary" />
+      {!isOpen && (
+        <div
+          ref={launcherRef}
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 pointer-events-auto"
+          style={{ opacity: 0, transform: "translateX(180px)" }}
+        >
+          <div className="animate-float-slow">
+            <button
+              type="button"
+              onClick={() => setIsOpen(true)}
+              aria-label="Open Ask Gopal AI Portfolio Assistant"
+              className="group relative flex items-center gap-3 rounded-full border border-primary/35 hover:border-primary bg-card/95 px-4 py-2.5 sm:px-4.5 sm:py-3 text-foreground shadow-[0_8px_30px_rgba(0,0,0,0.45)] ring-1 ring-white/10 hover:ring-primary/40 backdrop-blur-xl transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.55),0_0_24px_rgba(249,115,22,0.18)] hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              {/* Bot Avatar */}
+              <div className="flex size-8 items-center justify-center rounded-full bg-primary font-mono text-xs font-bold text-primary-foreground shadow-sm shadow-primary/30">
+                <Bot className="size-4.5 shrink-0 transition-transform group-hover:rotate-12 duration-200" />
               </div>
-              <span className="text-[10px] text-muted-foreground font-mono leading-none">
-                AI Assistant
-              </span>
-            </div>
 
-            {hasUnread && (
-              <span className="absolute -top-1 -left-1 flex size-2.5">
-                <span className="relative inline-flex size-2.5 rounded-full bg-primary" />
-              </span>
-            )}
-          </button>
-        )}
-      </div>
+              <div className="flex flex-col text-left">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-display text-xs sm:text-sm font-bold text-foreground group-hover:text-primary transition-colors">
+                    Ask Gopal
+                  </span>
+                  <Sparkles className="size-3 text-primary" />
+                </div>
+                <span className="text-[10px] text-muted-foreground font-mono leading-none">
+                  AI Assistant
+                </span>
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Expandable Chat Window */}
       {isOpen && (
         <aside
+          ref={modalRef}
           aria-label="Ask Gopal Portfolio Assistant Chat Window"
           className={cn(
-            "fixed z-50 flex flex-col border border-border/80 bg-background/98 backdrop-blur-2xl shadow-2xl transition-all duration-300 animate-in fade-in-50 zoom-in-95",
+            "fixed z-50 flex flex-col border border-primary/30 bg-background/98 backdrop-blur-2xl shadow-2xl ring-1 ring-white/10 transition-all duration-300",
             // Mobile full screen drawer or fixed widget
             "inset-x-2 bottom-2 top-14 sm:inset-auto sm:right-6 sm:bottom-6 rounded-3xl overflow-hidden",
             isExpanded ? "sm:w-[44rem] sm:h-[44rem]" : "sm:w-[28rem] sm:h-[38rem]",
@@ -308,7 +366,16 @@ export function GopalAIAssistant() {
                     Assistant
                   </span>
                 </div>
-                <p className="text-[11px] text-muted-foreground mt-0.5">Portfolio Representative</p>
+                <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-0.5">
+                  {isStreaming ? (
+                    <span className="flex items-center gap-1 text-primary">
+                      <Sparkles className="size-2.5" />
+                      <span>Thinking & typing...</span>
+                    </span>
+                  ) : (
+                    <span>Portfolio Representative</span>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -338,7 +405,7 @@ export function GopalAIAssistant() {
 
               <button
                 type="button"
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
                 title="Close Assistant"
                 className="flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-all active:scale-95 cursor-pointer"
               >

@@ -95,6 +95,10 @@ export function AcademicGallery() {
     };
   }, [activeItem, filteredItems.length, handleNext, handlePrev]);
 
+  if (!galleryItems || galleryItems.length === 0) {
+    return null;
+  }
+
   return (
     <Section id="gallery">
       <SectionHeading

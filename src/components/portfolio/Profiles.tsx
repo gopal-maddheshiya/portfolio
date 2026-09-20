@@ -37,7 +37,7 @@ export function Profiles() {
       Icon: Github,
     },
     ...codingProfiles.flatMap((profile) =>
-      profile.url
+      profile.url && !profile.hidden
         ? [
             {
               name: profile.name,
