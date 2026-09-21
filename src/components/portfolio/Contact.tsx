@@ -369,6 +369,19 @@ export function Contact() {
                 <span>{info.location}</span>
               </li>
             </ul>
+
+            {/* Trust & Credibility Signals */}
+            <div className="mt-5 rounded-lg border border-border/80 bg-surface/60 p-3 sm:p-3.5 space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="flex size-2 rounded-full bg-emerald-500" aria-hidden="true" />
+                <span className="font-mono text-xs font-semibold text-foreground">
+                  Open for Internship & Full-Time Roles
+                </span>
+              </div>
+              <p className="text-[11px] sm:text-xs text-muted-foreground leading-normal">
+                B.Tech CSE at SRMU · Verified DSA & Full-Stack track record · Typical response within 24 hours.
+              </p>
+            </div>
           </div>
 
           {/* Social Links */}
@@ -378,7 +391,7 @@ export function Contact() {
               href={info.github}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="GitHub profile"
+              aria-label="Visit Gopal's GitHub profile"
               className="flex size-10 sm:size-11 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
               <Github className="size-4 shrink-0" aria-hidden="true" />
@@ -389,7 +402,7 @@ export function Contact() {
               href={info.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="LinkedIn profile"
+              aria-label="Visit Gopal's LinkedIn profile"
               className="flex size-10 sm:size-11 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
               <Linkedin className="size-4 shrink-0" aria-hidden="true" />
@@ -400,7 +413,7 @@ export function Contact() {
               href={info.leetcode}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="LeetCode profile"
+              aria-label="Visit Gopal's LeetCode profile"
               className="flex size-10 sm:size-11 items-center justify-center rounded-md border border-border font-mono text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
               LC

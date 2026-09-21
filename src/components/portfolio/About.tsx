@@ -18,7 +18,8 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import { usePortfolio } from "@/context/PortfolioContext";
-import { ABOUT_DATA } from "@/data/profile";
+import { ABOUT_DATA, DSA_INFO } from "@/data/profile";
+import { useLeetCodeStats } from "@/hooks/useLeetCodeStats";
 import { scrollToId } from "@/lib/scroll";
 import { Section, SectionHeading } from "./Section";
 
@@ -33,6 +34,7 @@ export function About() {
   const info = data.personalInfo;
   const education = data.education || [];
   const about = data.aboutData || ABOUT_DATA;
+  const { total: leetCodeTotal } = useLeetCodeStats();
 
   const [activeTab, setActiveTab] = useState<AboutTab>("bio");
 
@@ -53,8 +55,10 @@ export function About() {
     detail: "CGPA 7.63",
   };
 
-  // Values configured from Admin Panel
-  const dsaCount = (about.snapshot?.dsaPractice || "200+").replace(/[^0-9+]/g, "") || "200+";
+  // Synchronized directly with the DSA section & live LeetCode stats
+  const dsaSolvedNumber =
+    leetCodeTotal > 0 ? leetCodeTotal : (DSA_INFO.totalSolvedCount || 53);
+  const dsaCount = `${dsaSolvedNumber}+`;
   const cgpaValue = about.snapshot?.cgpa || currentEducation.detail || "7.63";
   const batchYear =
     about.snapshot?.batch?.replace(/[^0-9]/g, "") ||
@@ -109,7 +113,7 @@ export function About() {
       );
 
       // 3. Smooth Live Number Tickers
-      const targetDsa = parseInt(dsaCount.replace(/[^0-9]/g, ""), 10) || 200;
+      const targetDsa = dsaSolvedNumber || parseInt(dsaCount.replace(/[^0-9]/g, ""), 10) || 53;
       const targetCgpa = parseFloat(cgpaValue.replace(/[^0-9.]/g, "")) || 7.63;
       const targetBatch = parseInt(batchYear.replace(/[^0-9]/g, ""), 10) || 2028;
 

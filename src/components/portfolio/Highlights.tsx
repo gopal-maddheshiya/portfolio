@@ -177,11 +177,14 @@ export function Highlights() {
               item.section === "contact" ||
               item.icon === "sparkles" ||
               item.label.includes("Opportunit");
+            const isClone = index >= highlights.length;
 
             return (
               <a
                 key={`${item.label}-${index}`}
                 href={item.section ? `#${item.section}` : undefined}
+                aria-hidden={isClone ? "true" : undefined}
+                tabIndex={isClone ? -1 : undefined}
                 onClick={(event) => {
                   if (hasDraggedRef.current) {
                     event.preventDefault();

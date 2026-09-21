@@ -79,6 +79,7 @@ function ProjectLinks({ project }: { project: Project }) {
         >
           <Github className="size-3.5 shrink-0" aria-hidden="true" />
           <span>Source Code</span>
+          <span className="sr-only"> for {project.title}</span>
         </a>
       </MagneticWrap>
     </div>

@@ -28,24 +28,29 @@ function TypewriterRole({
   roles?: string[];
   startDelay?: number;
 }) {
-  const [roleIndex, setRoleIndex] = useState(0);
-  const [currentText, setCurrentText] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [started, setStarted] = useState(startDelay <= 0 || REDUCED_MOTION);
-
-  useEffect(() => {
-    if (started || startDelay <= 0) return;
-    const timeout = setTimeout(() => setStarted(true), startDelay);
-    return () => clearTimeout(timeout);
-  }, [started, startDelay]);
-
   const activeRoles = roles && roles.length > 0 ? roles : DEFAULT_TYPING_ROLES;
+  const initialRole = activeRoles[0] || "";
+
+  const [roleIndex, setRoleIndex] = useState(0);
+  const [currentText, setCurrentText] = useState(initialRole);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
-    if (!started) return;
+    if (REDUCED_MOTION) return;
+    const initialWait = startDelay > 0 ? startDelay : 2000;
+    const timeout = setTimeout(() => {
+      setStarted(true);
+      setIsDeleting(true);
+    }, initialWait);
+    return () => clearTimeout(timeout);
+  }, [startDelay]);
+
+  useEffect(() => {
+    if (!started || REDUCED_MOTION) return;
     const currentRole = activeRoles[roleIndex % activeRoles.length] || "";
     const typingSpeed = isDeleting ? 35 : 75;
-    const pauseTime = isDeleting ? 300 : 2000;
+    const pauseTime = isDeleting ? 350 : 2200;
 
     if (!isDeleting && currentText === currentRole) {
       const timeout = setTimeout(() => setIsDeleting(true), pauseTime);
@@ -345,14 +350,23 @@ export function Hero() {
 
           {/* Heading with masked line reveals + typewriter that starts after the reveal */}
           <h1 className="hero-anim-title mt-4 sm:mt-6 text-2xl sm:text-3xl md:text-4xl lg:text-[3.1rem] font-bold leading-[1.22] tracking-tight text-foreground">
-            <span className="hero-anim-line block overflow-hidden">
-              <span className="hero-anim-line-inner block">
-                {hero.headlinePrefix || "Building software as a"}
-              </span>
+            {/* Semantic full heading for screen readers & search engines (WCAG 2.4.6) */}
+            <span className="sr-only">
+              {hero.headlinePrefix || "Building software as a"}{" "}
+              {(hero.typewriterRoles && hero.typewriterRoles[0]) || DEFAULT_TYPING_ROLES[0]}
             </span>
-            <span className="hero-anim-line block overflow-hidden pt-0.5">
-              <span className="hero-anim-line-inner block min-h-[1.25em]">
-                <TypewriterRole roles={hero.typewriterRoles} startDelay={1200} />
+
+            {/* Visual animated presentation */}
+            <span aria-hidden="true" className="block">
+              <span className="hero-anim-line block overflow-hidden">
+                <span className="hero-anim-line-inner block">
+                  {hero.headlinePrefix || "Building software as a"}
+                </span>
+              </span>
+              <span className="hero-anim-line block overflow-hidden pt-0.5">
+                <span className="hero-anim-line-inner block min-h-[1.25em]">
+                  <TypewriterRole roles={hero.typewriterRoles} startDelay={1800} />
+                </span>
               </span>
             </span>
           </h1>
@@ -398,13 +412,17 @@ export function Hero() {
           </div>
 
           {/* Social Profiles */}
-          <ul className="mt-7 sm:mt-8 flex flex-wrap items-center gap-3.5 sm:gap-5">
+          <ul
+            className="mt-7 sm:mt-8 flex flex-wrap items-center gap-3.5 sm:gap-5"
+            aria-label="Social profiles"
+          >
             <li className="hero-anim-social">
               <a
                 className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-xs sm:text-sm text-muted-foreground transition-colors hover:border-border-strong hover:bg-secondary hover:text-foreground"
                 href={info.github}
                 target="_blank"
                 rel="noopener noreferrer me"
+                aria-label="Visit Gopal's GitHub profile"
               >
                 <Github className="size-4 shrink-0" aria-hidden="true" />
                 <span>GitHub</span>
@@ -416,6 +434,7 @@ export function Hero() {
                 href={info.leetcode}
                 target="_blank"
                 rel="noopener noreferrer me"
+                aria-label="Visit Gopal's LeetCode profile"
               >
                 <Code2 className="size-4 shrink-0" aria-hidden="true" />
                 <span>LeetCode</span>
@@ -427,6 +446,7 @@ export function Hero() {
                 href={info.linkedin}
                 target="_blank"
                 rel="noopener noreferrer me"
+                aria-label="Visit Gopal's LinkedIn profile"
               >
                 <Linkedin className="size-4 shrink-0" aria-hidden="true" />
                 <span>LinkedIn</span>

@@ -37,13 +37,13 @@ export function Footer() {
           </ul>
         </nav>
 
-        <ul className="flex flex-wrap gap-2">
+        <ul className="flex flex-wrap gap-2" aria-label="Social links">
           <li>
             <a
               href={info.github}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="GitHub profile"
+              aria-label="Visit Gopal's GitHub profile"
               className="flex size-9 sm:size-10 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:text-foreground"
             >
               <Github className="size-4 shrink-0" aria-hidden="true" />
@@ -54,7 +54,7 @@ export function Footer() {
               href={info.leetcode}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="LeetCode profile"
+              aria-label="Visit Gopal's LeetCode profile"
               className="flex size-9 sm:size-10 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:text-foreground"
             >
               <Code2 className="size-4 shrink-0" aria-hidden="true" />
@@ -65,7 +65,7 @@ export function Footer() {
               href={info.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="LinkedIn profile"
+              aria-label="Visit Gopal's LinkedIn profile"
               className="flex size-9 sm:size-10 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:text-foreground"
             >
               <Linkedin className="size-4 shrink-0" aria-hidden="true" />
@@ -74,7 +74,7 @@ export function Footer() {
           <li>
             <a
               href={`mailto:${info.email}`}
-              aria-label="Send an email"
+              aria-label="Send email to Gopal"
               className="flex size-9 sm:size-10 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:text-foreground"
             >
               <Mail className="size-4 shrink-0" aria-hidden="true" />
