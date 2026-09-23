@@ -20,9 +20,8 @@ import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { SmoothScrollProvider } from "@/components/common/SmoothScroll";
 import { PERSONAL_INFO } from "@/data/profile";
 
-const TITLE = "Gopal Maddheshiya | B.Tech CSE Student | Full-Stack (MERN) Developer";
-const DESCRIPTION =
-  "Portfolio of Gopal Maddheshiya, a CSE student building full-stack apps with React, Node.js and MongoDB, and practicing DSA in Java.";
+const TITLE = `${PERSONAL_INFO.name} | ${PERSONAL_INFO.role}`;
+const DESCRIPTION = PERSONAL_INFO.siteDescription;
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -41,7 +40,7 @@ export const Route = createFileRoute("/")({
       { property: "og:image:height", content: "630" },
       {
         property: "og:image:alt",
-        content: "Gopal Maddheshiya — Full-Stack (MERN) Developer Portfolio",
+        content: `${PERSONAL_INFO.name} — ${PERSONAL_INFO.role} Portfolio`,
       },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: TITLE },

@@ -14,6 +14,7 @@ import { Toaster } from "sonner";
 
 import { PortfolioProvider } from "@/context/PortfolioContext";
 import { PERSONAL_INFO } from "@/data/profile";
+import { fetchPortfolioData } from "@/lib/supabase";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -73,65 +74,69 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Gopal Maddheshiya | B.Tech CSE Student | Full-Stack (MERN) Developer" },
-      {
-        name: "description",
-        content:
-          "Portfolio of Gopal Maddheshiya, a CSE student building full-stack apps with React, Node.js and MongoDB, and practicing DSA in Java.",
-      },
-      { name: "author", content: "Gopal Maddheshiya" },
-      { name: "theme-color", content: "#161618" },
-      { property: "og:site_name", content: "Gopal Maddheshiya" },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: `${PERSONAL_INFO.siteUrl}/` },
-      {
-        property: "og:title",
-        content: "Gopal Maddheshiya | B.Tech CSE Student | Full-Stack (MERN) Developer",
-      },
-      {
-        property: "og:description",
-        content:
-          "Portfolio of Gopal Maddheshiya, a CSE student building full-stack apps with React, Node.js and MongoDB, and practicing DSA in Java.",
-      },
-      { property: "og:image", content: PERSONAL_INFO.ogImage },
-      { property: "og:image:secure_url", content: PERSONAL_INFO.ogImage },
-      { property: "og:image:type", content: "image/jpeg" },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
-      {
-        property: "og:image:alt",
-        content: "Gopal Maddheshiya — Full-Stack (MERN) Developer Portfolio",
-      },
-      { name: "twitter:card", content: "summary_large_image" },
-      {
-        name: "twitter:title",
-        content: "Gopal Maddheshiya | B.Tech CSE Student | Full-Stack (MERN) Developer",
-      },
-      {
-        name: "twitter:description",
-        content:
-          "Portfolio of Gopal Maddheshiya, a CSE student building full-stack apps with React, Node.js and MongoDB, and practicing DSA in Java.",
-      },
-      { name: "twitter:image", content: PERSONAL_INFO.ogImage },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap",
-      },
-      { rel: "icon", href: "/favicon.svg?v=2", type: "image/svg+xml" },
-    ],
-  }),
+  loader: async () => {
+    const portfolioData = await fetchPortfolioData();
+    return { portfolioData };
+  },
+  head: ({ loaderData }) => {
+    const info = loaderData?.portfolioData?.personalInfo ?? PERSONAL_INFO;
+    return {
+      meta: [
+        { charSet: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { title: `${info.name} | ${info.role}` },
+        {
+          name: "description",
+          content: info.siteDescription,
+        },
+        { name: "author", content: info.name },
+        { name: "theme-color", content: "#161618" },
+        { property: "og:site_name", content: info.name },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: `${info.siteUrl}/` },
+        {
+          property: "og:title",
+          content: `${info.name} | ${info.role}`,
+        },
+        {
+          property: "og:description",
+          content: info.siteDescription,
+        },
+        { property: "og:image", content: info.ogImage },
+        { property: "og:image:secure_url", content: info.ogImage },
+        { property: "og:image:type", content: "image/jpeg" },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        {
+          property: "og:image:alt",
+          content: `${info.name} — ${info.role} Portfolio`,
+        },
+        { name: "twitter:card", content: "summary_large_image" },
+        {
+          name: "twitter:title",
+          content: `${info.name} | ${info.role}`,
+        },
+        {
+          name: "twitter:description",
+          content: info.siteDescription,
+        },
+        { name: "twitter:image", content: info.ogImage },
+      ],
+      links: [
+        {
+          rel: "stylesheet",
+          href: appCss,
+        },
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap",
+        },
+        { rel: "icon", href: "/favicon.svg?v=2", type: "image/svg+xml" },
+      ],
+    };
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -170,10 +175,11 @@ function ClientToaster() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const loaderData = Route.useLoaderData();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <PortfolioProvider>
+      <PortfolioProvider initialData={loaderData?.portfolioData}>
         <ClientToaster />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />

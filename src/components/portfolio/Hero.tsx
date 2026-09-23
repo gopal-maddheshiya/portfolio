@@ -4,6 +4,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import profilePhoto from "@/assets/gopal-profile.jpg";
+import { HangingIdCard } from "@/components/portfolio/HangingIdCard";
 import { usePortfolio } from "@/context/PortfolioContext";
 import { handleAnchorClick } from "@/lib/scroll";
 
@@ -183,28 +184,36 @@ export function Hero() {
   // Cinematic first-page entrance sequence.
   useEffect(() => {
     if (hasAnimatedRef.current || !containerRef.current) return;
-    if (REDUCED_MOTION) return;
-
     hasAnimatedRef.current = true;
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" }, delay: 0.15 });
 
-      // Ambient backdrop settles behind everything
-      tl.fromTo(
+    const ctx = gsap.context(() => {
+      // Synchronously set initial hidden states at t=0 so there is no 650ms FOUC flash before GSAP starts
+      gsap.set(".hero-anim-grid", { opacity: 0 });
+      gsap.set(".hero-anim-badge", { opacity: 0, y: -14, scale: 0.9 });
+      gsap.set(".hero-anim-line-inner", { opacity: 0, yPercent: 115, filter: "blur(6px)" });
+      gsap.set(".hero-anim-bio", { opacity: 0, y: 22 });
+      gsap.set(".hero-anim-location", { opacity: 0, x: -16 });
+      gsap.set(".hero-anim-btn", { opacity: 0, y: 16, scale: 0.96 });
+      gsap.set(".hero-anim-social", { opacity: 0, y: 12 });
+      gsap.set(".hero-anim-photo", { opacity: 0, clipPath: "inset(10% 16% 10% 16% round 16px)" });
+      gsap.set(".hero-anim-photo-name", { opacity: 0, y: 24 });
+      gsap.set(".hero-anim-float", { opacity: 0 });
+      gsap.set(".hero-anim-scroll", { opacity: 0 });
+
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" }, delay: 0.1 });
+
+      tl.to(
         ".hero-anim-grid",
-        { opacity: 0 },
         { opacity: 1, duration: 1.2, ease: "power2.out", clearProps: "opacity" },
         0,
       )
-        .fromTo(
+        .to(
           ".hero-anim-badge",
-          { opacity: 0, y: -14, scale: 0.9 },
           { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "back.out(1.7)", clearProps: "all" },
           0.3,
         )
-        .fromTo(
+        .to(
           ".hero-anim-line-inner",
-          { opacity: 0, yPercent: 115, filter: "blur(6px)" },
           {
             opacity: 1,
             yPercent: 0,
@@ -216,21 +225,18 @@ export function Hero() {
           },
           0.5,
         )
-        .fromTo(
+        .to(
           ".hero-anim-bio",
-          { opacity: 0, y: 22 },
           { opacity: 1, y: 0, duration: 0.6, clearProps: "all" },
           0.98,
         )
-        .fromTo(
+        .to(
           ".hero-anim-location",
-          { opacity: 0, x: -16 },
           { opacity: 1, x: 0, duration: 0.5, clearProps: "all" },
           1.12,
         )
-        .fromTo(
+        .to(
           ".hero-anim-btn",
-          { opacity: 0, y: 16, scale: 0.96 },
           {
             opacity: 1,
             y: 0,
@@ -242,15 +248,13 @@ export function Hero() {
           },
           1.22,
         )
-        .fromTo(
+        .to(
           ".hero-anim-social",
-          { opacity: 0, y: 12 },
           { opacity: 1, y: 0, duration: 0.45, stagger: 0.07, clearProps: "all" },
           1.5,
         )
-        .fromTo(
+        .to(
           ".hero-anim-photo",
-          { opacity: 0, clipPath: "inset(10% 16% 10% 16% round 16px)" },
           {
             opacity: 1,
             clipPath: "inset(0% 0% 0% 0% round 16px)",
@@ -260,22 +264,18 @@ export function Hero() {
           },
           0.65,
         )
-        .fromTo(
+        .to(
           ".hero-anim-photo-name",
-          { opacity: 0, y: 24 },
           { opacity: 1, y: 0, duration: 0.55, ease: "power3.out", clearProps: "all" },
           1.55,
         )
-        // Float badges: opacity-only so the CSS float keyframes own the transform.
-        .fromTo(
+        .to(
           ".hero-anim-float",
-          { opacity: 0 },
           { opacity: 1, duration: 0.6, stagger: 0.14, ease: "power2.out", clearProps: "opacity" },
           1.7,
         )
-        .fromTo(
+        .to(
           ".hero-anim-scroll",
-          { opacity: 0 },
           { opacity: 1, duration: 0.6, clearProps: "all" },
           2.1,
         );
@@ -455,57 +455,46 @@ export function Hero() {
           </ul>
         </div>
 
-        {/* Right Column: Clean Profile Photo with Floating Badges */}
+        {/* Right Column: Clean Profile Photo with Attached Floating Badges & Compact Top Hanger */}
         <div className="flex justify-center lg:justify-end min-w-0">
           <div className="relative group shrink-0">
-            {/* Floating Mini Tech Badge 1 */}
-            <div className="hero-anim-float absolute -top-3.5 -left-2 sm:-top-4 sm:-left-5 z-20 inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/95 dark:bg-card/90 px-3 py-1.5 shadow-lift backdrop-blur-md animate-float-slow transition-transform hover:scale-105 pointer-events-auto select-none">
-              <div className="flex size-5 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/20">
-                <JavaIcon className="size-3.5" />
-              </div>
-              <span className="font-semibold text-xs text-foreground">
-                {hero.floatingBadge1 || "Java • DSA"}
-              </span>
-            </div>
-
-            {/* Floating Mini Tech Badge 2 */}
-            <div className="hero-anim-float absolute -bottom-4 -right-2 sm:-bottom-5 sm:-right-5 z-20 inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/95 dark:bg-card/90 px-3 py-1.5 shadow-lift backdrop-blur-md animate-float-reverse transition-transform hover:scale-105 pointer-events-auto select-none">
-              <div className="flex size-5 items-center justify-center rounded-full bg-cyan-500/10 border border-cyan-500/20">
-                <ReactIcon className="size-3.5" />
-              </div>
-              <span className="font-semibold text-xs text-foreground">
-                {hero.floatingBadge2 || "Full-Stack"}
-              </span>
-            </div>
-
-            {/* Main Photo Card Container */}
-            <div className="hero-anim-photo relative overflow-hidden rounded-2xl border-2 border-border bg-card shadow-soft">
-              <img
-                src={
-                  info.profilePhoto &&
+            {/* Main Photo Card Container with Attached Badges & Compact Top Hanger */}
+            <HangingIdCard
+              photoSrc={
+                info.profilePhoto &&
                   (info.profilePhoto.startsWith("http://") ||
                     info.profilePhoto.startsWith("https://") ||
                     info.profilePhoto.startsWith("data:"))
-                    ? info.profilePhoto
-                    : profilePhoto
-                }
-                alt={info.name || "Gopal Maddheshiya"}
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = profilePhoto;
-                }}
-                width={420}
-                height={500}
-                className="w-64 h-72 sm:w-72 sm:h-80 md:w-80 md:h-96 lg:w-[21rem] lg:h-[25rem] object-cover object-[center_18%] transition-transform duration-500 group-hover:scale-105"
-              />
-
-              {/* Bottom overlay with dark scrim gradient */}
-              <div className="hero-anim-photo-name absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-4 sm:p-5 text-left">
-                <p className="font-display text-base sm:text-lg font-bold text-white tracking-tight leading-tight">
-                  {info.name}
-                </p>
-                <p className="mt-1 text-xs text-zinc-300 leading-snug">{info.subtitle}</p>
-              </div>
-            </div>
+                  ? info.profilePhoto
+                  : profilePhoto
+              }
+              name={info.name || "Gopal Maddheshiya"}
+              subtitle={info.subtitle || "Java & Full-Stack Developer · DSA & API Integration"}
+              floatingBadge1={
+                <div className="aurora-badge-wrapper rounded-full">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-card/95 dark:bg-card/90 px-3 py-1.5 backdrop-blur-md transition-transform hover:scale-105 pointer-events-auto select-none">
+                    <div className="flex size-5 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/20">
+                      <JavaIcon className="size-3.5" />
+                    </div>
+                    <span className="font-semibold text-xs text-foreground">
+                      {hero.floatingBadge1 || "Java • DSA"}
+                    </span>
+                  </div>
+                </div>
+              }
+              floatingBadge2={
+                <div className="aurora-badge-wrapper rounded-full">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-card/95 dark:bg-card/90 px-3 py-1.5 backdrop-blur-md transition-transform hover:scale-105 pointer-events-auto select-none">
+                    <div className="flex size-5 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                      <ReactIcon className="size-3.5" />
+                    </div>
+                    <span className="font-semibold text-xs text-foreground">
+                      {hero.floatingBadge2 || "Full-Stack"}
+                    </span>
+                  </div>
+                </div>
+              }
+            />
           </div>
         </div>
       </div>

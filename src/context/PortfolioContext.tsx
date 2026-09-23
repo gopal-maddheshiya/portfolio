@@ -29,11 +29,25 @@ function notifyContentUpdate() {
   });
 }
 
+/** Helper to compare visual portfolio data ignoring timestamp fields */
+function arePortfolioContentsEqual(a: PortfolioData, b: PortfolioData): boolean {
+  if (a === b) return true;
+  const { updatedAt: _a, ...restA } = a;
+  const { updatedAt: _b, ...restB } = b;
+  return JSON.stringify(restA) === JSON.stringify(restB);
+}
+
 const PortfolioContext = createContext<PortfolioContextType | null>(null);
 
-export function PortfolioProvider({ children }: { children: React.ReactNode }) {
-  const [data, setData] = useState<PortfolioData>(DEFAULT_PORTFOLIO_DATA);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+export function PortfolioProvider({
+  children,
+  initialData,
+}: {
+  children: React.ReactNode;
+  initialData?: PortfolioData;
+}) {
+  const [data, setData] = useState<PortfolioData>(() => initialData || DEFAULT_PORTFOLIO_DATA);
+  const [isLoading, setIsLoading] = useState<boolean>(!initialData);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   // Track whether the user has unsaved local edits.
@@ -45,8 +59,14 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     try {
       if (!silent) setIsLoading(true);
       const remoteData = await fetchPortfolioData();
-      setData(remoteData);
-      notifyContentUpdate();
+
+      setData((prev) => {
+        if (arePortfolioContentsEqual(prev, remoteData)) {
+          return prev;
+        }
+        notifyContentUpdate();
+        return remoteData;
+      });
     } catch (err) {
       console.error("Failed to load portfolio data:", err);
     } finally {
@@ -55,7 +75,10 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    loadData();
+    // If SSR loader did not supply initialData, fetch once
+    if (!initialData) {
+      loadData();
+    }
 
     // 1. Supabase Realtime Channel Subscription (WebSocket)
     const channel = supabase
@@ -102,7 +125,8 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
               return;
             }
             console.log("⚡ [Cross-Tab Sync] Instant sync received from Admin Studio");
-            setData(parsePortfolioContent(event.data.payload, new Date().toISOString()));
+            const parsed = parsePortfolioContent(event.data.payload, new Date().toISOString());
+            setData(parsed);
             notifyContentUpdate();
           }
         };

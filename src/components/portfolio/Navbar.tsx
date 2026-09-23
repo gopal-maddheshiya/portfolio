@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Award,
   Briefcase,
@@ -48,7 +48,10 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
 
   const hasGallery = Boolean(data.academicGallery && data.academicGallery.length > 0);
-  const visibleNavLinks = NAV_LINKS.filter((link) => link.id !== "gallery" || hasGallery);
+  const visibleNavLinks = useMemo(
+    () => NAV_LINKS.filter((link) => link.id !== "gallery" || hasGallery),
+    [hasGallery],
+  );
 
   const headerRef = useRef<HTMLElement>(null);
   const hasAnimatedRef = useRef(false);
@@ -60,14 +63,15 @@ export function Navbar() {
 
     hasAnimatedRef.current = true;
     const ctx = gsap.context(() => {
+      gsap.set(".nav-anim-bar", { yPercent: -130, opacity: 0 });
+      gsap.set(".nav-anim-item", { opacity: 0, y: 12 });
+
       const tl = gsap.timeline({ defaults: { ease: "expo.out" }, delay: 0.05 });
-      tl.fromTo(
+      tl.to(
         ".nav-anim-bar",
-        { yPercent: -130, opacity: 0 },
         { yPercent: 0, opacity: 1, duration: 0.9 },
-      ).fromTo(
+      ).to(
         ".nav-anim-item",
-        { opacity: 0, y: 12 },
         { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, clearProps: "all" },
         "-=0.55",
       );
@@ -104,8 +108,8 @@ export function Navbar() {
             className={cn(
               "flex w-full items-center justify-between gap-3 sm:gap-6 px-4 sm:px-7 h-14 sm:h-16 rounded-full border transition-all duration-300 backdrop-blur-3xl backdrop-saturate-[2]",
               scrolled
-                ? "bg-white/[0.04] dark:bg-white/[0.03] border-white/[0.12] dark:border-white/[0.08] shadow-[0_10px_40px_rgba(0,0,0,0.05)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.3)]"
-                : "bg-white/[0.025] dark:bg-white/[0.02] border-white/[0.08] dark:border-white/[0.06] hover:border-white/[0.15] dark:hover:border-white/[0.1] hover:bg-white/[0.06] dark:hover:bg-white/[0.04]",
+                ? "bg-white/[0.04] dark:bg-white/[0.03] border-black/[0.1] dark:border-white/[0.12] shadow-[0_10px_40px_rgba(0,0,0,0.05)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.3)]"
+                : "bg-white/[0.025] dark:bg-white/[0.02] border-black/[0.08] dark:border-white/[0.08] hover:border-black/[0.14] dark:hover:border-white/[0.12] hover:bg-white/[0.06] dark:hover:bg-white/[0.04]",
             )}
           >
             {/* Brand Logo & Name */}
@@ -220,7 +224,7 @@ export function Navbar() {
                       {info.name}
                     </span>
                     <span className="font-mono text-[10px] sm:text-[11px] text-muted-foreground truncate">
-                      Full-Stack (MERN) Developer
+                      {info.role}
                     </span>
                   </div>
                 </div>

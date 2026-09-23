@@ -1,6 +1,13 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Register angle property for smooth conic-gradient animation */
+@property --aurora-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /*
@@ -184,32 +191,147 @@
     transform: translateY(26px);
   }
 
+  /* ── Magnetic Levitation Float ─── organic multi-axis hover ──────────── */
+  @keyframes levitate-1 {
+    0%, 100% {
+      transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    15% {
+      transform: translate(5px, -10px) rotate(1.8deg) scale(1.02);
+    }
+    35% {
+      transform: translate(-6px, -14px) rotate(-1.2deg) scale(0.98);
+    }
+    55% {
+      transform: translate(-9px, -3px) rotate(1deg) scale(1.01);
+    }
+    75% {
+      transform: translate(4px, 5px) rotate(-0.8deg) scale(0.99);
+    }
+  }
+
+  @keyframes levitate-2 {
+    0%, 100% {
+      transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    20% {
+      transform: translate(-7px, 8px) rotate(-1.5deg) scale(1.01);
+    }
+    45% {
+      transform: translate(8px, 12px) rotate(2deg) scale(0.97);
+    }
+    70% {
+      transform: translate(3px, -7px) rotate(-1deg) scale(1.03);
+    }
+    90% {
+      transform: translate(-4px, -3px) rotate(0.5deg) scale(1);
+    }
+  }
+
+  .levitate-badge-1 {
+    animation: levitate-1 6s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  }
+
+  .levitate-badge-2 {
+    animation: levitate-2 8s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  }
+
+  /* ── Aurora Glow Card — spinning conic-gradient border ──────────────── */
+  @keyframes aurora-spin {
+    to { --aurora-angle: 360deg; }
+  }
+
+  .aurora-card-wrapper {
+    position: relative;
+    padding: 1.5px;
+    background: conic-gradient(
+      from var(--aurora-angle),
+      var(--color-primary),
+      oklch(0.65 0.10 55),
+      var(--color-border-strong),
+      oklch(0.55 0.06 195),
+      var(--color-border-strong),
+      oklch(0.65 0.10 55),
+      var(--color-primary)
+    );
+    animation: aurora-spin 6s linear infinite;
+    border-radius: 1rem;
+    will-change: background;
+    transition: animation-duration 0.6s ease;
+  }
+
+  /* Hover: slow down rotation + boost glow for interactive feel */
+  .aurora-card-wrapper:hover {
+    animation-duration: 12s;
+  }
+  .aurora-card-wrapper:hover::after {
+    opacity: 0.2;
+    filter: blur(8px);
+  }
+
+  .aurora-card-wrapper > div {
+    border-radius: calc(1rem - 2px);
+  }
+
+  /* Soft ambient glow behind the card */
+  .aurora-card-wrapper::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: calc(1rem + 1px);
+    background: inherit;
+    transition: opacity 0.4s ease, filter 0.4s ease;
+    filter: blur(6px);
+    opacity: 0.12;
+    z-index: -1;
+    animation: inherit;
+  }
+
+  /* Dark mode: aurora glow is more visible against dark bg */
+  :is(.dark) .aurora-card-wrapper::after {
+    opacity: 0.18;
+    filter: blur(8px);
+  }
+
+  /* Aurora badge — subtle spinning gradient for badges */
+  .aurora-badge-wrapper {
+    position: relative;
+    padding: 1.5px;
+    background: conic-gradient(
+      from var(--aurora-angle),
+      var(--color-primary),
+      oklch(0.65 0.10 55),
+      var(--color-border-strong),
+      oklch(0.55 0.06 195),
+      var(--color-border-strong),
+      oklch(0.65 0.10 55),
+      var(--color-primary)
+    );
+    animation: aurora-spin 4s linear infinite;
+  }
+
+  .aurora-badge-wrapper::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: inherit;
+    filter: blur(6px);
+    opacity: 0.25;
+    z-index: -1;
+    animation: inherit;
+  }
+
+  /* Legacy float classes for AI assistant component */
   @keyframes float-slow {
-    0%,
-    100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-7px);
-    }
+    0%, 100% { transform: translateY(0px); }
+    50%      { transform: translateY(-7px); }
   }
-
-  @keyframes float-reverse {
-    0%,
-    100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(7px);
-    }
-  }
-
   .animate-float-slow {
     animation: float-slow 4s ease-in-out infinite;
   }
-
   .animate-float-reverse {
-    animation: float-reverse 4.5s ease-in-out infinite;
+    animation: float-slow 4.5s ease-in-out infinite reverse;
   }
 
   .hero-scroll-line {
@@ -224,6 +346,7 @@
       transform: scaleY(0);
       transform-origin: top;
     }
+
     45%,
     100% {
       transform: scaleY(1);

@@ -27,8 +27,8 @@ export interface PersonalInfo {
 
 export const PERSONAL_INFO: PersonalInfo = {
   name: "Gopal Maddheshiya",
-  role: "B.Tech CSE Student | Full-Stack (MERN) Developer",
-  subtitle: "Full-Stack (MERN) Developer · DSA & API Integration",
+  role: "B.Tech CSE Student | Java & Full-Stack Developer",
+  subtitle: "Java & Full-Stack Developer · DSA & API Integration",
   location: "Maharajganj, Uttar Pradesh, India",
   email: "gopalmaddheshiya138@gmail.com",
   phone: "+91 6388354988",
@@ -42,7 +42,7 @@ export const PERSONAL_INFO: PersonalInfo = {
   siteUrl: "https://gopal-maddheshiya.vercel.app",
   ogImage: "https://gopal-maddheshiya.vercel.app/og-image.jpg",
   siteDescription:
-    "Computer Science student building full-stack apps with React, Node.js and MongoDB, and practicing DSA in Java.",
+    "Computer Science student focused on Java, Data Structures & Algorithms and full-stack web development with React, Node.js and MongoDB.",
   profilePhoto: defaultProfilePhoto,
 };
 
@@ -94,8 +94,8 @@ export const ABOUT_DATA: AboutData = {
     "A computer science student combining algorithmic rigor in Java with practical full-stack product development.",
   storyTitle: "A developer who learns by building, solving, and iterating.",
   storyParagraphs: [
-    "I'm a Computer Science Engineering student at Shri Ramswaroop Memorial University, preparing for software engineering internships. I build full-stack apps, including a DSA tracker with spaced-repetition analytics and a grocery store platform with WhatsApp checkout and Hindi/English support, and I practice DSA in Java on LeetCode.",
-    "On the algorithmic side, I practice problem-solving regularly on LeetCode with deliberate focus on time and space complexity. On the development side, I turn ideas into responsive React interfaces backed by Express REST APIs and MongoDB databases.",
+    "I'm a Computer Science Engineering student at Shri Ramswaroop Memorial University, actively preparing for software engineering roles. My daily work revolves around two pillars: solving algorithmic problems in Java and engineering end-to-end web applications.",
+    "On the algorithmic side, I practice problem-solving daily on LeetCode with deliberate focus on time and space complexity. On the development side, I turn ideas into responsive React interfaces backed by Express REST APIs and MongoDB databases.",
   ],
   principles: [
     {
@@ -147,7 +147,7 @@ export const RESUME_CTA_DATA: ResumeCTAData = {
   title: "Interested in my profile for an internship or role?",
   description:
     "My single-page resume covers my academic coursework at SRMU, core competencies in Java & DSA, full-stack project portfolio, and coding profile achievements.",
-  tags: ["Single-Page PDF", "Full-Stack (MERN) Focus"],
+  tags: ["Single-Page PDF", "Java & Full-Stack Focus"],
   buttonText: "Download Resume",
 };
 
@@ -174,18 +174,18 @@ export interface HighlightItem {
 }
 
 export const HIGHLIGHTS: HighlightItem[] = [
-  { label: "B.Tech CSE", detail: "2024–2028 · SRMU", section: "about", icon: "grad" },
+  { label: "B.Tech CSE", detail: "2024–2028 · CGPA 7.63", section: "about", icon: "grad" },
   { label: "Java & DSA", detail: "Active LeetCode Practice", section: "dsa", icon: "code" },
   { label: "Full-Stack Dev", detail: "React · Node · Mongo", section: "projects", icon: "db" },
   {
-    label: "Certificates",
+    label: "Verified Credentials",
     detail: "SRMU & Web Certificates",
     section: "certifications",
     icon: "award",
   },
   {
     label: "Opportunities",
-    detail: "Open to SWE Internships",
+    detail: "Open to SWE Roles",
     section: "contact",
     icon: "sparkles",
   },
@@ -263,7 +263,7 @@ export const PROJECTS: Project[] = [
     year: "2026",
     category: "Full-Stack MERN",
     summary:
-      "A deployed preparation platform to track problem-solving velocity, log multi-attempt learnings, and prioritize revision using an interval-based spaced repetition model.",
+      "A production-ready preparation platform to track problem-solving velocity, log multi-attempt learnings, and prioritize revision using an interval-based spaced repetition model.",
     problem:
       "Engineered to solve unstructured coding practice with automated revision queues, difficulty distribution trends, and developer heatmap insights.",
     technologies: [
@@ -293,7 +293,7 @@ export const PROJECTS: Project[] = [
     year: "2026",
     category: "Full-Stack & Cloud",
     summary:
-      "A deployed bilingual grocery and retail e-commerce platform with live order tracking, Supabase PostgreSQL with RLS, realtime sync, Gemini AI, and automated billing.",
+      "A production-ready bilingual grocery and retail e-commerce platform with live order tracking, Supabase PostgreSQL with RLS, realtime sync, Gemini AI, and automated billing.",
     problem:
       "Built for commercial retail operations with real-time stock and order management, localized dual language catalog, and AI-assisted admin intelligence.",
     technologies: [
@@ -314,8 +314,36 @@ export const PROJECTS: Project[] = [
       "Customer order tracking & admin dashboard",
     ],
     image: tradingCompanyImage,
-    githubUrl: "https://github.com/gopal-maddheshiya/online-shopping-store",
-    liveUrl: "https://arun-gopal-traders.vercel.app",
+    githubUrl: "https://github.com/gopal-maddheshiya/trading-company",
+    liveUrl: "https://arun-gopal-traders.vercel.app/",
+    featured: true,
+  },
+  {
+    title: "KisanSarthi AI — Krishi Suraksha Platform",
+    year: "2026",
+    category: "AI & Full-Stack",
+    summary:
+      "An AI-powered agricultural decision support system combining multimodal vision diagnostics, real-time microclimate risk analysis, and ICAR advisory workflows for farmers.",
+    problem:
+      "Solves critical delays in crop pest identification and weather vulnerability by providing offline-ready multimodal AI diagnosis, early warning alerts, and verified expert intervention.",
+    technologies: [
+      "React 18",
+      "TypeScript",
+      "Google Gemini Vision AI",
+      "Supabase",
+      "PostgreSQL",
+      "Tailwind CSS",
+      "Leaflet",
+      "Open-Meteo API",
+    ],
+    features: [
+      "Multimodal AI crop disease & pest detection",
+      "Microclimate telemetry & disease heatmaps",
+    ],
+    image:
+      "https://rnchpivzlmjlvctjqitr.supabase.co/storage/v1/object/public/portfolio-media/projects/1789322060068-KisanSarthiImage.png",
+    githubUrl: "https://github.com/gopal-maddheshiya/krishi-suraksha-sih2026",
+    liveUrl: "https://krishi-suraksha-sih2026.vercel.app",
     featured: true,
   },
   {
@@ -337,6 +365,7 @@ export const PROJECTS: Project[] = [
     ],
     image: chatImage,
     githubUrl: "https://github.com/gopal-maddheshiya/node-chat-api",
+    liveUrl: "https://node-chat-api-luk6.onrender.com/chats",
     featured: true,
   },
   {
@@ -508,12 +537,12 @@ export const JOURNEY: JourneyMilestone[] = [
     title: "Core Data Structures",
     detail:
       "Arrays, strings, recursion, sorting algorithms, and searching techniques with Big-O complexity analysis.",
-    status: "active",
+    status: "done",
     tags: ["Arrays", "Recursion", "Big-O"],
   },
   {
     phase: "03",
-    title: "LeetCode Problem Solving",
+    title: "Daily LeetCode Problem Solving",
     detail:
       "Practicing Java problem solving with arrays, strings, recursion and common problem-solving patterns.",
     status: "active",
@@ -530,7 +559,8 @@ export const JOURNEY: JourneyMilestone[] = [
   {
     phase: "05",
     title: "Trees, Graphs & Advanced Patterns",
-    detail: "Planned: BST, tree traversals, BFS/DFS, dynamic programming.",
+    detail:
+      "Currently practicing binary search trees, tree traversals, graph algorithms (BFS/DFS), and dynamic programming.",
     status: "next",
     tags: ["Trees", "Graphs", "DP"],
   },
@@ -609,7 +639,41 @@ export interface AcademicMediaItem {
   date?: string; // e.g. "2025" or "Oct 2025"
 }
 
-export const ACADEMIC_GALLERY: AcademicMediaItem[] = [];
+export const ACADEMIC_GALLERY: AcademicMediaItem[] = [
+  {
+    id: "19ffae9b-efeb-4a71-a9c6-41e26ff3796f",
+    url: "https://rnchpivzlmjlvctjqitr.supabase.co/storage/v1/object/public/portfolio-media/gallery/1789319737441-IMG_20260907_124651536.jpg",
+    date: "2026",
+    type: "image",
+    title: "Smart India Hackathon (SIH) 2026 — KishanSarthi",
+    caption:
+      "Participated in Smart India Hackathon (SIH) 2026 with project 'KisanSarthi', focused on solving core agricultural and farmer workflow challenges. Contributed to problem statement research, technical architecture, and pitch presentation.",
+    category: "Smart India Hackathon",
+    thumbnailUrl: "",
+  },
+  {
+    id: "14d5d31c-4e82-4d26-bc19-47dd41a9524b",
+    url: "https://rnchpivzlmjlvctjqitr.supabase.co/storage/v1/object/public/portfolio-media/gallery/1789435597469-17047.png",
+    date: "2026",
+    type: "image",
+    title: "Project Pitch & Technical Walkthrough — KishanSarthi",
+    caption:
+      "Delivering a technical walkthrough and pitch for project 'KisanSarthi', explaining the problem of agricultural inefficiencies and outlining our multi-pronged solution strategy involving AI and modern stack.",
+    category: "Smart India Hackthon",
+    thumbnailUrl: "",
+  },
+  {
+    id: "64a9960f-982c-4868-b072-e059a82ff2a5",
+    url: "https://rnchpivzlmjlvctjqitr.supabase.co/storage/v1/object/public/portfolio-media/gallery/1789535278423-17048.jpg",
+    date: "2026",
+    type: "image",
+    title: "Find The Language Competition",
+    caption:
+      "Competed in 'Find The Language' at SRMU's annual tech fest VIVEKA 5.0. Advanced through rapid syntax identification rounds under strict time constraints into the final programming problem-solving stage, earning a book prize during the felicitation ceremony.",
+    category: "Coding Competition",
+    thumbnailUrl: "",
+  },
+];
 
 export const NAV_LINKS = [
   { id: "about", label: "About" },
