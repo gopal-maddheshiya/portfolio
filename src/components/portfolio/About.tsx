@@ -56,8 +56,7 @@ export function About() {
   };
 
   // Synchronized directly with the DSA section & live LeetCode stats
-  const dsaSolvedNumber =
-    leetCodeTotal > 0 ? leetCodeTotal : (DSA_INFO.totalSolvedCount || 53);
+  const dsaSolvedNumber = leetCodeTotal > 0 ? leetCodeTotal : DSA_INFO.totalSolvedCount || 54;
   const dsaCount = `${dsaSolvedNumber}+`;
   const cgpaValue = about.snapshot?.cgpa || currentEducation.detail || "7.63";
   const batchYear =
@@ -113,7 +112,7 @@ export function About() {
       );
 
       // 3. Smooth Live Number Tickers
-      const targetDsa = dsaSolvedNumber || parseInt(dsaCount.replace(/[^0-9]/g, ""), 10) || 53;
+      const targetDsa = dsaSolvedNumber || parseInt(dsaCount.replace(/[^0-9]/g, ""), 10) || 54;
       const targetCgpa = parseFloat(cgpaValue.replace(/[^0-9.]/g, "")) || 7.63;
       const targetBatch = parseInt(batchYear.replace(/[^0-9]/g, ""), 10) || 2028;
 
@@ -145,7 +144,14 @@ export function About() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [dsaCount, cgpaValue, batchYear]);
+  }, [dsaCount, dsaSolvedNumber, cgpaValue, batchYear]);
+
+  // Keep ticker up to date when live LeetCode stats are fetched
+  useEffect(() => {
+    if (animatedRef.current && countRefs.current.dsa) {
+      countRefs.current.dsa.textContent = `${dsaSolvedNumber}+`;
+    }
+  }, [dsaSolvedNumber]);
 
   // GSAP Smooth Tab Switch Transition
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import emailjs from "@emailjs/browser";
 import {
   AlertCircle,
@@ -62,6 +62,16 @@ export function Contact() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [sending, setSending] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  // 60-second cooldown timer after successful submission
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const interval = setInterval(() => {
+      setCooldown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [cooldown]);
 
   const update = (key: keyof FormState) => (event: { target: { value: string } }) => {
     setForm((prev) => ({
@@ -130,6 +140,11 @@ export function Contact() {
   const handleEmail = async (event?: FormEvent) => {
     if (event) event.preventDefault();
 
+    if (cooldown > 0) {
+      setError(`Please wait ${cooldown} seconds before sending another message.`);
+      return;
+    }
+
     if (!validate()) return;
 
     setSending(true);
@@ -156,8 +171,8 @@ export function Contact() {
       );
 
       setForm(EMPTY);
-
       setSuccess("Your message has been sent successfully! I'll get back to you soon.");
+      setCooldown(60); // 60-second cooldown to prevent spamming
     } catch (err) {
       console.error("EmailJS error:", err);
 
@@ -304,13 +319,18 @@ export function Contact() {
               {/* Email */}
               <button
                 type="submit"
-                disabled={sending}
+                disabled={sending || cooldown > 0}
                 className="inline-flex flex-1 items-center justify-center gap-2 rounded-md border border-border-strong bg-secondary/60 px-5 py-3 text-xs sm:text-sm font-medium transition-all hover:bg-secondary active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
               >
                 {sending ? (
                   <>
                     <Loader2 className="size-4 shrink-0 animate-spin" aria-hidden="true" />
                     <span>Sending...</span>
+                  </>
+                ) : cooldown > 0 ? (
+                  <>
+                    <CheckCircle2 className="size-4 shrink-0 text-emerald-500" aria-hidden="true" />
+                    <span>Sent! Wait ({cooldown}s)</span>
                   </>
                 ) : (
                   <>
@@ -379,7 +399,8 @@ export function Contact() {
                 </span>
               </div>
               <p className="text-[11px] sm:text-xs text-muted-foreground leading-normal">
-                B.Tech CSE at SRMU · Verified DSA & Full-Stack track record · Typical response within 24 hours.
+                B.Tech CSE at SRMU · Verified DSA & Full-Stack track record · Typical response
+                within 24 hours.
               </p>
             </div>
           </div>

@@ -8,6 +8,7 @@ import {
   ExternalLink,
   Github,
   Info,
+  RefreshCw,
 } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -42,6 +43,8 @@ export function DSA() {
     submissionCalendar,
     recentSubmissions,
     isLive,
+    isFetching,
+    refetch,
   } = useLeetCodeStats();
 
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -70,11 +73,26 @@ export function DSA() {
   const hasTriggeredRef = useRef(false);
 
   useEffect(() => {
-    if (hasTriggeredRef.current || !sectionRef.current) return;
+    if (!sectionRef.current) return;
+
+    // If initial scroll entrance animation already completed, update with live synchronized metrics
+    if (hasTriggeredRef.current) {
+      setAnimatedValues((prev) => ({
+        ...prev,
+        total,
+        easy,
+        medium,
+        hard,
+        progress: 1,
+      }));
+      return;
+    }
+
     if (
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
+      hasTriggeredRef.current = true;
       setAnimatedValues({
         total,
         easy,
@@ -315,12 +333,28 @@ export function DSA() {
                     @{PERSONAL_INFO.leetcodeUsername}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
-                  <span className="relative flex size-1.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex size-1.5 rounded-full bg-emerald-400" />
-                  </span>
-                  <span>{isLive ? "Live Synced" : "Active"}</span>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
+                    <span className="relative flex size-1.5">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex size-1.5 rounded-full bg-emerald-400" />
+                    </span>
+                    <span>{isFetching ? "Syncing..." : isLive ? "Live Synced" : "Active"}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => refetch()}
+                    disabled={isFetching}
+                    title="Click to refresh live LeetCode stats"
+                    aria-label="Refresh LeetCode stats"
+                    className="flex items-center justify-center size-6 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary border border-transparent hover:border-border transition-all disabled:opacity-50 cursor-pointer"
+                  >
+                    <RefreshCw
+                      className={`size-3.5 transition-transform ${
+                        isFetching ? "animate-spin text-emerald-500" : ""
+                      }`}
+                    />
+                  </button>
                 </div>
               </div>
 
@@ -640,6 +674,11 @@ export function DSA() {
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* Mobile Swipe Cue */}
+            <div className="flex sm:hidden items-center justify-end gap-1.5 pb-2 text-[10px] font-mono text-muted-foreground/80 select-none">
+              <span>← Swipe to view 1-year activity →</span>
             </div>
 
             {/* Heatmap Grid (Month clusters matching LeetCode layout) */}

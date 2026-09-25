@@ -50,6 +50,8 @@ export function PortfolioProvider({
   const [isLoading, setIsLoading] = useState<boolean>(!initialData);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
+  const lastFetchTimeRef = useRef<number>(Date.now());
+
   // Track whether the user has unsaved local edits.
   // When dirty, skip ALL remote overwrites (realtime, broadcast, focus refresh)
   // so that file-picker blur/re-focus cycles don't wipe out admin work.
@@ -59,6 +61,7 @@ export function PortfolioProvider({
     try {
       if (!silent) setIsLoading(true);
       const remoteData = await fetchPortfolioData();
+      lastFetchTimeRef.current = Date.now();
 
       setData((prev) => {
         if (arePortfolioContentsEqual(prev, remoteData)) {
@@ -118,12 +121,12 @@ export function PortfolioProvider({
       try {
         broadcast = new BroadcastChannel("gopal_portfolio_tab_sync");
         broadcast.onmessage = (event) => {
+          // Skip if admin is actively editing (dirty state)
+          if (isDirtyRef.current) {
+            console.log("⚡ [Cross-Tab Sync] Skipped — local unsaved edits present");
+            return;
+          }
           if (event.data?.type === "PORTFOLIO_SAVED" && event.data?.payload) {
-            // Skip if admin is actively editing (dirty state)
-            if (isDirtyRef.current) {
-              console.log("⚡ [Cross-Tab Sync] Skipped — local unsaved edits present");
-              return;
-            }
             console.log("⚡ [Cross-Tab Sync] Instant sync received from Admin Studio");
             const parsed = parsePortfolioContent(event.data.payload, new Date().toISOString());
             setData(parsed);
@@ -136,13 +139,18 @@ export function PortfolioProvider({
     }
 
     // 3. Tab Focus / Visibility Auto-Refresh
-    //    Skip when dirty so file-picker blur→focus doesn't wipe unsaved edits
+    // Skip on initial load and only refresh if tab has been in background for > 2 mins
     const handleVisibility = () => {
       if (isDirtyRef.current) {
         console.log("⚡ [Focus Refresh] Skipped — local unsaved edits present");
         return;
       }
+      const now = Date.now();
+      if (now - lastFetchTimeRef.current < 2 * 60 * 1000) {
+        return;
+      }
       if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        lastFetchTimeRef.current = now;
         loadData(true);
       }
     };

@@ -1,22 +1,16 @@
-
-
 import React, { useRef, useEffect, useCallback, useState, useMemo } from "react";
 import defaultProfilePhoto from "@/assets/gopal-profile.jpg";
 import { cn } from "@/lib/utils";
 
 // ─── Physics Constants ────────────────────────────────────────────────────────
-const DAMPING = 0.95;        // Smooth air resistance
-const GRAVITY = 2500;       // Snappy pendulum gravity
-const MASS = 1;             // Virtual mass
-const PIVOT_OFFSET_Y = 22;  // Distance in px from card top edge to the anchor pin
-
-// Initial natural swing parameters (upright vertical start, no 24-degree left tilt!)
-const INITIAL_SWING_ANGLE = 0;
-const INITIAL_SWING_VEL = 0.5;
+const DAMPING = 2.4; // Crisp, natural air damping
+const GRAVITY = 3600; // Crisp pendulum gravity for realistic snapback
+const MASS = 1; // Virtual mass
+const PIVOT_OFFSET_Y = 20; // Distance in px from card top edge to stationary wall pin
 
 interface CardPhysicsState {
-  angle: number; // Radians from vertical (free rotation, can exceed 2*PI for full 360°+)
-  vel: number;   // Angular velocity (rad/s)
+  angle: number; // Radians from vertical
+  vel: number; // Angular velocity (rad/s)
 }
 
 export interface HangingIdCardProps {
@@ -28,55 +22,168 @@ export interface HangingIdCardProps {
   floatingBadge2?: React.ReactNode;
 }
 
-// ─── Compact Realistic Top Hanger (Fastener Pin + Swivel Ring + Clamp) ───────
-const SmallHanger = React.memo(function SmallHanger() {
+// ─── Stationary Wall Mount Anchor Pin (Fixed to wall, does NOT tilt with card) ──
+const WallAnchorPin = React.memo(function WallAnchorPin() {
   return (
-    <div className="flex flex-col items-center select-none pointer-events-none">
-      {/* Wall/Ceiling Fastener Pin */}
-      <div className="size-2.5 sm:size-3 rounded-full bg-gradient-to-br from-zinc-300 via-zinc-600 to-black border border-zinc-400/80 shadow-[0_1px_3px_rgba(0,0,0,0.6)] flex items-center justify-center">
-        <div className="size-1 rounded-full bg-zinc-200 shadow-inner" />
-      </div>
+    <div
+      className="absolute -top-[27px] left-1/2 -translate-x-1/2 z-30 pointer-events-none select-none flex flex-col items-center"
+      aria-hidden="true"
+    >
+      {/* Wall contact shadow cast by mounting pin */}
+      <div className="absolute top-1 size-4 rounded-full bg-black/60 blur-[1.5px] -z-10" />
 
-      {/* Realistic Metallic Hardware */}
+      {/* Heavy-duty metallic mounting pin/bolt head */}
+      <div className="size-3.5 sm:size-4 rounded-full bg-gradient-to-br from-zinc-200 via-zinc-400 to-zinc-900 border border-zinc-300 shadow-[0_2px_5px_rgba(0,0,0,0.6)] flex items-center justify-center">
+        {/* Inner chrome ring */}
+        <div className="size-2 rounded-full bg-gradient-to-tr from-zinc-800 to-zinc-600 border border-zinc-500/60 flex items-center justify-center shadow-inner">
+          {/* Hex screw slot */}
+          <div className="size-1 rounded-xs bg-zinc-300/90 shadow-xs" />
+        </div>
+      </div>
+    </div>
+  );
+});
+
+// ─── Swivel Ring & Metallic Badge Clamp (Rotates with the card) ───────────────
+const HangerSwivelClamp = React.memo(function HangerSwivelClamp() {
+  return (
+    <div
+      className="absolute -top-[23px] left-1/2 -translate-x-1/2 z-20 pointer-events-none select-none flex flex-col items-center"
+      aria-hidden="true"
+    >
       <svg
-        width="36"
-        height="24"
-        viewBox="0 0 36 24"
-        className="overflow-visible select-none drop-shadow-sm -mt-0.5"
-        aria-hidden="true"
+        width="40"
+        height="28"
+        viewBox="0 0 40 28"
+        className="overflow-visible select-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]"
       >
         <defs>
-          <linearGradient id="smallHangerMetal" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#e4e4e7" />
-            <stop offset="35%" stopColor="#a1a1aa" />
-            <stop offset="70%" stopColor="#52525b" />
-            <stop offset="100%" stopColor="#27272a" />
+          {/* Chrome metal finish */}
+          <linearGradient id="clampChrome" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f4f4f5" />
+            <stop offset="25%" stopColor="#d4d4d8" />
+            <stop offset="50%" stopColor="#a1a1aa" />
+            <stop offset="75%" stopColor="#71717a" />
+            <stop offset="100%" stopColor="#3f3f46" />
           </linearGradient>
-          <linearGradient id="smallHangerStrap" x1="0%" y1="0%" x2="100%" y2="0%">
+
+          {/* Stainless steel loop gradient */}
+          <linearGradient id="loopSteel" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#71717a" />
+            <stop offset="50%" stopColor="#f4f4f5" />
+            <stop offset="100%" stopColor="#52525b" />
+          </linearGradient>
+
+          {/* Nylon strap textured cord */}
+          <linearGradient id="strapCord" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#18181b" />
             <stop offset="50%" stopColor="#3f3f46" />
             <stop offset="100%" stopColor="#18181b" />
           </linearGradient>
         </defs>
 
-        {/* Mini hanging strap cord */}
-        <rect x="14.5" y="0" width="7" height="7" rx="1.5" fill="url(#smallHangerStrap)" />
-        <line x1="16" y1="0" x2="16" y2="7" stroke="#ffffff" strokeOpacity="0.25" strokeWidth="0.5" strokeDasharray="1 1" />
-        <line x1="20" y1="0" x2="20" y2="7" stroke="#ffffff" strokeOpacity="0.25" strokeWidth="0.5" strokeDasharray="1 1" />
+        {/* Top Swivel Ring loop connecting to the wall pin */}
+        <ellipse
+          cx="20"
+          cy="4"
+          rx="4.5"
+          ry="3"
+          fill="none"
+          stroke="url(#loopSteel)"
+          strokeWidth="1.8"
+        />
 
-        {/* Swivel metal loop */}
-        <ellipse cx="18" cy="8" rx="3.8" ry="2.2" fill="none" stroke="url(#smallHangerMetal)" strokeWidth="1.6" />
+        {/* Swivel eyelet collar */}
+        <rect
+          x="18"
+          y="4.5"
+          width="4"
+          height="3"
+          rx="1"
+          fill="url(#clampChrome)"
+          stroke="#27272a"
+          strokeWidth="0.5"
+        />
 
-        {/* Metallic clamp bracket holding the top edge of the card */}
-        <rect x="6" y="9.5" width="24" height="10" rx="2" fill="url(#smallHangerMetal)" stroke="#18181b" strokeWidth="0.6" />
-        <line x1="7" y1="14" x2="29" y2="14" stroke="#18181b" strokeWidth="0.5" strokeOpacity="0.6" />
+        {/* Reinforced woven strap connector */}
+        <rect x="16" y="7" width="8" height="6.5" rx="1.5" fill="url(#strapCord)" />
+        <line
+          x1="18"
+          y1="7.5"
+          x2="18"
+          y2="13"
+          stroke="#a1a1aa"
+          strokeOpacity="0.4"
+          strokeWidth="0.6"
+          strokeDasharray="1 1"
+        />
+        <line
+          x1="22"
+          y1="7.5"
+          x2="22"
+          y2="13"
+          stroke="#a1a1aa"
+          strokeOpacity="0.4"
+          strokeWidth="0.6"
+          strokeDasharray="1 1"
+        />
 
-        {/* Dual Rivets */}
-        <circle cx="10" cy="14" r="1" fill="#f4f4f5" />
-        <circle cx="26" cy="14" r="1" fill="#f4f4f5" />
+        {/* Heavy-duty metallic badge clamp bracket */}
+        <rect
+          x="7"
+          y="13"
+          width="26"
+          height="10"
+          rx="2"
+          fill="url(#clampChrome)"
+          stroke="#27272a"
+          strokeWidth="0.6"
+        />
 
-        {/* Lower clamp lip overlapping card top border */}
-        <rect x="11" y="18.5" width="14" height="4.5" rx="0.75" fill="#27272a" stroke="#18181b" strokeWidth="0.5" />
+        {/* Clamp horizontal grip ridge */}
+        <line
+          x1="8"
+          y1="17.5"
+          x2="32"
+          y2="17.5"
+          stroke="#27272a"
+          strokeWidth="0.6"
+          strokeOpacity="0.7"
+        />
+        <line
+          x1="8"
+          y1="18.5"
+          x2="32"
+          y2="18.5"
+          stroke="#ffffff"
+          strokeWidth="0.5"
+          strokeOpacity="0.6"
+        />
+
+        {/* Dual chrome rivets */}
+        <circle cx="11.5" cy="17.5" r="1.3" fill="#ffffff" stroke="#52525b" strokeWidth="0.5" />
+        <circle cx="28.5" cy="17.5" r="1.3" fill="#ffffff" stroke="#52525b" strokeWidth="0.5" />
+
+        {/* Clamp jaw lip wrapping firmly over the card's top edge */}
+        <rect
+          x="12"
+          y="22"
+          width="16"
+          height="5.5"
+          rx="1"
+          fill="#27272a"
+          stroke="#18181b"
+          strokeWidth="0.6"
+        />
+        <line
+          x1="13"
+          y1="25.5"
+          x2="27"
+          y2="25.5"
+          stroke="#71717a"
+          strokeWidth="0.5"
+          strokeOpacity="0.8"
+        />
       </svg>
     </div>
   );
@@ -91,10 +198,11 @@ export function HangingIdCard({
   floatingBadge2,
 }: HangingIdCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const shadowRef = useRef<HTMLDivElement>(null);
 
   const physRef = useRef<CardPhysicsState>({
-    angle: INITIAL_SWING_ANGLE,
-    vel: INITIAL_SWING_VEL,
+    angle: 0,
+    vel: 0,
   });
   const rafRef = useRef<number | null>(null);
   const prevTimeRef = useRef<number | null>(null);
@@ -102,8 +210,9 @@ export function HangingIdCard({
   const isDraggingRef = useRef(false);
 
   const [currentPhoto, setCurrentPhoto] = useState(photoSrc || defaultProfilePhoto);
-  const [angle, setAngle] = useState(INITIAL_SWING_ANGLE);
   const [isDragging, setIsDragging] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [isSettled, setIsSettled] = useState(false);
 
   // Pivot coordinates & polar drag tracking
   const pivotPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -118,9 +227,42 @@ export function HangingIdCard({
     setCurrentPhoto(photoSrc || defaultProfilePhoto);
   }, [photoSrc]);
 
+  // Listen for the initial refresh swing CSS animation to finish naturally without abrupt timer cuts
+  const handleAnimationEnd = useCallback((e: React.AnimationEvent) => {
+    if (e.animationName === "hanging-card-refresh") {
+      setIsSettled(true);
+      if (cardRef.current) {
+        cardRef.current.style.transform = "rotate(0deg) rotateY(0deg) rotateX(0deg)";
+      }
+      if (shadowRef.current) {
+        shadowRef.current.style.transform = "translateX(0px) scale(1)";
+        shadowRef.current.style.opacity = "0.5";
+      }
+    }
+  }, []);
+
   // Reduced motion preference
   const prefersReducedMotion = useMemo(() => {
-    return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    return (
+      typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
+  }, []);
+
+  // ── High-Performance Zero-Latency Direct DOM Transform (120 FPS, No React State Lag) ──
+  const applyTransform = useCallback((rad: number, tiltXDeg = 0, tiltYDeg = 0) => {
+    if (!cardRef.current) return;
+    const deg = rad * (180 / Math.PI);
+    const y3d = Math.sin(rad) * 6 + tiltYDeg;
+    const x3d = (Math.cos(rad) - 1) * 3 + tiltXDeg;
+
+    cardRef.current.style.transform = `rotate(${deg}deg) rotateY(${y3d}deg) rotateX(${x3d}deg)`;
+
+    if (shadowRef.current) {
+      const shadowX = -Math.sin(rad) * 28;
+      const scale = 1 - Math.abs(Math.sin(rad)) * 0.04;
+      shadowRef.current.style.transform = `translateX(${shadowX}px) scale(${scale})`;
+      shadowRef.current.style.opacity = `${Math.max(0.2, 0.45 - Math.abs(Math.sin(rad)) * 0.15)}`;
+    }
   }, []);
 
   // Stable anchor position using the unrotated parent container
@@ -143,40 +285,39 @@ export function HangingIdCard({
     return { x: typeof window !== "undefined" ? window.innerWidth / 2 : 0, y: 150 };
   }, []);
 
-  // ── Physics Loop ────────────────────────────────────────────────────────────
+  // ── Physics Loop (Active ONLY during manual drag/click interaction) ───────────
   const tick = useCallback(
     (now: number) => {
       if (prefersReducedMotion) {
-        setAngle(0);
+        applyTransform(0);
         return;
       }
 
       if (prevTimeRef.current === null) {
         prevTimeRef.current = now;
       }
-      const dt = Math.min((now - prevTimeRef.current) / 1000, 0.05);
+      const dt = Math.min((now - prevTimeRef.current) / 1000, 0.032);
       prevTimeRef.current = now;
 
       const s = physRef.current;
 
       if (!isDraggingRef.current) {
-        const L = 180;
-        // Natural pendulum equation: torque = - (g / L) * sin(theta) - (damping / m) * vel
-        const torque =
-          -(GRAVITY / L) * Math.sin(s.angle) -
-          (DAMPING / MASS) * s.vel;
+        const L = 160;
+        // Crisp pendulum equation: torque = - (g / L) * sin(theta) - (damping / m) * vel
+        const torque = -(GRAVITY / L) * Math.sin(s.angle) - (DAMPING / MASS) * s.vel;
 
         s.vel += torque * dt;
         s.angle += s.vel * dt;
 
-        setAngle(s.angle);
+        applyTransform(s.angle);
 
-        // Check if settled near bottom equilibrium (any integer multiple of 2*PI)
+        // When physics dampens to near zero, lock cleanly to rest at 0°!
         const normalizedSin = Math.sin(s.angle);
-        if (Math.abs(s.vel) < 0.002 && Math.abs(normalizedSin) < 0.002) {
+        if (Math.abs(s.vel) < 0.02 && Math.abs(normalizedSin) < 0.02) {
           s.angle = 0;
           s.vel = 0;
-          setAngle(0);
+          applyTransform(0);
+          rafRef.current = null;
         } else {
           rafRef.current = requestAnimationFrame(tick);
         }
@@ -185,10 +326,11 @@ export function HangingIdCard({
           s.vel = (s.angle - prevAngleRef.current) / dt;
         }
         prevAngleRef.current = s.angle;
+        applyTransform(s.angle);
         rafRef.current = requestAnimationFrame(tick);
       }
     },
-    [prefersReducedMotion]
+    [prefersReducedMotion, applyTransform],
   );
 
   const startPhysics = useCallback(() => {
@@ -197,18 +339,6 @@ export function HangingIdCard({
     prevTimeRef.current = null;
     rafRef.current = requestAnimationFrame(tick);
   }, [tick, prefersReducedMotion]);
-
-  // ── Start swinging immediately on refresh/mount (already in motion) ─────────
-  useEffect(() => {
-    if (prefersReducedMotion) {
-      setAngle(0);
-      physRef.current = { angle: 0, vel: 0 };
-      return;
-    }
-
-    // Immediately start physics on refresh so it is ALREADY swinging!
-    startPhysics();
-  }, [startPhysics, prefersReducedMotion]);
 
   useEffect(() => {
     return () => {
@@ -230,13 +360,14 @@ export function HangingIdCard({
       prevPointerAngle.current = Math.atan2(-dx, dy);
       prevAngleRef.current = physRef.current.angle;
 
-      // For desktop mouse, capture immediately and start RAF
       if (!isTouch) {
         try {
           e.currentTarget.setPointerCapture(e.pointerId);
         } catch {
           // Safe fallback
         }
+        setHasInteracted(true);
+        setIsSettled(true);
         isDraggingRef.current = true;
         setIsDragging(true);
 
@@ -245,32 +376,28 @@ export function HangingIdCard({
         rafRef.current = requestAnimationFrame(tick);
       }
     },
-    [tick, getPivotPos]
+    [tick, getPivotPos],
   );
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
-      // If mobile user is scrolling the page vertically, don't drag card!
       if (isTouchScrolling.current) return;
-
       const isTouch = e.pointerType === "touch";
 
-      // On mobile touch, detect directional intent before hijacking gesture
       if (isTouch && !dragLocked.current) {
         if (!touchStartPos.current) return;
         const deltaX = Math.abs(e.clientX - touchStartPos.current.x);
         const deltaY = Math.abs(e.clientY - touchStartPos.current.y);
 
-        // Wait until finger has moved at least 8px to determine gesture intent
         if (deltaX < 8 && deltaY < 8) return;
 
         if (deltaY > deltaX) {
-          // Vertical swipe: user is scrolling the page! Let native browser scroll proceed!
           isTouchScrolling.current = true;
           return;
         } else {
-          // Horizontal/angular swipe: user deliberately wants to rotate the card!
           dragLocked.current = true;
+          setHasInteracted(true);
+          setIsSettled(true);
           isDraggingRef.current = true;
           setIsDragging(true);
           try {
@@ -289,21 +416,19 @@ export function HangingIdCard({
 
       const dx = e.clientX - pivotPos.current.x;
       const dy = e.clientY - pivotPos.current.y;
-      // Inverted dx (-dx) so that moving left rotates left, and moving right rotates right!
       const currentPointerAngle = Math.atan2(-dx, dy);
 
       let delta = currentPointerAngle - prevPointerAngle.current;
-      // Handle wrap-around when crossing the -PI / +PI boundary (top dead center)
       if (delta > Math.PI) delta -= 2 * Math.PI;
       if (delta < -Math.PI) delta += 2 * Math.PI;
 
       prevPointerAngle.current = currentPointerAngle;
-
-      // Free 360° rotation
       physRef.current.angle += delta;
-      setAngle(physRef.current.angle);
+
+      // Direct synchronous DOM update for ZERO drag latency!
+      applyTransform(physRef.current.angle);
     },
-    [tick]
+    [applyTransform],
   );
 
   const onPointerUp = useCallback(
@@ -327,52 +452,92 @@ export function HangingIdCard({
         startPhysics();
       }
     },
-    [startPhysics]
+    [startPhysics],
   );
 
-  // Click / Tap impulse: swings idhar-udhar playfully (ignored if it was a touch scroll)
+  const handleCardMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      // Don't interrupt the initial refresh swing unless user clicks or drags!
+      if (!isSettled && !hasInteracted) return;
+      if (isDraggingRef.current || !cardRef.current || rafRef.current !== null) return;
+      const rect = cardRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const offsetX = (e.clientX - centerX) / (rect.width / 2);
+      const offsetY = (e.clientY - centerY) / (rect.height / 2);
+
+      const tiltY = Math.max(-5, Math.min(5, offsetX * 5));
+      const tiltX = Math.max(-5, Math.min(5, -offsetY * 5));
+
+      applyTransform(physRef.current.angle, tiltX, tiltY);
+
+      if (Math.abs(e.movementX) > 5) {
+        physRef.current.vel += e.movementX > 0 ? 0.07 : -0.07;
+      }
+    },
+    [applyTransform],
+  );
+
+  const handleCardMouseLeave = useCallback(() => {
+    if (rafRef.current === null && !isDraggingRef.current) {
+      applyTransform(physRef.current.angle, 0, 0);
+    }
+  }, [applyTransform]);
+
+  // Click / Tap impulse: swings playfully on click and settles to rest
   const handleClick = useCallback(() => {
     if (isDraggingRef.current || isTouchScrolling.current) return;
+    setHasInteracted(true);
+    setIsSettled(true);
     const dir = Math.sin(physRef.current.angle) >= 0 ? -1 : 1;
-    physRef.current.vel = dir * 3.5;
+    physRef.current.vel = dir * 4.2;
     startPhysics();
   }, [startPhysics]);
-
-  const cardRotateDeg = angle * (180 / Math.PI);
-  const sheenShiftPercent = 50 + Math.sin(angle) * 45;
-  const tiltY = Math.sin(angle) * 8;
-  const tiltX = (Math.cos(angle) - 1) * 4;
 
   return (
     <div
       className={cn("relative select-none", className)}
       style={{ touchAction: "pan-y", perspective: "1200px" }}
     >
-      {/* The Swinging Assembly (Attached Badges + Small Top Hanger + Original Photo Card) */}
+      {/* ── Stationary Wall Mount Anchor Pin (Does NOT tilt or rotate) ──────── */}
+      <WallAnchorPin />
+
+      {/* ── Dynamic Reactive Wall Contact Shadow ────────────────────────────── */}
+      <div
+        ref={shadowRef}
+        className={cn(
+          "pointer-events-none absolute -inset-3 rounded-3xl bg-black/30 dark:bg-black/55 blur-xl -z-10",
+          !hasInteracted && !isSettled && "hanging-shadow-on-load",
+        )}
+        aria-hidden="true"
+      />
+
+      {/* ── The Swinging Assembly (Attached Badges + Clamp + ID Badge Card) ── */}
       <div
         ref={cardRef}
         className={cn(
-          "relative transition-shadow duration-300",
-          isDragging ? "cursor-grabbing" : "cursor-grab active:cursor-grabbing"
+          "relative",
+          !hasInteracted && !isSettled && "hanging-card-on-load",
+          isDragging ? "cursor-grabbing" : "cursor-grab active:cursor-grabbing",
         )}
+        onAnimationEnd={handleAnimationEnd}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
+        onMouseMove={handleCardMouseMove}
+        onMouseLeave={handleCardMouseLeave}
         onClick={handleClick}
         style={{
-          transform: `rotate(${cardRotateDeg}deg) rotateY(${tiltY}deg) rotateX(${tiltX}deg)`,
           transformOrigin: `50% -${PIVOT_OFFSET_Y}px`,
           transformStyle: "preserve-3d",
           touchAction: "pan-y",
-          willChange: isDragging || Math.abs(angle) > 0.001 ? "transform" : "auto",
+          willChange: "transform",
         }}
-        title="Drag 360° or click to swing"
+        title="Drag to rotate or click to swing"
       >
-        {/* Small Top Hanger positioned directly above the card (zero layout shift) */}
-        <div className="hero-anim-float absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none select-none">
-          <SmallHanger />
-        </div>
+        {/* Swivel Ring & Clamp (rotates precisely beneath the stationary wall pin) */}
+        <HangerSwivelClamp />
 
         {/* Levitating Badge 1 — top-left corner */}
         {floatingBadge1 && (
@@ -391,6 +556,7 @@ export function HangingIdCard({
         {/* ── Aurora Glow Card ── rotating conic-gradient border ────────────── */}
         <div className="aurora-card-wrapper hero-anim-photo relative rounded-2xl">
           <div className="relative overflow-hidden rounded-2xl bg-card shadow-soft">
+            {/* Clean Photo: 100% visible, no dark bars or strips */}
             <img
               src={currentPhoto}
               alt={name || "Gopal Maddheshiya"}
@@ -399,23 +565,14 @@ export function HangingIdCard({
               height={500}
               className="w-64 h-72 sm:w-72 sm:h-80 md:w-80 md:h-96 lg:w-[21rem] lg:h-[25rem] object-cover object-[center_18%] transition-transform duration-500 group-hover:scale-105 pointer-events-none"
             />
-
-            {/* Bottom overlay with dark scrim gradient */}
-            <div className="hero-anim-photo-name absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-4 sm:p-5 text-left pointer-events-none">
-              <p className="font-display text-base sm:text-lg font-bold text-white tracking-tight leading-tight">
-                {name}
-              </p>
-              <p className="mt-1 text-xs text-zinc-300 leading-snug">{subtitle}</p>
-            </div>
-
-            {/* Dynamic Specular Glass Sheen reacting to swing angle */}
-            <div
-              className="pointer-events-none absolute inset-0 opacity-20 dark:opacity-15 mix-blend-overlay transition-opacity duration-300"
-              style={{
-                background: `linear-gradient(${115 + (cardRotateDeg % 360) * 0.8}deg, transparent ${sheenShiftPercent - 30}%, rgba(255,255,255,0.7) ${sheenShiftPercent}%, transparent ${sheenShiftPercent + 30}%)`,
-              }}
-            />
           </div>
+        </div>
+
+        {/* Subtle interactive hint cue on desktop */}
+        <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none select-none hidden sm:block whitespace-nowrap z-20">
+          <span className="rounded-full bg-card/90 dark:bg-card/90 border border-border/80 px-2.5 py-0.5 font-mono text-[10px] text-muted-foreground shadow-xs backdrop-blur-md">
+            ✦ Click or drag to swing
+          </span>
         </div>
       </div>
     </div>
@@ -423,3 +580,5 @@ export function HangingIdCard({
 }
 
 export default HangingIdCard;
+
+

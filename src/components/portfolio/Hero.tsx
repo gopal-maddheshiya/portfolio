@@ -179,110 +179,6 @@ export function Hero() {
   };
 
   const containerRef = useRef<HTMLElement>(null);
-  const hasAnimatedRef = useRef(false);
-
-  // Cinematic first-page entrance sequence.
-  useEffect(() => {
-    if (hasAnimatedRef.current || !containerRef.current) return;
-    hasAnimatedRef.current = true;
-
-    const ctx = gsap.context(() => {
-      // Synchronously set initial hidden states at t=0 so there is no 650ms FOUC flash before GSAP starts
-      gsap.set(".hero-anim-grid", { opacity: 0 });
-      gsap.set(".hero-anim-badge", { opacity: 0, y: -14, scale: 0.9 });
-      gsap.set(".hero-anim-line-inner", { opacity: 0, yPercent: 115, filter: "blur(6px)" });
-      gsap.set(".hero-anim-bio", { opacity: 0, y: 22 });
-      gsap.set(".hero-anim-location", { opacity: 0, x: -16 });
-      gsap.set(".hero-anim-btn", { opacity: 0, y: 16, scale: 0.96 });
-      gsap.set(".hero-anim-social", { opacity: 0, y: 12 });
-      gsap.set(".hero-anim-photo", { opacity: 0, clipPath: "inset(10% 16% 10% 16% round 16px)" });
-      gsap.set(".hero-anim-photo-name", { opacity: 0, y: 24 });
-      gsap.set(".hero-anim-float", { opacity: 0 });
-      gsap.set(".hero-anim-scroll", { opacity: 0 });
-
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" }, delay: 0.1 });
-
-      tl.to(
-        ".hero-anim-grid",
-        { opacity: 1, duration: 1.2, ease: "power2.out", clearProps: "opacity" },
-        0,
-      )
-        .to(
-          ".hero-anim-badge",
-          { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "back.out(1.7)", clearProps: "all" },
-          0.3,
-        )
-        .to(
-          ".hero-anim-line-inner",
-          {
-            opacity: 1,
-            yPercent: 0,
-            filter: "blur(0px)",
-            duration: 0.85,
-            stagger: 0.16,
-            ease: "expo.out",
-            clearProps: "all",
-          },
-          0.5,
-        )
-        .to(
-          ".hero-anim-bio",
-          { opacity: 1, y: 0, duration: 0.6, clearProps: "all" },
-          0.98,
-        )
-        .to(
-          ".hero-anim-location",
-          { opacity: 1, x: 0, duration: 0.5, clearProps: "all" },
-          1.12,
-        )
-        .to(
-          ".hero-anim-btn",
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.55,
-            stagger: 0.09,
-            ease: "back.out(1.5)",
-            clearProps: "all",
-          },
-          1.22,
-        )
-        .to(
-          ".hero-anim-social",
-          { opacity: 1, y: 0, duration: 0.45, stagger: 0.07, clearProps: "all" },
-          1.5,
-        )
-        .to(
-          ".hero-anim-photo",
-          {
-            opacity: 1,
-            clipPath: "inset(0% 0% 0% 0% round 16px)",
-            duration: 1.05,
-            ease: "expo.inOut",
-            clearProps: "all",
-          },
-          0.65,
-        )
-        .to(
-          ".hero-anim-photo-name",
-          { opacity: 1, y: 0, duration: 0.55, ease: "power3.out", clearProps: "all" },
-          1.55,
-        )
-        .to(
-          ".hero-anim-float",
-          { opacity: 1, duration: 0.6, stagger: 0.14, ease: "power2.out", clearProps: "opacity" },
-          1.7,
-        )
-        .to(
-          ".hero-anim-scroll",
-          { opacity: 1, duration: 0.6, clearProps: "all" },
-          2.1,
-        );
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, []);
 
   // Scroll-connected fade-out + background parallax for a cinematic exit.
   useEffect(() => {
@@ -330,7 +226,7 @@ export function Hero() {
       />
 
       {/* Scroll cue */}
-      <div className="hero-anim-scroll pointer-events-none absolute inset-x-0 bottom-3 z-20 hidden sm:flex justify-center">
+      <div className="hero-anim-scroll hero-scroll-entrance pointer-events-none absolute inset-x-0 bottom-3 z-20 hidden sm:flex justify-center">
         <div className="flex flex-col items-center gap-2">
           <span className="font-mono text-[10px] font-medium uppercase tracking-[0.25em] text-muted-foreground">
             Scroll
@@ -343,8 +239,11 @@ export function Hero() {
         {/* Left Column: Intro & Call to Actions */}
         <div className="flex flex-col items-start min-w-0">
           {/* Greeting Badge */}
-          <div className="hero-anim-badge inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 font-mono text-xs text-muted-foreground">
-            <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
+          <div className="hero-anim-badge hero-badge-entrance inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 font-mono text-xs text-muted-foreground shadow-xs">
+            <span className="relative flex size-2 shrink-0" aria-hidden="true">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+              <span className="relative inline-flex size-2 rounded-full bg-primary" />
+            </span>
             <span>{hero.greetingBadge || `Hi, I'm ${info.name}`}</span>
           </div>
 
@@ -359,31 +258,31 @@ export function Hero() {
             {/* Visual animated presentation */}
             <span aria-hidden="true" className="block">
               <span className="hero-anim-line block overflow-hidden">
-                <span className="hero-anim-line-inner block">
+                <span className="hero-anim-line-inner hero-title-entrance block">
                   {hero.headlinePrefix || "Building software as a"}
                 </span>
               </span>
               <span className="hero-anim-line block overflow-hidden pt-0.5">
-                <span className="hero-anim-line-inner block min-h-[1.25em]">
-                  <TypewriterRole roles={hero.typewriterRoles} startDelay={1800} />
+                <span className="hero-anim-line-inner hero-role-entrance block min-h-[1.25em]">
+                  <TypewriterRole roles={hero.typewriterRoles} startDelay={1500} />
                 </span>
               </span>
             </span>
           </h1>
 
           {/* Bio Description */}
-          <p className="hero-anim-bio mt-4 sm:mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-muted-foreground">
+          <p className="hero-anim-bio hero-bio-entrance mt-4 sm:mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-muted-foreground">
             {info.siteDescription}
           </p>
 
           {/* Location */}
-          <p className="hero-anim-location mt-3 sm:mt-4 inline-flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+          <p className="hero-anim-location hero-loc-entrance mt-3 sm:mt-4 inline-flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
             <MapPin className="size-4 text-primary shrink-0" aria-hidden="true" />
             <span>{info.location}</span>
           </p>
 
           {/* CTA Buttons with magnetic hover */}
-          <div className="mt-6 sm:mt-8 flex flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
+          <div className="hero-cta-entrance mt-6 sm:mt-8 flex flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
             <MagneticWrap className="flex-1 sm:flex-initial sm:w-auto">
               <a
                 onClick={handleAnchorClick}
@@ -413,7 +312,7 @@ export function Hero() {
 
           {/* Social Profiles */}
           <ul
-            className="mt-7 sm:mt-8 flex flex-wrap items-center gap-3.5 sm:gap-5"
+            className="hero-social-entrance mt-7 sm:mt-8 flex flex-wrap items-center gap-3.5 sm:gap-5"
             aria-label="Social profiles"
           >
             <li className="hero-anim-social">
@@ -457,14 +356,14 @@ export function Hero() {
 
         {/* Right Column: Clean Profile Photo with Attached Floating Badges & Compact Top Hanger */}
         <div className="flex justify-center lg:justify-end min-w-0">
-          <div className="relative group shrink-0">
+          <div className="hero-photo-entrance relative group shrink-0">
             {/* Main Photo Card Container with Attached Badges & Compact Top Hanger */}
             <HangingIdCard
               photoSrc={
                 info.profilePhoto &&
-                  (info.profilePhoto.startsWith("http://") ||
-                    info.profilePhoto.startsWith("https://") ||
-                    info.profilePhoto.startsWith("data:"))
+                (info.profilePhoto.startsWith("http://") ||
+                  info.profilePhoto.startsWith("https://") ||
+                  info.profilePhoto.startsWith("data:"))
                   ? info.profilePhoto
                   : profilePhoto
               }

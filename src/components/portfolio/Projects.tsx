@@ -299,10 +299,7 @@ export function Projects() {
       );
     }, sectionRef);
 
-    const onLoad = () => ScrollTrigger.refresh();
-    window.addEventListener("load", onLoad);
     return () => {
-      window.removeEventListener("load", onLoad);
       ctx.revert();
     };
   }, []);

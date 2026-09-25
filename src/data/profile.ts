@@ -120,7 +120,7 @@ export const ABOUT_DATA: AboutData = {
     dsaPractice: "Java · LeetCode",
     stack: "Full-Stack (MERN)",
     batch: "2028 Batch",
-    university: "SRMU University",
+    university: "Shri Ramswaroop Memorial University (SRMU)",
   },
   coursework: [
     "Data Structures & Algorithms",
@@ -414,16 +414,16 @@ export const PROJECTS: Project[] = [
 ];
 
 export const DSA_INFO = {
-  problemsSolved: "53+",
-  totalSolvedCount: 53,
+  problemsSolved: "54+",
+  totalSolvedCount: 54,
   language: "Java",
   repoName: "dsa-with-java",
   repoUrl: "https://github.com/gopal-maddheshiya/dsa-with-java",
   difficulty: [
     {
       label: "Easy",
-      count: 29,
-      percent: 55,
+      count: 30,
+      percent: 56,
       color: "text-emerald-500",
       bg: "bg-emerald-500/10",
       border: "border-emerald-500/20",
@@ -449,7 +449,7 @@ export const DSA_INFO = {
     },
   ],
   topicBreakdown: [
-    { topic: "Arrays & Strings", count: 18 },
+    { topic: "Arrays & Strings", count: 19 },
     { topic: "Recursion & Backtracking", count: 10 },
     { topic: "Two Pointers & Window", count: 8 },
     { topic: "Binary Trees & BST", count: 8 },
@@ -495,7 +495,6 @@ export const CODING_PROFILES: CodingProfile[] = [
     username: "gopalmaddheshiya",
     description: "Coding practice and data structures learning.",
     icon: "terminal",
-    hidden: true,
   },
   {
     name: "CodeChef",
@@ -503,7 +502,6 @@ export const CODING_PROFILES: CodingProfile[] = [
     username: "gopal_code_96",
     description: "Competitive programming and algorithm practice.",
     icon: "codechef",
-    hidden: true,
   },
   {
     name: "HackerRank",
@@ -511,7 +509,6 @@ export const CODING_PROFILES: CodingProfile[] = [
     username: "gopalmaddheshiy1",
     description: "Problem solving challenges and skills badges.",
     icon: "trophy",
-    hidden: true,
   },
 ];
 
@@ -659,7 +656,7 @@ export const ACADEMIC_GALLERY: AcademicMediaItem[] = [
     title: "Project Pitch & Technical Walkthrough — KishanSarthi",
     caption:
       "Delivering a technical walkthrough and pitch for project 'KisanSarthi', explaining the problem of agricultural inefficiencies and outlining our multi-pronged solution strategy involving AI and modern stack.",
-    category: "Smart India Hackthon",
+    category: "Smart India Hackathon",
     thumbnailUrl: "",
   },
   {

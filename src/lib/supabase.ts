@@ -171,10 +171,25 @@ export function parsePortfolioContent(rawContent: unknown, updatedAt?: string): 
   };
 }
 
+let cachedPortfolioData: PortfolioData | null = null;
+let lastPortfolioFetchTime = 0;
+const PORTFOLIO_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes in-memory cache
+
+export function invalidatePortfolioCache() {
+  cachedPortfolioData = null;
+  lastPortfolioFetchTime = 0;
+}
+
 /**
  * Fetch portfolio data from Supabase, falling back to local constants.
+ * Uses a 2-minute in-memory cache to eliminate reload lag.
  */
-export async function fetchPortfolioData(): Promise<PortfolioData> {
+export async function fetchPortfolioData(forceFresh = false): Promise<PortfolioData> {
+  const now = Date.now();
+  if (!forceFresh && cachedPortfolioData && now - lastPortfolioFetchTime < PORTFOLIO_CACHE_TTL_MS) {
+    return cachedPortfolioData;
+  }
+
   try {
     const { data, error } = await supabase
       .from(TABLE_NAME)
@@ -184,17 +199,20 @@ export async function fetchPortfolioData(): Promise<PortfolioData> {
 
     if (error) {
       console.warn("Supabase fetch warning (using local fallback):", error.message);
-      return DEFAULT_PORTFOLIO_DATA;
+      return cachedPortfolioData || DEFAULT_PORTFOLIO_DATA;
     }
 
     if (data && data.content) {
-      return parsePortfolioContent(data.content, data.updated_at);
+      const parsed = parsePortfolioContent(data.content, data.updated_at);
+      cachedPortfolioData = parsed;
+      lastPortfolioFetchTime = now;
+      return parsed;
     }
   } catch (err) {
     console.warn("Network / Supabase error (using local fallback):", err);
   }
 
-  return DEFAULT_PORTFOLIO_DATA;
+  return cachedPortfolioData || DEFAULT_PORTFOLIO_DATA;
 }
 
 /**
@@ -204,11 +222,12 @@ export async function savePortfolioData(
   content: PortfolioData,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const updatedAt = new Date().toISOString();
     const { error } = await supabase.from(TABLE_NAME).upsert(
       {
         id: RECORD_ID,
         content,
-        updated_at: new Date().toISOString(),
+        updated_at: updatedAt,
       },
       { onConflict: "id" },
     );
@@ -217,6 +236,8 @@ export async function savePortfolioData(
       return { success: false, error: error.message };
     }
 
+    cachedPortfolioData = { ...content, updatedAt };
+    lastPortfolioFetchTime = Date.now();
     return { success: true };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Failed to save portfolio data";

@@ -30,11 +30,67 @@ export function GopalAIAssistant() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [showDiscoveryCue, setShowDiscoveryCue] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLElement>(null);
   const launcherRef = useRef<HTMLDivElement>(null);
+  const lastScrollYRef = useRef(0);
+  const scrollStopTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Auto-dismissing discovery cue 2.5s after mount, hides after 8.5s
+  useEffect(() => {
+    const showTimer = setTimeout(() => setShowDiscoveryCue(true), 2500);
+    const hideTimer = setTimeout(() => setShowDiscoveryCue(false), 8500);
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(hideTimer);
+    };
+  }, []);
+
+  // Scroll-aware auto-hide: hides when scrolling down to free screen space, reappears on scroll up or 1s idle
+  useEffect(() => {
+    const handleScroll = () => {
+      if (typeof window === "undefined") return;
+      const currentScrollY = window.scrollY;
+      const prevScrollY = lastScrollYRef.current;
+      const delta = currentScrollY - prevScrollY;
+
+      // Reset any pending idle timer
+      if (scrollStopTimerRef.current) {
+        clearTimeout(scrollStopTimerRef.current);
+      }
+
+      if (currentScrollY <= 80) {
+        // Near top of page, always show
+        setIsVisible(true);
+      } else if (delta > 8) {
+        // Scrolling down -> hide immediately to keep screen unobstructed
+        setIsVisible(false);
+        setShowDiscoveryCue(false);
+      } else if (delta < -8) {
+        // Scrolling up -> reveal immediately
+        setIsVisible(true);
+      }
+
+      // Restore button smoothly 1s after user stops scrolling
+      scrollStopTimerRef.current = setTimeout(() => {
+        setIsVisible(true);
+      }, 1000);
+
+      lastScrollYRef.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollStopTimerRef.current) {
+        clearTimeout(scrollStopTimerRef.current);
+      }
+    };
+  }, []);
 
   // Typewriter Streaming Engine Refs
   const bufferRef = useRef<string>("");
@@ -311,30 +367,55 @@ export function GopalAIAssistant() {
           className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 pointer-events-auto"
           style={{ opacity: 0, transform: "translateX(180px)" }}
         >
-          <div className="animate-float-slow">
-            <button
-              type="button"
-              onClick={() => setIsOpen(true)}
-              aria-label="Open Ask Gopal AI Portfolio Assistant"
-              className="group relative flex items-center gap-3 rounded-full border border-primary/35 hover:border-primary bg-card/95 px-4 py-2.5 sm:px-4.5 sm:py-3 text-foreground shadow-[0_8px_30px_rgba(0,0,0,0.45)] ring-1 ring-white/10 hover:ring-primary/40 backdrop-blur-xl transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.55),0_0_24px_rgba(249,115,22,0.18)] hover:scale-105 active:scale-95 cursor-pointer"
-            >
-              {/* Bot Avatar */}
-              <div className="flex size-8 items-center justify-center rounded-full bg-primary font-mono text-xs font-bold text-primary-foreground shadow-sm shadow-primary/30">
-                <Bot className="size-4.5 shrink-0 transition-transform group-hover:rotate-12 duration-200" />
-              </div>
-
-              <div className="flex flex-col text-left">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-display text-xs sm:text-sm font-bold text-foreground group-hover:text-primary transition-colors">
-                    Ask Gopal
-                  </span>
-                  <Sparkles className="size-3 text-primary" />
+          {/* Scroll-aware animated wrapper: slides down when scrolling down, slides up when scrolling up or idle */}
+          <div
+            className={cn(
+              "transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              isVisible
+                ? "translate-y-0 opacity-100 pointer-events-auto"
+                : "translate-y-24 opacity-0 pointer-events-none",
+            )}
+          >
+            {/* First-time visitor discovery tooltip bubble */}
+            {showDiscoveryCue && isVisible && (
+              <div className="absolute -top-10 right-0 sm:right-2 z-10 pointer-events-none select-none animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div className="relative flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-[11px] font-medium text-primary-foreground shadow-lift whitespace-nowrap">
+                  <Sparkles className="size-3" />
+                  <span>Ask me anything about Gopal!</span>
+                  <div className="absolute -bottom-1 right-5 sm:right-7 size-2 rotate-45 bg-primary" />
                 </div>
-                <span className="text-[10px] text-muted-foreground font-mono leading-none">
-                  AI Assistant
-                </span>
               </div>
-            </button>
+            )}
+
+            <div className="animate-float-slow">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDiscoveryCue(false);
+                  setIsOpen(true);
+                }}
+                aria-label="Open Ask Gopal AI Portfolio Assistant"
+                className="group relative flex items-center justify-center sm:justify-start gap-2.5 rounded-full border border-primary/35 hover:border-primary bg-card/95 p-2 sm:px-3.5 sm:py-2 text-foreground shadow-[0_8px_30px_rgba(0,0,0,0.45)] ring-1 ring-white/10 hover:ring-primary/40 backdrop-blur-xl transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.55),0_0_24px_rgba(249,115,22,0.18)] hover:scale-105 active:scale-95 cursor-pointer size-[44px] sm:size-auto"
+              >
+                {/* Bot Avatar */}
+                <div className="flex size-7.5 sm:size-7 items-center justify-center rounded-full bg-primary font-mono text-xs font-bold text-primary-foreground shadow-sm shadow-primary/30 shrink-0">
+                  <Bot className="size-4 shrink-0 transition-transform group-hover:rotate-12 duration-200" />
+                </div>
+
+                {/* Text Label: Hidden on mobile (circular FAB) to save space, compact pill on desktop */}
+                <div className="hidden sm:flex flex-col text-left pr-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-display text-xs font-bold text-foreground group-hover:text-primary transition-colors whitespace-nowrap">
+                      Ask Gopal
+                    </span>
+                    <Sparkles className="size-2.5 text-primary shrink-0" />
+                  </div>
+                  <span className="text-[9px] text-muted-foreground font-mono leading-none">
+                    AI Assistant
+                  </span>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
       )}

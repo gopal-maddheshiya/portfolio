@@ -75,10 +75,7 @@ export function SectionHeading({
       );
     }, ref);
 
-    const onLoad = () => ScrollTrigger.refresh();
-    window.addEventListener("load", onLoad);
     return () => {
-      window.removeEventListener("load", onLoad);
       ctx.revert();
     };
   }, [animate]);

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Award,
   Briefcase,
@@ -16,7 +16,6 @@ import {
   User,
   X,
 } from "lucide-react";
-import { gsap } from "gsap";
 
 import { usePortfolio } from "@/context/PortfolioContext";
 import { NAV_LINKS } from "@/data/profile";
@@ -53,32 +52,6 @@ export function Navbar() {
     [hasGallery],
   );
 
-  const headerRef = useRef<HTMLElement>(null);
-  const hasAnimatedRef = useRef(false);
-
-  // Premium entrance: the glass pill drops in from above, items cascade.
-  useEffect(() => {
-    if (hasAnimatedRef.current || !headerRef.current) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    hasAnimatedRef.current = true;
-    const ctx = gsap.context(() => {
-      gsap.set(".nav-anim-bar", { yPercent: -130, opacity: 0 });
-      gsap.set(".nav-anim-item", { opacity: 0, y: 12 });
-
-      const tl = gsap.timeline({ defaults: { ease: "expo.out" }, delay: 0.05 });
-      tl.to(
-        ".nav-anim-bar",
-        { yPercent: 0, opacity: 1, duration: 0.9 },
-      ).to(
-        ".nav-anim-item",
-        { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, clearProps: "all" },
-        "-=0.55",
-      );
-    }, headerRef);
-    return () => ctx.revert();
-  }, []);
-
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
     onScroll();
@@ -96,20 +69,17 @@ export function Navbar() {
   }, []);
 
   return (
-    <header
-      ref={headerRef}
-      className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none px-3 sm:px-4 pt-2 sm:pt-4 transition-all duration-300"
-    >
-      <div className="nav-anim-bar w-full max-w-7xl pointer-events-auto flex flex-col items-center">
+    <header className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none px-3 sm:px-4 pt-2 sm:pt-4 transition-all duration-300">
+      <div className="nav-anim-bar nav-entrance w-full max-w-7xl pointer-events-auto flex flex-col items-center">
         {/* Main Nav Bar — glass pill */}
         <div className="relative w-full flex items-center justify-center">
           <nav
             aria-label="Main Navigation"
             className={cn(
-              "flex w-full items-center justify-between gap-3 sm:gap-6 px-4 sm:px-7 h-14 sm:h-16 rounded-full border transition-all duration-300 backdrop-blur-3xl backdrop-saturate-[2]",
+              "flex w-full items-center justify-between gap-3 sm:gap-6 px-4 sm:px-7 h-14 sm:h-16 rounded-full border transition-all duration-300",
               scrolled
-                ? "bg-white/[0.04] dark:bg-white/[0.03] border-black/[0.1] dark:border-white/[0.12] shadow-[0_10px_40px_rgba(0,0,0,0.05)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.3)]"
-                : "bg-white/[0.025] dark:bg-white/[0.02] border-black/[0.08] dark:border-white/[0.08] hover:border-black/[0.14] dark:hover:border-white/[0.12] hover:bg-white/[0.06] dark:hover:bg-white/[0.04]",
+                ? "bg-card/92 dark:bg-card/92 border-border shadow-lift backdrop-blur-2xl"
+                : "bg-card/80 dark:bg-card/80 border-border/80 hover:border-border shadow-soft backdrop-blur-xl",
             )}
           >
             {/* Brand Logo & Name */}
@@ -122,7 +92,7 @@ export function Navbar() {
                 GM
               </span>
               <div className="flex items-center gap-2 min-w-0">
-                <span className="truncate max-w-[170px] min-[360px]:max-w-none text-foreground drop-shadow-[0_1px_1px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)] group-hover:text-primary transition-colors">
+                <span className="truncate max-w-[170px] min-[360px]:max-w-none text-foreground font-semibold group-hover:text-primary transition-colors">
                   {info.name}
                 </span>
               </div>
@@ -139,10 +109,10 @@ export function Navbar() {
                       href={`#${link.id}`}
                       aria-current={isActive ? "true" : undefined}
                       className={cn(
-                        "nav-anim-item rounded-full px-4 py-1.5 text-[0.875rem] font-medium transition-all duration-200",
+                        "nav-anim-item rounded-full px-3.5 py-1.5 text-[0.875rem] font-medium transition-all duration-200",
                         isActive
                           ? "bg-primary/15 text-primary font-semibold shadow-[inset_0_0_0_1px_rgba(var(--primary),0.2)]"
-                          : "text-foreground/70 dark:text-foreground/80 hover:text-foreground hover:bg-foreground/[0.05] dark:hover:bg-white/[0.06]",
+                          : "text-muted-foreground hover:text-foreground hover:bg-secondary/70",
                       )}
                     >
                       {link.label}
@@ -160,7 +130,7 @@ export function Navbar() {
                 aria-label={
                   mounted && theme === "dark" ? "Switch to light theme" : "Switch to dark theme"
                 }
-                className="flex size-8 sm:size-9 items-center justify-center rounded-full border border-foreground/[0.06] dark:border-white/[0.08] bg-foreground/[0.03] dark:bg-white/[0.05] text-foreground/70 transition-all hover:bg-foreground/[0.07] dark:hover:bg-white/[0.09] hover:text-foreground active:scale-95"
+                className="flex size-8 sm:size-9 items-center justify-center rounded-full border border-border/80 bg-secondary/60 hover:bg-secondary text-foreground/80 hover:text-foreground transition-all active:scale-95"
               >
                 {mounted && theme === "dark" ? (
                   <Sun className="size-3.5 sm:size-4 text-primary" aria-hidden="true" />
@@ -187,7 +157,7 @@ export function Navbar() {
                 aria-expanded={open}
                 aria-controls="mobile-menu"
                 aria-label={open ? "Close menu" : "Open menu"}
-                className="flex size-8 sm:size-9 items-center justify-center rounded-full border border-foreground/[0.06] dark:border-white/[0.08] bg-foreground/[0.03] dark:bg-white/[0.05] text-foreground/70 transition-all hover:bg-foreground/[0.07] dark:hover:bg-white/[0.09] hover:text-foreground lg:hidden active:scale-95"
+                className="flex size-8 sm:size-9 items-center justify-center rounded-full border border-border/80 bg-secondary/60 hover:bg-secondary text-foreground/80 hover:text-foreground lg:hidden active:scale-95"
               >
                 {open ? (
                   <X className="size-4 text-primary" aria-hidden="true" />

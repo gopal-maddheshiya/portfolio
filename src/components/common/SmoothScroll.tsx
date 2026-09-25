@@ -26,8 +26,13 @@ export function SmoothScrollProvider({ children }: SmoothScrollProps) {
       return;
     }
 
+    // Set scroll restoration to manual so the browser doesn't do an uncoordinated jump before Lenis is ready
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+
     const lenis = new Lenis({
-      duration: 1.1,
+      duration: 1.0,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: "vertical",
       gestureOrientation: "vertical",
@@ -49,17 +54,37 @@ export function SmoothScrollProvider({ children }: SmoothScrollProps) {
     gsap.ticker.add(tickerUpdate);
     gsap.ticker.lagSmoothing(0);
 
-    // Re-measure all ScrollTrigger start/end positions once Lenis is live so
-    // nothing that lives below the fold stays hidden behind a stale trigger.
+    // If there is an anchor hash in the URL (e.g. #projects), scroll smoothly after mount
+    if (window.location.hash) {
+      const target = document.querySelector(window.location.hash);
+      if (target) {
+        window.setTimeout(() => {
+          lenis.scrollTo(target as HTMLElement, { offset: -80 });
+        }, 120);
+      }
+    }
+
+    // Single centralized debounced refresh for content updates and window load
+    let timeoutId: number;
+    const debouncedRefresh = () => {
+      window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 100);
+    };
+
+    // Re-measure after initial frame so all triggers know accurate positions
     const refreshId = requestAnimationFrame(() => ScrollTrigger.refresh());
 
-    // Re-measure whenever remotely-synced portfolio content changes layout.
-    const onContentUpdated = () => ScrollTrigger.refresh();
-    window.addEventListener("app:content-updated", onContentUpdated);
+    // Single centralized listeners instead of dozens across components
+    window.addEventListener("load", debouncedRefresh, { once: true });
+    window.addEventListener("app:content-updated", debouncedRefresh);
 
     return () => {
       cancelAnimationFrame(refreshId);
-      window.removeEventListener("app:content-updated", onContentUpdated);
+      window.clearTimeout(timeoutId);
+      window.removeEventListener("load", debouncedRefresh);
+      window.removeEventListener("app:content-updated", debouncedRefresh);
       gsap.ticker.remove(tickerUpdate);
       lenis.destroy();
       delete window.__lenis;

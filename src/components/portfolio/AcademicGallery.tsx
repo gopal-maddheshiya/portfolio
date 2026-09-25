@@ -141,11 +141,11 @@ export function AcademicGallery() {
         </Reveal>
       ) : (
         <div className="mt-8 sm:mt-10 space-y-8">
-          {/* Category Filter Pills */}
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Category Filter Pills — Single horizontal scrollable line on mobile, wrapping on desktop */}
+          <div className="flex items-center gap-2 overflow-x-auto flex-nowrap sm:flex-wrap pb-2 pt-0.5 sm:pb-0 touch-pan-x [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-4 px-4 sm:mx-0 sm:px-0">
             <button
               onClick={() => setSelectedCategory("all")}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                 selectedCategory === "all"
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
@@ -158,7 +158,7 @@ export function AcademicGallery() {
             {galleryItems.some((i) => i.type === "image") && (
               <button
                 onClick={() => setSelectedCategory("photos")}
-                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                   selectedCategory === "photos"
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
@@ -172,7 +172,7 @@ export function AcademicGallery() {
             {galleryItems.some((i) => i.type === "video") && (
               <button
                 onClick={() => setSelectedCategory("videos")}
-                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                   selectedCategory === "videos"
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
@@ -191,7 +191,7 @@ export function AcademicGallery() {
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat.toLowerCase())}
-                  className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                     selectedCategory === cat.toLowerCase()
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
