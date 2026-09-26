@@ -56,7 +56,10 @@ export function About() {
   };
 
   // Synchronized directly with the DSA section & live LeetCode stats
-  const dsaSolvedNumber = leetCodeTotal > 0 ? leetCodeTotal : DSA_INFO.totalSolvedCount || 54;
+  const dsaSolvedNumber =
+    leetCodeTotal > 0
+      ? leetCodeTotal
+      : (data.dsaInfo?.totalSolvedCount ?? DSA_INFO.totalSolvedCount ?? 54);
   const dsaCount = `${dsaSolvedNumber}+`;
   const cgpaValue = about.snapshot?.cgpa || currentEducation.detail || "7.63";
   const batchYear =

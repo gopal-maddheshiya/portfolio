@@ -23,10 +23,7 @@ export function BackToTop() {
         progressFraction = window.__lenis.progress; // Normalized 0.0 to 1.0 from Lenis
       } else {
         scrollY = window.scrollY || document.documentElement.scrollTop;
-        const maxScroll = Math.max(
-          1,
-          document.documentElement.scrollHeight - window.innerHeight,
-        );
+        const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
         progressFraction = Math.min(1, Math.max(0, scrollY / maxScroll));
       }
 

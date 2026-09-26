@@ -166,6 +166,29 @@ function MagneticWrap({
   );
 }
 
+function renderUnderlinedDescription(text: string) {
+  if (!text) return null;
+  const keywords = ["Data Structures & Algorithms", "Java", "DSA", "React", "Node.js", "MongoDB"];
+  const regex = new RegExp(
+    `(${keywords.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`,
+    "g",
+  );
+  const parts = text.split(regex);
+  return parts.map((part, i) => {
+    if (keywords.includes(part)) {
+      return (
+        <span
+          key={i}
+          className="font-semibold text-foreground underline decoration-primary decoration-2 underline-offset-4"
+        >
+          {part}
+        </span>
+      );
+    }
+    return part;
+  });
+}
+
 export function Hero() {
   const { data } = usePortfolio();
   const info = data.personalInfo;
@@ -225,13 +248,16 @@ export function Hero() {
         className="hero-anim-grid grid-backdrop pointer-events-none absolute inset-0"
       />
 
-      {/* Scroll cue */}
-      <div className="hero-anim-scroll hero-scroll-entrance pointer-events-none absolute inset-x-0 bottom-3 z-20 hidden sm:flex justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <span className="font-mono text-[10px] font-medium uppercase tracking-[0.25em] text-muted-foreground">
+      {/* Scroll cue with Mouse */}
+      <div className="hero-anim-scroll hero-scroll-entrance pointer-events-none absolute inset-x-0 bottom-3 z-20 hidden sm:flex justify-center select-none">
+        <div className="flex flex-col items-center gap-1.5 opacity-80">
+          <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.25em] text-muted-foreground">
             Scroll
           </span>
-          <span className="hero-scroll-line" aria-hidden="true" />
+          {/* Mouse Chassis with animated rolling wheel */}
+          <div className="relative w-4.5 h-7 rounded-full border-2 border-muted-foreground/60 flex justify-center pt-1 shadow-xs">
+            <span className="w-1 h-1.5 rounded-full bg-primary animate-mouse-wheel" />
+          </div>
         </div>
       </div>
 
@@ -270,9 +296,9 @@ export function Hero() {
             </span>
           </h1>
 
-          {/* Bio Description */}
+          {/* Bio Description with premium underlined key technologies */}
           <p className="hero-anim-bio hero-bio-entrance mt-4 sm:mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-muted-foreground">
-            {info.siteDescription}
+            {renderUnderlinedDescription(info.siteDescription)}
           </p>
 
           {/* Location */}

@@ -20,6 +20,7 @@ import {
   type Certification,
   type CodingProfile,
   type ContactData,
+  type DsaInfo,
   type EducationItem,
   type HeroData,
   type HighlightItem,
@@ -52,7 +53,7 @@ export interface PortfolioData {
   focusAreas: string[];
   skillGroups: SkillGroup[];
   projects: Project[];
-  dsaInfo: typeof DSA_INFO;
+  dsaInfo: DsaInfo;
   codingProfiles: CodingProfile[];
   journey: JourneyMilestone[];
   education: EducationItem[];
@@ -121,10 +122,31 @@ export function parsePortfolioContent(rawContent: unknown, updatedAt?: string): 
         ...DEFAULT_PORTFOLIO_DATA.aboutData.snapshot,
         ...pickObject<Partial<PortfolioData["aboutData"]["snapshot"]>>("snapshot"),
       },
+      principles: Array.isArray((c["aboutData"] as Record<string, unknown>)?.principles)
+        ? ((c["aboutData"] as Record<string, unknown>)
+            .principles as PortfolioData["aboutData"]["principles"])
+        : DEFAULT_PORTFOLIO_DATA.aboutData.principles,
+      coursework: Array.isArray((c["aboutData"] as Record<string, unknown>)?.coursework)
+        ? ((c["aboutData"] as Record<string, unknown>).coursework as string[])
+        : DEFAULT_PORTFOLIO_DATA.aboutData.coursework,
     },
     dsaInfo: {
       ...DEFAULT_PORTFOLIO_DATA.dsaInfo,
       ...pickObject<Partial<PortfolioData["dsaInfo"]>>("dsaInfo"),
+      difficulty: Array.isArray((c["dsaInfo"] as Record<string, unknown>)?.difficulty)
+        ? ((c["dsaInfo"] as Record<string, unknown>)
+            .difficulty as PortfolioData["dsaInfo"]["difficulty"])
+        : DEFAULT_PORTFOLIO_DATA.dsaInfo.difficulty,
+      topicBreakdown: Array.isArray((c["dsaInfo"] as Record<string, unknown>)?.topicBreakdown)
+        ? ((c["dsaInfo"] as Record<string, unknown>)
+            .topicBreakdown as PortfolioData["dsaInfo"]["topicBreakdown"])
+        : DEFAULT_PORTFOLIO_DATA.dsaInfo.topicBreakdown,
+      topics: Array.isArray((c["dsaInfo"] as Record<string, unknown>)?.topics)
+        ? ((c["dsaInfo"] as Record<string, unknown>).topics as string[])
+        : DEFAULT_PORTFOLIO_DATA.dsaInfo.topics,
+      notes: Array.isArray((c["dsaInfo"] as Record<string, unknown>)?.notes)
+        ? ((c["dsaInfo"] as Record<string, unknown>).notes as string[])
+        : DEFAULT_PORTFOLIO_DATA.dsaInfo.notes,
     },
     resumeCTA: {
       ...DEFAULT_PORTFOLIO_DATA.resumeCTA,

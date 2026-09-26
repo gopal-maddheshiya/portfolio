@@ -580,5 +580,3 @@ export function HangingIdCard({
 }
 
 export default HangingIdCard;
-
-

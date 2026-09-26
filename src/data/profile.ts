@@ -413,7 +413,34 @@ export const PROJECTS: Project[] = [
   },
 ];
 
-export const DSA_INFO = {
+export interface DsaDifficultyItem {
+  label: string;
+  count: number;
+  percent: number;
+  color: string;
+  bg: string;
+  border: string;
+  bar: string;
+}
+
+export interface DsaTopicItem {
+  topic: string;
+  count: number;
+}
+
+export interface DsaInfo {
+  problemsSolved: string;
+  totalSolvedCount: number;
+  language: string;
+  repoName: string;
+  repoUrl: string;
+  difficulty: DsaDifficultyItem[];
+  topicBreakdown: DsaTopicItem[];
+  topics: string[];
+  notes: string[];
+}
+
+export const DSA_INFO: DsaInfo = {
   problemsSolved: "54+",
   totalSolvedCount: 54,
   language: "Java",

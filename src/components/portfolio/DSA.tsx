@@ -14,6 +14,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import { DSA_INFO, PERSONAL_INFO } from "@/data/profile";
+import { usePortfolio } from "@/context/PortfolioContext";
 import { useLeetCodeStats } from "@/hooks/useLeetCodeStats";
 import { Reveal } from "./Reveal";
 import { Section, SectionHeading } from "./Section";
@@ -27,6 +28,10 @@ if (typeof window !== "undefined") {
 }
 
 export function DSA() {
+  const { data } = usePortfolio();
+  const dsa = data?.dsaInfo || DSA_INFO;
+  const info = data?.personalInfo || PERSONAL_INFO;
+
   const {
     total,
     totalQuestions,
@@ -330,7 +335,7 @@ export function DSA() {
                   </span>
                   <span className="text-muted-foreground/40">•</span>
                   <span className="text-xs text-muted-foreground font-mono">
-                    @{PERSONAL_INFO.leetcodeUsername}
+                    @{info.leetcodeUsername || PERSONAL_INFO.leetcodeUsername}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -535,7 +540,7 @@ export function DSA() {
                     </span>
                   </div>
                   <a
-                    href={PERSONAL_INFO.leetcode}
+                    href={info.leetcode || PERSONAL_INFO.leetcode}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="View badges on LeetCode"
@@ -842,17 +847,19 @@ export function DSA() {
           {/* Action Footer: LeetCode Profile & GitHub Repo Buttons */}
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
             <a
-              href={PERSONAL_INFO.leetcode}
+              href={info.leetcode || PERSONAL_INFO.leetcode}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs sm:text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:opacity-90 active:scale-[0.98] cursor-pointer"
             >
-              <span>Open LeetCode Profile (@{PERSONAL_INFO.leetcodeUsername})</span>
+              <span>
+                Open LeetCode Profile (@{info.leetcodeUsername || PERSONAL_INFO.leetcodeUsername})
+              </span>
               <ExternalLink className="size-4 shrink-0" />
             </a>
 
             <a
-              href={DSA_INFO.repoUrl}
+              href={dsa.repoUrl || DSA_INFO.repoUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-border-strong bg-card px-5 py-2.5 text-xs sm:text-sm font-medium text-foreground transition-all hover:bg-secondary active:scale-[0.98] cursor-pointer"
