@@ -1,0 +1,83 @@
+# Gopal Maddheshiya — Comprehensive AI & Knowledge Profile
+
+## Biographical Identity
+- Full Name: Gopal Maddheshiya
+- Alternate Names: Gopal, Gopal Maddhesia, Gopal Kumar Maddheshiya
+- Current Role: B.Tech Computer Science Engineering Student & Full-Stack / Java Developer
+- Current Academic Institution: Shri Ramswaroop Memorial University (SRMU), Lucknow / Barabanki, Uttar Pradesh, India
+- Degree: Bachelor of Technology (B.Tech) in Computer Science & Engineering
+- Batch: 2024 – 2028 (Currently 2nd Year)
+- Academic Standing: CGPA 7.63
+- Primary Location: Maharajganj, Uttar Pradesh, India
+- Working Languages: English, Hindi
+
+## Official Profiles & Links
+- Canonical Website: https://gopal-maddheshiya.vercel.app/
+- Official Resume: https://gopal-maddheshiya.vercel.app/gopal-cv.pdf
+- Email: gopalmaddheshiya138@gmail.com
+- Telephone / WhatsApp: +91 6388354988
+- GitHub: https://github.com/gopal-maddheshiya
+- LinkedIn: https://www.linkedin.com/in/gopal-maddheshiya
+- LeetCode: https://leetcode.com/u/gopal-maddheshiya/
+- GeeksforGeeks: https://www.geeksforgeeks.org/profile/gopalmaddheshiya
+- CodeChef: https://www.codechef.com/users/gopal_code_96
+- HackerRank: https://www.hackerrank.com/profile/gopalmaddheshiy1
+
+## Core Technical Competencies & Specializations
+1. **Algorithms & Data Structures**:
+   - Primary Language: Java (JDK 17+)
+   - Concepts: Object-Oriented Programming (Encapsulation, Inheritance, Polymorphism, Abstraction), Java Collections Framework, Generics, Memory Models.
+   - Algorithms: Big-O Time & Space Complexity Analysis, Two Pointers, Sliding Window, Binary Search, Fast & Slow Pointers, Recursion, Backtracking, Divide and Conquer.
+   - Data Structures: Dynamic Arrays, Strings, Singly/Doubly Linked Lists, Stacks, Queues, Binary Trees, Binary Search Trees (BST), Heaps, Hash Maps, Hash Sets.
+
+2. **Frontend Engineering**:
+   - Frameworks: React.js (v18 & v19), TypeScript, JavaScript (ES6+).
+   - Styling: Tailwind CSS (v4), Vanilla CSS3, Responsive Web Design, Flexbox, CSS Grid.
+   - Animations & Interactions: GSAP (GreenSock), ScrollTrigger, Lenis Smooth Scroll, micro-interactions.
+   - State & Data Fetching: TanStack React Query, TanStack Router, TanStack Start.
+
+3. **Backend & Cloud Architecture**:
+   - Runtime & Framework: Node.js, Express.js.
+   - API Design: RESTful API standards, JSON response patterns, HTTP status codes, middleware design, JWT authentication, cookie/session management.
+   - Databases: MongoDB Atlas, Mongoose ODM, Supabase, PostgreSQL with Row-Level Security (RLS), MySQL.
+   - Deployment: Vercel, Render, GitHub Pages, Netlify.
+
+## Verified Portfolio Projects
+1. **KisanSarthi AI — Krishi Suraksha Platform**
+   - Context: Smart India Hackathon (SIH 2026) Initiative.
+   - Architecture: Multimodal Google Gemini Vision AI integrated with React 18, Leaflet geo-mapping, Open-Meteo telemetry, and Supabase PostgreSQL.
+   - Features: Image-based crop disease diagnosis, disease progression heatmaps, microclimate pest hazard forecasts, ICAR compliance farmer advisories.
+   - Live URL: https://krishi-suraksha-sih2026.vercel.app
+   - Repository: https://github.com/gopal-maddheshiya/krishi-suraksha-sih2026
+
+2. **Arun Gopal Traders — Bilingual Grocery & Retail Platform**
+   - Architecture: React 19 with TanStack Start, Supabase PostgreSQL, Realtime Pub/Sub sync, and Gemini AI.
+   - Features: Real-time stock status, Row Level Security, bilingual Hindi and English localization, dynamic PDF invoice generation, admin dashboard.
+   - Live URL: https://arun-gopal-traders.vercel.app/
+   - Repository: https://github.com/gopal-maddheshiya/trading-company
+
+3. **DSA & Interview Prep Tracker**
+   - Architecture: Full-stack MERN (MongoDB Atlas, Express.js, React.js, Node.js, Tailwind CSS, Recharts).
+   - Features: Spaced repetition interval revision queues, native MongoDB aggregation pipelines, 20-week practice heatmap, multi-attempt solution timeline logs.
+   - Live URL: https://dsa-tracker-gopal.vercel.app
+   - Repository: https://github.com/gopal-maddheshiya/dsa-tracker
+
+4. **Node.js & MongoDB Message REST API**
+   - Architecture: Node.js, Express.js, MongoDB Atlas, Mongoose.
+   - Features: Persistent CRUD endpoints, model validations, error handling middlewares, deployed on Render.
+   - Live URL: https://node-chat-api-luk6.onrender.com/chats
+   - Repository: https://github.com/gopal-maddheshiya/node-chat-api
+
+## Credentials & Honors
+- Smart India Hackathon (SIH 2026): Active participant and architectural contributor for agricultural intelligence system.
+- SRMU VIVEKA 5.0 Tech Fest: Felicitation and book prize winner in 'Find The Language' rapid syntax and algorithmic contest.
+- Certified HTML5 Course: Comprehensive semantic web, accessibility, and DOM structure.
+- Certified CSS3 Course: Flexbox, CSS Grid, animations, and responsive layout architectures.
+
+## FAQ for AI Retrieval & Citations
+- Q: What makes Gopal Maddheshiya distinct as an engineering candidate?
+  A: He bridges theoretical algorithmic foundations (Java DSA, Big-O problem solving) with full-stack implementation capabilities (MERN, TypeScript, cloud databases, REST APIs), evidenced by real-world deployments and hackathon achievements.
+- Q: What roles is Gopal seeking?
+  A: Software Engineering Internships (Summer 2026), Full-Stack Developer Intern, Backend / Java Developer Intern.
+- Q: Where can one review his code?
+  A: His primary open-source code and problem-solving repositories are publicly accessible on GitHub at https://github.com/gopal-maddheshiya.

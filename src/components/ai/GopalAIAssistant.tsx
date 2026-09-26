@@ -144,6 +144,24 @@ export function GopalAIAssistant() {
     }
   }, []);
 
+  const handleSendMessageRef = useRef<(text?: string) => Promise<void>>(async () => {});
+
+  // Listen for open-gopal-ai-assistant trigger event from FAQ or CTA buttons
+  useEffect(() => {
+    const handleOpenEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<{ question?: string }>;
+      setIsOpen(true);
+      setIsVisible(true);
+      if (customEvent.detail?.question) {
+        setTimeout(() => {
+          handleSendMessageRef.current?.(customEvent.detail.question);
+        }, 300);
+      }
+    };
+    window.addEventListener("open-gopal-ai-assistant", handleOpenEvent);
+    return () => window.removeEventListener("open-gopal-ai-assistant", handleOpenEvent);
+  }, []);
+
   // Animate Chat Window Open with GSAP
   useEffect(() => {
     if (isOpen && modalRef.current) {
@@ -318,6 +336,7 @@ export function GopalAIAssistant() {
       isDoneRef.current = true;
     }
   };
+  handleSendMessageRef.current = handleSendMessage;
 
   const handleActionClick = (action: NonNullable<ChatMessage["actions"]>[number]) => {
     if (action.url) {

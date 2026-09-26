@@ -5,6 +5,7 @@ import { AcademicGallery } from "@/components/portfolio/AcademicGallery";
 import { Certifications } from "@/components/portfolio/Certifications";
 import { Contact } from "@/components/portfolio/Contact";
 import { DSA } from "@/components/portfolio/DSA";
+import { FAQ } from "@/components/portfolio/FAQ";
 import { Footer } from "@/components/portfolio/Footer";
 import { Hero } from "@/components/portfolio/Hero";
 import { Highlights } from "@/components/portfolio/Highlights";
@@ -18,10 +19,13 @@ import { GopalAIAssistant } from "@/components/ai/GopalAIAssistant";
 import { BackToTop } from "@/components/portfolio/BackToTop";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { SmoothScrollProvider } from "@/components/common/SmoothScroll";
-import { PERSONAL_INFO } from "@/data/profile";
+import { CERTIFICATIONS, DSA_INFO, PERSONAL_INFO, PROJECTS } from "@/data/profile";
+import { generateSeoSchema } from "@/lib/seo-schema";
 
 const TITLE = `${PERSONAL_INFO.name} | ${PERSONAL_INFO.role}`;
 const DESCRIPTION = PERSONAL_INFO.siteDescription;
+
+const schemaData = generateSeoSchema(PERSONAL_INFO, PROJECTS, CERTIFICATIONS, DSA_INFO);
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -29,9 +33,22 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: TITLE },
       { name: "description", content: DESCRIPTION },
+      {
+        name: "keywords",
+        content:
+          "Gopal Maddheshiya, Gopal Maddheshiya SRMU, Java Developer, Full-Stack Developer, MERN Stack, React Developer, Node.js, LeetCode, DSA, Shri Ramswaroop Memorial University, SIH 2026, KisanSarthi, Software Engineering Intern, Web Development",
+      },
+      {
+        name: "robots",
+        content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+      },
+      {
+        name: "googlebot",
+        content: "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+      },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
+      { property: "og:type", content: "profile" },
       { property: "og:url", content: `${PERSONAL_INFO.siteUrl}/` },
       { property: "og:image", content: PERSONAL_INFO.ogImage },
       { property: "og:image:secure_url", content: PERSONAL_INFO.ogImage },
@@ -47,20 +64,20 @@ export const Route = createFileRoute("/")({
       { name: "twitter:description", content: DESCRIPTION },
       { name: "twitter:image", content: PERSONAL_INFO.ogImage },
     ],
-    links: [{ rel: "canonical", href: `${PERSONAL_INFO.siteUrl}/` }],
+    links: [
+      { rel: "canonical", href: `${PERSONAL_INFO.siteUrl}/` },
+      {
+        rel: "alternate",
+        type: "text/plain",
+        href: "/llms.txt",
+        title: "LLM Context",
+      },
+      { rel: "sitemap", type: "application/xml", href: "/sitemap.xml" },
+    ],
     scripts: [
       {
         type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Person",
-          name: PERSONAL_INFO.name,
-          jobTitle: PERSONAL_INFO.role,
-          email: `mailto:${PERSONAL_INFO.email}`,
-          address: PERSONAL_INFO.location,
-          sameAs: [PERSONAL_INFO.github, PERSONAL_INFO.leetcode, PERSONAL_INFO.linkedin],
-          knowsAbout: ["Java", "Data Structures and Algorithms", "React", "Node.js", "MongoDB"],
-        }),
+        children: JSON.stringify(schemaData),
       },
     ],
   }),
@@ -89,6 +106,7 @@ function Index() {
           <Certifications />
           <AcademicGallery />
           <ResumeCTA />
+          <FAQ />
           <Contact />
         </main>
         <Footer />

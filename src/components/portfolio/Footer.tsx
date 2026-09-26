@@ -85,11 +85,32 @@ export function Footer() {
 
       <Reveal
         delay={80}
-        className="container-page mt-8 sm:mt-10 border-t border-border pt-5 sm:pt-6 flex flex-col sm:flex-row items-center justify-between gap-3"
+        className="container-page mt-8 sm:mt-10 border-t border-border pt-5 sm:pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] sm:text-xs text-muted-foreground"
       >
-        <p className="text-[11px] sm:text-xs text-muted-foreground">
+        <p>
           © {new Date().getFullYear()} {info.name}. Built with code and continuous learning.
         </p>
+
+        <div className="flex items-center gap-4">
+          <a
+            href="/sitemap.xml"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-foreground transition-colors"
+          >
+            Sitemap
+          </a>
+          <span className="opacity-30">•</span>
+          <a
+            href="/llms.txt"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-primary transition-colors"
+            title="Clean structured text designed for AI models & LLMs"
+          >
+            LLMs.txt (AI Profile)
+          </a>
+        </div>
       </Reveal>
     </footer>
   );

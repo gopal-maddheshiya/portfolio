@@ -7,6 +7,7 @@ import {
   Download,
   Github,
   Globe,
+  HelpCircle,
   Image as ImageIcon,
   Linkedin,
   Mail,
@@ -34,6 +35,7 @@ const NAV_ICONS: Record<string, typeof User> = {
   profiles: Globe,
   certifications: Award,
   gallery: ImageIcon,
+  faq: HelpCircle,
   contact: Mail,
 };
 

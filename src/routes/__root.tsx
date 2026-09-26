@@ -80,23 +80,46 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   },
   head: ({ loaderData }) => {
     const info = loaderData?.portfolioData?.personalInfo ?? PERSONAL_INFO;
+    const pageTitle = `${info.name} | ${info.role}`;
     return {
       meta: [
         { charSet: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
-        { title: `${info.name} | ${info.role}` },
+        { title: pageTitle },
         {
           name: "description",
           content: info.siteDescription,
         },
+        {
+          name: "keywords",
+          content:
+            "Gopal Maddheshiya, Gopal Maddheshiya SRMU, Java Developer, Full-Stack Developer, MERN Stack, React Developer, Node.js, LeetCode, DSA, Shri Ramswaroop Memorial University, SIH 2026, KisanSarthi, Software Engineering Intern, Web Development",
+        },
         { name: "author", content: info.name },
+        { name: "creator", content: info.name },
+        { name: "publisher", content: info.name },
+        {
+          name: "robots",
+          content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+        },
+        {
+          name: "googlebot",
+          content: "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        },
+        {
+          name: "bingbot",
+          content: "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        },
         { name: "theme-color", content: "#161618" },
+        { name: "application-name", content: `${info.name} Portfolio` },
         { property: "og:site_name", content: info.name },
-        { property: "og:type", content: "website" },
+        { property: "og:type", content: "profile" },
+        { property: "og:locale", content: "en_US" },
+        { property: "og:locale:alternate", content: "en_IN" },
         { property: "og:url", content: `${info.siteUrl}/` },
         {
           property: "og:title",
-          content: `${info.name} | ${info.role}`,
+          content: pageTitle,
         },
         {
           property: "og:description",
@@ -114,15 +137,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         { name: "twitter:card", content: "summary_large_image" },
         {
           name: "twitter:title",
-          content: `${info.name} | ${info.role}`,
+          content: pageTitle,
         },
         {
           name: "twitter:description",
           content: info.siteDescription,
         },
         { name: "twitter:image", content: info.ogImage },
+        { name: "twitter:creator", content: "@gopal_code" },
       ],
       links: [
+        {
+          rel: "canonical",
+          href: `${info.siteUrl}/`,
+        },
         {
           rel: "stylesheet",
           href: appCss,
@@ -134,6 +162,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           href: "https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap",
         },
         { rel: "icon", href: "/favicon.svg?v=2", type: "image/svg+xml" },
+        { rel: "manifest", href: "/site.webmanifest" },
+        {
+          rel: "alternate",
+          type: "text/plain",
+          href: "/llms.txt",
+          title: "LLM Context",
+        },
+        { rel: "me", href: info.github },
+        { rel: "me", href: info.linkedin },
+        { rel: "author", href: `${info.siteUrl}/` },
       ],
     };
   },

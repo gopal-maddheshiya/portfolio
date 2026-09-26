@@ -1,0 +1,58 @@
+# Gopal Maddheshiya
+
+> B.Tech Computer Science Engineering Student | Java & Full-Stack Developer | Problem Solver
+
+- Website: https://gopal-maddheshiya.vercel.app/
+- Location: Maharajganj, Uttar Pradesh, India
+- Email: gopalmaddheshiya138@gmail.com
+- Phone / WhatsApp: +91 6388354988
+- GitHub: https://github.com/gopal-maddheshiya
+- LinkedIn: https://www.linkedin.com/in/gopal-maddheshiya
+- LeetCode: https://leetcode.com/u/gopal-maddheshiya/
+- GeeksforGeeks: https://www.geeksforgeeks.org/profile/gopalmaddheshiya
+- CodeChef: https://www.codechef.com/users/gopal_code_96
+- HackerRank: https://www.hackerrank.com/profile/gopalmaddheshiy1
+- Resume: https://gopal-maddheshiya.vercel.app/gopal-cv.pdf
+
+## Overview
+Gopal Maddheshiya is an aspiring software engineer and full-stack developer currently pursuing a B.Tech in Computer Science and Engineering at Shri Ramswaroop Memorial University (SRMU, 2024–2028 batch, CGPA 7.63). He specializes in Java and Data Structures & Algorithms, combined with modern full-stack web engineering using React, Node.js, Express, and MongoDB.
+
+## Core Technical Skills
+- **Programming & Algorithms**: Java (OOP, Collections, Time & Space Big-O complexity analysis), Data Structures (Arrays, Strings, Recursion, Trees, Graphs, Two Pointers, Sliding Window).
+- **Frontend Development**: React 19, TypeScript, JavaScript (ES6+), Tailwind CSS v4, HTML5, CSS3, GSAP.
+- **Backend & APIs**: Node.js, Express.js, RESTful API architecture, JWT Authentication, Postman.
+- **Databases & Cloud**: MongoDB Atlas, Mongoose ODM, Supabase, PostgreSQL, MySQL.
+- **Developer Tools**: Git, GitHub, VS Code, IntelliJ IDEA, Vercel, Render.
+
+## Key Projects
+1. **KisanSarthi AI — Krishi Suraksha Platform (Smart India Hackathon 2026)**
+   - AI-powered agricultural decision support system with multimodal Gemini Vision disease diagnosis, microclimate risk telemetry, and ICAR advisory workflows.
+   - Stack: React 18, TypeScript, Google Gemini Vision AI, Supabase PostgreSQL, Leaflet.
+   - Repo: https://github.com/gopal-maddheshiya/krishi-suraksha-sih2026
+   - Live: https://krishi-suraksha-sih2026.vercel.app
+
+2. **Arun Gopal Traders — Bilingual E-Commerce Platform**
+   - Commercial grocery and retail e-commerce platform with real-time stock sync, Supabase PostgreSQL with RLS, bilingual i18n support, and automated PDF invoicing.
+   - Stack: React 19, TanStack Start, TypeScript, Supabase, PostgreSQL, Tailwind CSS v4, Gemini AI.
+   - Repo: https://github.com/gopal-maddheshiya/trading-company
+   - Live: https://arun-gopal-traders.vercel.app/
+
+3. **DSA & Interview Prep Tracker**
+   - Production-ready preparation platform to track problem-solving velocity, log multi-attempt learnings, and prioritize revision using an interval-based spaced repetition model.
+   - Stack: React.js, Node.js, Express.js, MongoDB Atlas, JWT Auth, Recharts, Tailwind CSS.
+   - Repo: https://github.com/gopal-maddheshiya/dsa-tracker
+   - Live: https://dsa-tracker-gopal.vercel.app
+
+4. **Node.js & MongoDB Message REST API**
+   - Full CRUD REST API with persistent cloud MongoDB storage deployed on Render.
+   - Stack: Node.js, Express.js, MongoDB, Mongoose.
+   - Repo: https://github.com/gopal-maddheshiya/node-chat-api
+
+## Problem Solving & Achievements
+- **LeetCode**: 54+ verified Java solutions with detailed Big-O analysis.
+- **Competitions**: Smart India Hackathon (SIH 2026) Participant; SRMU VIVEKA 5.0 'Find The Language' Competition Winner.
+- **Certificates**: Semantic HTML5 & Modern Responsive CSS3 certified.
+
+## Availability & Contact
+- **Internships**: Actively seeking Summer 2026 Software Development Engineer (SDE), Full-Stack, and Java internship opportunities (Remote or On-Site across India).
+- **Direct Contact**: gopalmaddheshiya138@gmail.com | WhatsApp: +91 6388354988

@@ -1,0 +1,22 @@
+{
+  "name": "Gopal Maddheshiya | Java & Full-Stack Developer",
+  "short_name": "Gopal Portfolio",
+  "description": "Portfolio and Knowledge Base of Gopal Maddheshiya — Java & Full-Stack Developer, B.Tech CSE student at SRMU.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#161618",
+  "theme_color": "#161618",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg"
+    }
+  ]
+}

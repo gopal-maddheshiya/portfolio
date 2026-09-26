@@ -240,6 +240,8 @@ export function Hero() {
     <section
       ref={containerRef}
       id="top"
+      itemScope
+      itemType="https://schema.org/Person"
       className="relative overflow-hidden pt-6 pb-16 sm:py-16 md:py-20 lg:py-24"
     >
       {/* Background grid */}
@@ -270,14 +272,14 @@ export function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
               <span className="relative inline-flex size-2 rounded-full bg-primary" />
             </span>
-            <span>{hero.greetingBadge || `Hi, I'm ${info.name}`}</span>
+            <span itemProp="name">{hero.greetingBadge || `Hi, I'm ${info.name}`}</span>
           </div>
 
           {/* Heading with masked line reveals + typewriter that starts after the reveal */}
           <h1 className="hero-anim-title mt-4 sm:mt-6 text-2xl sm:text-3xl md:text-4xl lg:text-[3.1rem] font-bold leading-[1.22] tracking-tight text-foreground">
-            {/* Semantic full heading for screen readers & search engines (WCAG 2.4.6) */}
+            {/* Semantic full heading for screen readers & search engines (WCAG 2.4.6 & SEO/AEO) */}
             <span className="sr-only">
-              {hero.headlinePrefix || "Building software as a"}{" "}
+              {info.name} — {hero.headlinePrefix || "Building software as a"}{" "}
               {(hero.typewriterRoles && hero.typewriterRoles[0]) || DEFAULT_TYPING_ROLES[0]}
             </span>
 

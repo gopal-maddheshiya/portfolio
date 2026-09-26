@@ -1,19 +1,70 @@
+# Robots.txt for Gopal Maddheshiya Portfolio
+# Optimized for Search Engine Optimization (SEO), Answer Engine Optimization (AEO), and Generative Engine Optimization (GEO)
+
+# General Web Crawlers
+User-agent: *
+Allow: /
+Disallow: /admin
+
+# Google Crawlers (Search & AI Overviews)
 User-agent: Googlebot
 Allow: /
 Disallow: /admin
 
+User-agent: Google-Extended
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+
+# Microsoft Bing & Copilot
 User-agent: Bingbot
 Allow: /
 Disallow: /admin
 
+# OpenAI & ChatGPT Search (AEO / GEO)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Perplexity AI (AEO)
+User-agent: PerplexityBot
+Allow: /
+
+# Anthropic Claude
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+# Apple Intelligence
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Other Search & Social Bots
 User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
+User-agent: LinkedInBot
 Allow: /
-Disallow: /admin
 
+User-agent: Slackbot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+# Sitemaps & AI Context
 Sitemap: https://gopal-maddheshiya.vercel.app/sitemap.xml

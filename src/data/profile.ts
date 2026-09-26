@@ -707,5 +707,6 @@ export const NAV_LINKS = [
   { id: "profiles", label: "Profiles" },
   { id: "certifications", label: "Certificates" },
   { id: "gallery", label: "Gallery" },
+  { id: "faq", label: "FAQ" },
   { id: "contact", label: "Contact" },
 ];
