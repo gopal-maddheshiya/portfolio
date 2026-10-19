@@ -270,10 +270,6 @@ export function CutoutPortrait({
             <span className="font-display font-semibold text-xs sm:text-sm text-foreground tracking-tight whitespace-nowrap">
               {badgeRole}
             </span>
-            <span className="relative flex size-2 shrink-0 ml-0.5" aria-hidden="true">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
-            </span>
           </div>
         </div>
       </div>
