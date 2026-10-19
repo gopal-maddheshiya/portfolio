@@ -5,6 +5,8 @@ import {
   RECORD_ID,
   TABLE_NAME,
   fetchPortfolioData,
+  getLocalStoredPortfolioData,
+  setLocalStoredPortfolioData,
   parsePortfolioContent,
   savePortfolioData,
   supabase,
@@ -15,6 +17,7 @@ interface PortfolioContextType {
   data: PortfolioData;
   isLoading: boolean;
   isSaving: boolean;
+  isDirty: boolean;
   updateData: (updater: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData)) => void;
   saveData: (customData?: PortfolioData) => Promise<boolean>;
   resetToDefaults: () => void;
@@ -46,9 +49,23 @@ export function PortfolioProvider({
   children: React.ReactNode;
   initialData?: PortfolioData;
 }) {
-  const [data, setData] = useState<PortfolioData>(() => initialData || DEFAULT_PORTFOLIO_DATA);
+  const [data, setData] = useState<PortfolioData>(() => {
+    if (typeof window !== "undefined") {
+      const local = getLocalStoredPortfolioData();
+      if (local?.updatedAt) {
+        if (
+          !initialData?.updatedAt ||
+          new Date(local.updatedAt).getTime() >= new Date(initialData.updatedAt).getTime()
+        ) {
+          return local;
+        }
+      }
+    }
+    return initialData || DEFAULT_PORTFOLIO_DATA;
+  });
   const [isLoading, setIsLoading] = useState<boolean>(!initialData);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isDirty, setIsDirty] = useState<boolean>(false);
 
   const lastFetchTimeRef = useRef<number>(Date.now());
 
@@ -66,6 +83,13 @@ export function PortfolioProvider({
       setData((prev) => {
         if (arePortfolioContentsEqual(prev, remoteData)) {
           return prev;
+        }
+        // Timestamp conflict protection: Never overwrite local data if local has newer edits
+        if (prev.updatedAt && remoteData.updatedAt) {
+          if (new Date(prev.updatedAt).getTime() > new Date(remoteData.updatedAt).getTime()) {
+            console.log("⚡ [Context] Preserving newer local edits over older remote database row");
+            return prev;
+          }
         }
         notifyContentUpdate();
         return remoteData;
@@ -104,8 +128,17 @@ export function PortfolioProvider({
           if (payload.new && typeof payload.new === "object" && "content" in payload.new) {
             const raw = payload.new as { content?: unknown; updated_at?: string };
             const parsed = parsePortfolioContent(raw.content, raw.updated_at);
-            setData(parsed);
-            notifyContentUpdate();
+            setData((prev) => {
+              if (prev.updatedAt && parsed.updatedAt) {
+                if (new Date(prev.updatedAt).getTime() > new Date(parsed.updatedAt).getTime()) {
+                  console.log("⚡ [Realtime Sync] Ignored older remote update");
+                  return prev;
+                }
+              }
+              setLocalStoredPortfolioData(parsed);
+              notifyContentUpdate();
+              return parsed;
+            });
           } else {
             loadData(true);
           }
@@ -130,6 +163,7 @@ export function PortfolioProvider({
             console.log("⚡ [Cross-Tab Sync] Instant sync received from Admin Studio");
             const parsed = parsePortfolioContent(event.data.payload, new Date().toISOString());
             setData(parsed);
+            setLocalStoredPortfolioData(parsed);
             notifyContentUpdate();
           }
         };
@@ -170,18 +204,20 @@ export function PortfolioProvider({
         document.removeEventListener("visibilitychange", handleVisibility);
       }
     };
-  }, [loadData]);
+  }, [loadData, initialData]);
 
   const updateData = (
     updater: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData),
   ) => {
     // Mark as dirty — prevents remote sync from overwriting local edits
     isDirtyRef.current = true;
-    if (typeof updater === "function") {
-      setData((prev) => updater(prev));
-    } else {
-      setData((prev) => ({ ...prev, ...updater }));
-    }
+    setIsDirty(true);
+    setData((prev) => {
+      const next = typeof updater === "function" ? updater(prev) : { ...prev, ...updater };
+      // Save synchronously to localStorage so that sudden reloads or tab switches never lose edits
+      setLocalStoredPortfolioData(next);
+      return next;
+    });
   };
 
   const saveData = async (customData?: PortfolioData): Promise<boolean> => {
@@ -189,24 +225,28 @@ export function PortfolioProvider({
     try {
       setIsSaving(true);
       const res = await savePortfolioData(dataToSave);
+      const updated = { ...dataToSave, updatedAt: new Date().toISOString() };
+      setData(updated);
+      setLocalStoredPortfolioData(updated);
+      isDirtyRef.current = false;
+      setIsDirty(false);
+
+      // Notify all open tabs instantly in < 5ms without page reload
+      if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+        try {
+          const bc = new BroadcastChannel("gopal_portfolio_tab_sync");
+          bc.postMessage({ type: "PORTFOLIO_SAVED", payload: updated });
+          bc.close();
+        } catch {
+          // Handled by Supabase Realtime channel
+        }
+      }
+
       if (res.success) {
         toast.success("Portfolio changes saved live!");
-        const updated = { ...dataToSave, updatedAt: new Date().toISOString() };
-        setData(updated);
-        // Clear dirty flag — remote sync can resume now
-        isDirtyRef.current = false;
-
-        // Notify all open tabs instantly in < 5ms without page reload
-        if (typeof window !== "undefined" && "BroadcastChannel" in window) {
-          try {
-            const bc = new BroadcastChannel("gopal_portfolio_tab_sync");
-            bc.postMessage({ type: "PORTFOLIO_SAVED", payload: dataToSave });
-            bc.close();
-          } catch {
-            // Handled by Supabase Realtime channel
-          }
-        }
-
+        return true;
+      } else if (res.savedLocally) {
+        toast.success("Changes saved locally in your browser!");
         return true;
       } else {
         toast.error(`Save failed: ${res.error || "Unknown error"}`);
@@ -223,8 +263,10 @@ export function PortfolioProvider({
 
   const resetToDefaults = () => {
     setData(DEFAULT_PORTFOLIO_DATA);
+    setLocalStoredPortfolioData(DEFAULT_PORTFOLIO_DATA);
     isDirtyRef.current = false;
-    toast.info("Reset to default profile values. Click 'Save' to persist.");
+    setIsDirty(false);
+    toast.info("Reset to default profile values. Click 'Save Live' to persist.");
   };
 
   return (
@@ -233,6 +275,7 @@ export function PortfolioProvider({
         data,
         isLoading,
         isSaving,
+        isDirty,
         updateData,
         saveData,
         resetToDefaults,
@@ -253,6 +296,7 @@ export function usePortfolio() {
       data: DEFAULT_PORTFOLIO_DATA,
       isLoading: false,
       isSaving: false,
+      isDirty: false,
       updateData: () => {},
       saveData: async () => false,
       resetToDefaults: () => {},

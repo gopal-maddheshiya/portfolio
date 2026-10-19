@@ -36,7 +36,7 @@ export function FileUploader({
       const res = await uploadPortfolioFile(file, folder);
       if (res.url) {
         onChange(res.url);
-        toast.success("Document uploaded successfully! Click 'Save Live' to publish.");
+        toast.success("Document uploaded and updated successfully!");
       } else {
         toast.error(`Upload error: ${res.error || "Failed to upload document"}`);
       }

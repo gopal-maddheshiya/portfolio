@@ -3,8 +3,7 @@ import { ArrowRight, Code2, FileText, Github, Linkedin, MapPin } from "lucide-re
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import profilePhoto from "@/assets/gopal-profile.jpg";
-import { HangingIdCard } from "@/components/portfolio/HangingIdCard";
+import { CutoutPortrait } from "@/components/portfolio/CutoutPortrait";
 import { usePortfolio } from "@/context/PortfolioContext";
 import { handleAnchorClick } from "@/lib/scroll";
 
@@ -263,7 +262,7 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="hero-anim-content container-page relative grid gap-10 sm:gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-center">
+      <div className="hero-anim-content container-page relative grid gap-6 sm:gap-8 lg:gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-center">
         {/* Left Column: Intro & Call to Actions */}
         <div className="flex flex-col items-start min-w-0">
           {/* Greeting Badge */}
@@ -382,44 +381,21 @@ export function Hero() {
           </ul>
         </div>
 
-        {/* Right Column: Clean Profile Photo with Attached Floating Badges & Compact Top Hanger */}
-        <div className="flex justify-center lg:justify-end min-w-0">
+        {/* Right Column: Premium Cutout Portrait with Abstract Orange Shape */}
+        <div className="flex justify-center lg:justify-end min-w-0 -mt-2 sm:mt-0">
           <div className="hero-photo-entrance relative group shrink-0">
-            {/* Main Photo Card Container with Attached Badges & Compact Top Hanger */}
-            <HangingIdCard
+            <CutoutPortrait
               photoSrc={
-                info.profilePhoto &&
-                (info.profilePhoto.startsWith("http://") ||
-                  info.profilePhoto.startsWith("https://") ||
-                  info.profilePhoto.startsWith("data:"))
-                  ? info.profilePhoto
-                  : profilePhoto
+                info.profilePhoto && info.profilePhoto.trim().length > 0
+                  ? info.profilePhoto.trim()
+                  : undefined
               }
               name={info.name || "Gopal Maddheshiya"}
-              subtitle={info.subtitle || "Java & Full-Stack Developer · DSA & API Integration"}
-              floatingBadge1={
-                <div className="aurora-badge-wrapper rounded-full">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-card/95 dark:bg-card/90 px-3 py-1.5 backdrop-blur-md transition-transform hover:scale-105 pointer-events-auto select-none">
-                    <div className="flex size-5 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/20">
-                      <JavaIcon className="size-3.5" />
-                    </div>
-                    <span className="font-semibold text-xs text-foreground">
-                      {hero.floatingBadge1 || "Java • DSA"}
-                    </span>
-                  </div>
-                </div>
-              }
-              floatingBadge2={
-                <div className="aurora-badge-wrapper rounded-full">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-card/95 dark:bg-card/90 px-3 py-1.5 backdrop-blur-md transition-transform hover:scale-105 pointer-events-auto select-none">
-                    <div className="flex size-5 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                      <ReactIcon className="size-3.5" />
-                    </div>
-                    <span className="font-semibold text-xs text-foreground">
-                      {hero.floatingBadge2 || "Full-Stack"}
-                    </span>
-                  </div>
-                </div>
+              badge1={hero.floatingBadge1 || "Java • DSA"}
+              badgeRole={
+                hero.floatingBadge2 && hero.floatingBadge2 !== "Full-Stack"
+                  ? hero.floatingBadge2
+                  : "Full-Stack Developer"
               }
             />
           </div>

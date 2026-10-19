@@ -36,7 +36,7 @@ export function ImageUploader({
       const res = await uploadPortfolioImage(file, folder);
       if (res.url) {
         onChange(res.url);
-        toast.success("Image uploaded successfully! Click 'Save Live' to persist.");
+        toast.success("Image uploaded and updated successfully!");
       } else {
         toast.error(`Upload error: ${res.error || "Failed"}`);
       }

@@ -428,7 +428,7 @@ export function HangingIdCard({
       // Direct synchronous DOM update for ZERO drag latency!
       applyTransform(physRef.current.angle);
     },
-    [applyTransform],
+    [applyTransform, tick],
   );
 
   const onPointerUp = useCallback(
@@ -475,7 +475,7 @@ export function HangingIdCard({
         physRef.current.vel += e.movementX > 0 ? 0.07 : -0.07;
       }
     },
-    [applyTransform],
+    [applyTransform, isSettled, hasInteracted],
   );
 
   const handleCardMouseLeave = useCallback(() => {

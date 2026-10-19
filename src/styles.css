@@ -598,6 +598,87 @@
   .animate-mouse-wheel {
     animation: mouse-wheel-roll 1.5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
   }
+
+  /* Cutout Portrait Animations */
+  @keyframes cutout-blob-drift {
+    0% {
+      transform: translateY(0px) scale(1) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-8px) scale(1.015) rotate(1.2deg);
+    }
+    100% {
+      transform: translateY(0px) scale(1) rotate(0deg);
+    }
+  }
+
+  @keyframes cutout-ambient-glow {
+    0%,
+    100% {
+      opacity: 0.75;
+      transform: scale(0.98);
+    }
+    50% {
+      opacity: 0.95;
+      transform: scale(1.04);
+    }
+  }
+
+  /* Ultra-high classy orbital ring animations */
+  @keyframes cutout-orbit-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes cutout-orbit-spin-reverse {
+    from {
+      transform: rotate(360deg);
+    }
+    to {
+      transform: rotate(0deg);
+    }
+  }
+
+  @keyframes cutout-pulse-glow {
+    0%,
+    100% {
+      opacity: 0.85;
+      filter: drop-shadow(0 0 6px rgba(249, 115, 22, 0.45));
+    }
+    50% {
+      opacity: 1;
+      filter: drop-shadow(0 0 14px rgba(6, 182, 212, 0.7));
+    }
+  }
+
+  .cutout-blob-floating {
+    animation: cutout-blob-drift 8s ease-in-out infinite;
+    transform-origin: center center;
+  }
+
+  .animate-ambient-glow {
+    animation: cutout-ambient-glow 6s ease-in-out infinite;
+  }
+
+  .cutout-orbit-clockwise {
+    transform-origin: 250px 250px;
+    animation: cutout-orbit-spin 26s linear infinite;
+    will-change: transform;
+  }
+
+  .cutout-orbit-counter {
+    transform-origin: 250px 250px;
+    animation: cutout-orbit-spin-reverse 44s linear infinite;
+    will-change: transform;
+  }
+
+  .cutout-shimmer {
+    animation: cutout-pulse-glow 5s ease-in-out infinite;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

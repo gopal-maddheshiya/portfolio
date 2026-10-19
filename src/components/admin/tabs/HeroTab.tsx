@@ -8,9 +8,10 @@ import { FileUploader } from "@/components/admin/ui/FileUploader";
 interface HeroTabProps {
   data: PortfolioData;
   updateData: (updater: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData)) => void;
+  saveData?: (customData?: PortfolioData) => Promise<boolean>;
 }
 
-export function HeroTab({ data, updateData }: HeroTabProps) {
+export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
   const info = data.personalInfo;
   const hero = data.heroData;
 
@@ -221,7 +222,16 @@ export function HeroTab({ data, updateData }: HeroTabProps) {
       <ImageUploader
         label="Hero Profile Photo (Homepage Hanging ID Avatar)"
         value={info.profilePhoto || ""}
-        onChange={(url) => updateData({ personalInfo: { ...info, profilePhoto: url } })}
+        onChange={(url) => {
+          const updated = {
+            ...data,
+            personalInfo: { ...info, profilePhoto: url },
+          };
+          updateData(updated);
+          if (saveData) {
+            saveData(updated);
+          }
+        }}
         folder="profile"
         aspectRatio="portrait"
         aspectRatioLabel="Recommended: 4:5 Portrait or 1:1 Square (800 × 1000 px)"
@@ -232,7 +242,16 @@ export function HeroTab({ data, updateData }: HeroTabProps) {
       <FileUploader
         label="Resume PDF Document (Universal Single Source)"
         value={info.resume || ""}
-        onChange={(url) => updateData({ personalInfo: { ...info, resume: url } })}
+        onChange={(url) => {
+          const updated = {
+            ...data,
+            personalInfo: { ...info, resume: url },
+          };
+          updateData(updated);
+          if (saveData) {
+            saveData(updated);
+          }
+        }}
         folder="resumes"
         formatBadge="PDF Document"
         helpText="Universal Single Source of Truth: When you upload your resume PDF here, it automatically syncs across the Hero button, Navbar button, Mobile Menu, and Resume CTA Banner."

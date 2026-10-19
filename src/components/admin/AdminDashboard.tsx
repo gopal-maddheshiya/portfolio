@@ -62,10 +62,21 @@ interface NavGroup {
 }
 
 export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
-  const { data, updateData, saveData, resetToDefaults, isSaving } = usePortfolio();
+  const { data, updateData, saveData, resetToDefaults, isSaving, isDirty } = usePortfolio();
   const [activeTab, setActiveTab] = useState<TabType>("hero");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Debounced auto-save: automatically persist changes 2.5s after user stops typing
+  useEffect(() => {
+    if (!isDirty || isSaving) return;
+
+    const timer = setTimeout(() => {
+      saveData();
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, [data, isDirty, isSaving, saveData]);
 
   // Global Ctrl+S / Cmd+S Save Shortcut
   useEffect(() => {
@@ -192,12 +203,14 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
     })
     .filter((group) => group.items.length > 0);
 
+  const defaultGroup = navGroups[0]!;
+  const defaultItem = defaultGroup.items[0]!;
+
   const currentTabGroup =
-    navGroups.find((g) => g.items.some((item) => item.id === activeTab)) || navGroups[0];
+    navGroups.find((g) => g.items.some((item) => item.id === activeTab)) ?? defaultGroup;
 
   const currentTabItem =
-    navGroups.flatMap((g) => g.items).find((item) => item.id === activeTab) ||
-    navGroups[0].items[0];
+    navGroups.flatMap((g) => g.items).find((item) => item.id === activeTab) ?? defaultItem;
 
   const CurrentTabIcon = currentTabItem.icon;
 
@@ -507,10 +520,37 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
             {/* Right: Quick Action Buttons */}
             <div className="flex items-center gap-2 shrink-0">
+              {/* Sync Status Badge */}
+              <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-border/80 bg-card/60 shadow-2xs">
+                {isSaving ? (
+                  <>
+                    <span className="size-2 rounded-full bg-amber-500 animate-pulse" />
+                    <span className="text-amber-500 font-mono text-[11px]">Saving...</span>
+                  </>
+                ) : isDirty ? (
+                  <>
+                    <span className="size-2 rounded-full bg-amber-400" />
+                    <span className="text-amber-500 font-mono text-[11px]">
+                      Unsaved edits (Auto-saving)
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="size-2 rounded-full bg-emerald-500" />
+                    <span className="text-emerald-500 font-mono text-[11px]">Saved live</span>
+                  </>
+                )}
+              </div>
+
               <a
                 href="/"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => {
+                  if (isDirty) {
+                    saveData();
+                  }
+                }}
                 title="Preview portfolio live"
                 className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-card hover:bg-secondary px-3 py-1.5 text-xs font-semibold text-foreground transition-all shadow-2xs cursor-pointer"
               >
@@ -551,7 +591,9 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
 
         {/* Tab Forms Body Container */}
         <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-8 py-6 sm:py-8 pb-16">
-          {activeTab === "hero" && <HeroTab data={data} updateData={updateData} />}
+          {activeTab === "hero" && (
+            <HeroTab data={data} updateData={updateData} saveData={saveData} />
+          )}
           {activeTab === "about" && <AboutTab data={data} updateData={updateData} />}
           {activeTab === "projects" && <ProjectsTab data={data} updateData={updateData} />}
           {activeTab === "skills" && <SkillsTab data={data} updateData={updateData} />}

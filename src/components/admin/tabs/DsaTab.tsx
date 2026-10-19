@@ -49,9 +49,11 @@ export function DsaTab({ data, updateData }: DsaTabProps) {
 
   // Helper to recalculate total and percentages
   const handleDifficultyChange = (index: number, newCount: number) => {
+    const target = difficulty[index];
+    if (!target) return;
     const safeCount = Math.max(0, isNaN(newCount) ? 0 : newCount);
     const updated = [...difficulty];
-    updated[index] = { ...updated[index], count: safeCount };
+    updated[index] = { ...target, count: safeCount };
 
     const total = updated.reduce((sum, item) => sum + item.count, 0);
     const withPercents = updated.map((item) => ({
