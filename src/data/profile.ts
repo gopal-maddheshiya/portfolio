@@ -51,10 +51,7 @@ export interface HeroData {
   headlinePrefix: string;
   typewriterRoles: string[];
   floatingBadge1: string;
-  floatingBadge1Sub?: string;
   floatingBadge2: string;
-  floatingBadge2Sub?: string;
-  cutoutPhoto?: string;
   availabilityStatus: string;
 }
 
@@ -68,10 +65,7 @@ export const HERO_DATA: HeroData = {
     "B.Tech CSE Student",
   ],
   floatingBadge1: "Java • DSA",
-  floatingBadge1Sub: "Problem Solver",
-  floatingBadge2: "Full-Stack Craft",
-  floatingBadge2Sub: "React • Node • APIs",
-  cutoutPhoto: "",
+  floatingBadge2: "Full-Stack Developer",
   availabilityStatus: "Online",
 };
 

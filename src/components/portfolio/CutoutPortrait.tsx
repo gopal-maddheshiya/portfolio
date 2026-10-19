@@ -6,12 +6,10 @@ interface CutoutPortraitProps {
   photoSrc?: string | undefined;
   name?: string | undefined;
   badge1?: string | undefined;
-  badge1Sub?: string | undefined;
-  badge2?: string | undefined;
-  badge2Sub?: string | undefined;
+  badgeRole?: string | undefined;
 }
 
-function JavaIcon({ className = "size-4" }: { className?: string }) {
+function JavaIcon({ className = "size-3.5" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
@@ -60,33 +58,138 @@ export function CutoutPortrait({
   photoSrc,
   name = "Gopal Maddheshiya",
   badge1 = "Java • DSA",
-  badge1Sub = "Problem Solver",
-  badge2 = "Full-Stack Craft",
-  badge2Sub = "React • Node • APIs",
+  badgeRole = "Full-Stack Developer",
 }: CutoutPortraitProps) {
-  // Prefer the studio transparent cutout if no custom cutout is provided or if pointing to default jpg
-  const resolvePhoto = (src?: string) => {
-    if (!src || src.trim().length === 0) return gopalCutout;
-    const clean = src.trim();
-    if (clean.includes("gopal-profile")) return gopalCutout;
-    return clean;
+  // Helper to test if image is Gopal's photo (default asset, uploaded me-b.png, or gopal-profile)
+  const isGopalPhoto = (src?: string) => {
+    if (!src || src.trim().length === 0) return true;
+    const clean = src.trim().toLowerCase();
+    return (
+      clean.includes("gopal-profile") ||
+      clean.includes("me-b") ||
+      clean.includes("gopal-cutout") ||
+      clean.includes("default")
+    );
   };
 
-  const [currentPhoto, setCurrentPhoto] = useState<string>(() => resolvePhoto(photoSrc));
+  const initialSource = isGopalPhoto(photoSrc) ? gopalCutout : photoSrc!.trim();
+  const [currentPhoto, setCurrentPhoto] = useState<string>(initialSource);
 
   useEffect(() => {
-    setCurrentPhoto(resolvePhoto(photoSrc));
+    if (isGopalPhoto(photoSrc)) {
+      setCurrentPhoto(gopalCutout);
+      return;
+    }
+
+    const cleanSrc = photoSrc!.trim();
+    let isCancelled = false;
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      if (isCancelled) return;
+      try {
+        const canvas = document.createElement("canvas");
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          setCurrentPhoto(cleanSrc);
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0);
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const data = imgData.data;
+
+        // Check if image already has transparent pixels
+        let hasAlpha = false;
+        for (let i = 3; i < data.length; i += 40) {
+          const a = data[i] ?? 255;
+          if (a < 200) {
+            hasAlpha = true;
+            break;
+          }
+        }
+
+        if (hasAlpha) {
+          setCurrentPhoto(cleanSrc);
+          return;
+        }
+
+        // If opaque image, knock out outer background from left/right/top so it never overrides the orange shape
+        const bgR = data[0] ?? 0;
+        const bgG = data[1] ?? 0;
+        const bgB = data[2] ?? 0;
+
+        for (let y = 0; y < h; y++) {
+          for (let x = 0; x < w * 0.48; x++) {
+            const idx = (y * w + x) * 4;
+            const r = data[idx] ?? 0;
+            const g = data[idx + 1] ?? 0;
+            const b = data[idx + 2] ?? 0;
+            const d = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
+            if (d < 30) {
+              data[idx + 3] = 0;
+            } else {
+              break;
+            }
+          }
+          for (let x = w - 1; x > w * 0.52; x--) {
+            const idx = (y * w + x) * 4;
+            const r = data[idx] ?? 0;
+            const g = data[idx + 1] ?? 0;
+            const b = data[idx + 2] ?? 0;
+            const d = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
+            if (d < 30) {
+              data[idx + 3] = 0;
+            } else {
+              break;
+            }
+          }
+        }
+
+        for (let x = 0; x < w; x++) {
+          for (let y = 0; y < h * 0.35; y++) {
+            const idx = (y * w + x) * 4;
+            const r = data[idx] ?? 0;
+            const g = data[idx + 1] ?? 0;
+            const b = data[idx + 2] ?? 0;
+            const d = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
+            if (d < 30) {
+              data[idx + 3] = 0;
+            } else {
+              break;
+            }
+          }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+        setCurrentPhoto(canvas.toDataURL("image/webp", 0.95));
+      } catch {
+        setCurrentPhoto(cleanSrc);
+      }
+    };
+    img.onerror = () => {
+      if (!isCancelled) setCurrentPhoto(gopalCutout);
+    };
+    img.src = cleanSrc;
+
+    return () => {
+      isCancelled = true;
+    };
   }, [photoSrc]);
 
   return (
     <div className="relative w-full max-w-[275px] xs:max-w-[315px] sm:max-w-[360px] md:max-w-[395px] lg:max-w-[420px] xl:max-w-[430px] aspect-square flex items-center justify-center select-none isolate">
-      {/* ── Layer 0: Controlled Ambient Glow Behind Blob & Portrait (Softened & Refined) ── */}
+      {/* ── Layer 0: Controlled, Softened Ambient Glow Behind Blob & Portrait ── */}
       <div
-        className="absolute inset-0 -inset-x-3 -inset-y-3 rounded-full bg-[radial-gradient(ellipse_at_50%_45%,rgba(249,115,22,0.11),rgba(249,115,22,0.02)_50%,transparent_70%)] blur-lg sm:blur-xl pointer-events-none opacity-45 animate-ambient-glow -z-10"
+        className="absolute inset-0 -inset-x-4 -inset-y-4 rounded-full bg-[radial-gradient(ellipse_at_50%_45%,rgba(249,115,22,0.14),rgba(249,115,22,0.03)_50%,transparent_70%)] blur-xl sm:blur-2xl pointer-events-none opacity-55 animate-ambient-glow -z-10"
         aria-hidden="true"
       />
       <div
-        className="absolute top-1/4 right-1/4 size-28 sm:size-36 rounded-full bg-cyan-500/5 blur-xl pointer-events-none -z-10"
+        className="absolute top-1/4 right-1/4 size-32 sm:size-40 rounded-full bg-cyan-500/5 blur-2xl pointer-events-none -z-10"
         aria-hidden="true"
       />
 
@@ -94,7 +197,7 @@ export function CutoutPortrait({
       <div className="absolute inset-0 size-[92%] sm:size-[90%] m-auto pointer-events-none z-10 flex items-center justify-center">
         <svg
           viewBox="0 0 500 500"
-          className="size-full cutout-blob-floating filter drop-shadow-[0_6px_14px_rgba(234,88,12,0.13)]"
+          className="size-full cutout-blob-floating filter drop-shadow-[0_8px_18px_rgba(234,88,12,0.16)]"
           xmlns="http://www.w3.org/2000/svg"
           aria-hidden="true"
         >
@@ -220,7 +323,7 @@ export function CutoutPortrait({
         </g>
       </svg>
 
-      {/* ── Layer 3: Foreground Background-Free Portrait Cutout with Softened Shadow & Aperture ── */}
+      {/* ── Layer 3: Foreground Background-Free Portrait Cutout with Softened Shadow ── */}
       <div className="relative z-20 w-[92%] sm:w-[88%] h-auto max-h-[96%] flex items-end justify-center pointer-events-none">
         <img
           src={currentPhoto}
@@ -234,81 +337,43 @@ export function CutoutPortrait({
               setCurrentPhoto(defaultProfilePhoto);
             }
           }}
-          className="w-full h-auto object-contain object-bottom drop-shadow-[0_4px_10px_rgba(0,0,0,0.18)] transition-transform duration-500 hover:scale-[1.015] pointer-events-auto"
+          className="w-full h-auto object-contain object-bottom drop-shadow-[0_6px_14px_rgba(0,0,0,0.22)] transition-transform duration-500 hover:scale-[1.015] pointer-events-auto"
         />
       </div>
 
-      {/* ── Layer 4A: Top-Left Luxury Floating HUD Card (Core Stack & Algorithms) ── */}
+      {/* ── Layer 4A: Top-Left Floating Aurora Pill (Java • DSA) ── */}
       {badge1 && (
-        <div className="absolute top-3 sm:top-5 -left-2 sm:-left-5 z-30 pointer-events-auto select-none group/badge transition-transform hover:-translate-y-0.5 duration-300">
-          <div className="relative rounded-2xl p-[1px] bg-gradient-to-br from-amber-500/40 via-white/10 to-amber-500/10 shadow-[0_8px_24px_rgba(0,0,0,0.35)] backdrop-blur-xl">
-            {/* Top specular glow line */}
-            <div className="absolute inset-x-3 top-0 h-[1px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent pointer-events-none" />
-
-            <div className="flex items-center gap-2.5 sm:gap-3 rounded-2xl bg-[#0d0e15]/95 dark:bg-[#0d0e15]/95 px-3 sm:px-3.5 py-2 sm:py-2.5">
-              {/* Glowing Icon Hub */}
-              <div className="relative flex size-7 sm:size-8 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500/15 to-orange-600/10 border border-amber-500/30 text-[#E76F00] shrink-0 shadow-[0_0_12px_rgba(245,158,11,0.2)]">
-                <JavaIcon className="size-4 sm:size-4.5" />
-                <span className="absolute -top-0.5 -right-0.5 size-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_#f59e0b]" />
+        <div className="absolute top-4 sm:top-6 -left-1 sm:-left-3 z-30 pointer-events-auto select-none transition-transform hover:scale-105 duration-300">
+          <div className="aurora-badge-wrapper rounded-full shadow-md shadow-black/25">
+            <div className="inline-flex items-center gap-2 rounded-full bg-card/95 dark:bg-[#0f1016]/95 px-3 py-1.5 sm:px-3.5 sm:py-1.5 backdrop-blur-md">
+              <div className="flex size-5 sm:size-5.5 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/20 text-[#E76F00] shrink-0">
+                <JavaIcon className="size-3.5" />
               </div>
-
-              {/* Text Meta */}
-              <div className="flex flex-col text-left">
-                <span className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-amber-400/90 leading-tight">
-                  Core Stack
-                </span>
-                <span className="font-display font-bold text-xs sm:text-[13px] text-white tracking-tight leading-tight mt-0.5">
-                  {badge1}
-                </span>
-                {badge1Sub && (
-                  <span className="text-[10px] text-zinc-400 font-medium leading-none mt-0.5">
-                    {badge1Sub}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Layer 4B: Bottom-Right Luxury Floating HUD Card (Modern Web Craft) ── */}
-      {badge2 && (
-        <div className="absolute -bottom-3 sm:-bottom-2 -right-1 sm:-right-4 z-30 pointer-events-auto select-none group/badge transition-transform hover:-translate-y-0.5 duration-300">
-          <div className="relative rounded-2xl p-[1px] bg-gradient-to-br from-cyan-400/40 via-white/10 to-cyan-500/10 shadow-[0_8px_24px_rgba(0,0,0,0.35)] backdrop-blur-xl">
-            {/* Top specular glow line */}
-            <div className="absolute inset-x-3 top-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent pointer-events-none" />
-
-            <div className="flex items-center gap-2.5 sm:gap-3 rounded-2xl bg-[#0d0e15]/95 dark:bg-[#0d0e15]/95 px-3.5 sm:px-4 py-2 sm:py-2.5">
-              {/* Glowing Icon Hub */}
-              <div className="relative flex size-7 sm:size-8 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500/15 to-blue-600/10 border border-cyan-400/30 text-[#61DAFB] shrink-0 shadow-[0_0_12px_rgba(6,182,212,0.25)]">
-                <ReactIcon className="size-4 sm:size-4.5" />
-                <span className="absolute -top-0.5 -right-0.5 size-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_#06b6d4]" />
-              </div>
-
-              {/* Text Meta */}
-              <div className="flex flex-col text-left">
-                <span className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-cyan-400/90 leading-tight">
-                  Architecture
-                </span>
-                <span className="font-display font-bold text-xs sm:text-[13px] text-white tracking-tight leading-tight mt-0.5">
-                  {badge2}
-                </span>
-                {badge2Sub && (
-                  <span className="text-[10px] text-zinc-400 font-medium leading-none mt-0.5">
-                    {badge2Sub}
-                  </span>
-                )}
-              </div>
-
-              {/* Subtle pulsing live indicator */}
-              <span className="relative flex size-2 shrink-0 ml-1" aria-hidden="true">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-60" />
-                <span className="relative inline-flex size-2 rounded-full bg-cyan-400" />
+              <span className="font-display font-semibold text-xs text-foreground tracking-tight whitespace-nowrap">
+                {badge1}
               </span>
             </div>
           </div>
         </div>
       )}
+
+      {/* ── Layer 4B: Bottom-Right Floating Aurora Pill (Full-Stack Developer) ── */}
+      <div className="absolute -bottom-2 sm:-bottom-1 right-0 sm:-right-2 z-30 pointer-events-auto select-none transition-transform hover:scale-105 duration-300">
+        <div className="aurora-badge-wrapper rounded-full shadow-md shadow-black/25">
+          <div className="inline-flex items-center gap-2.5 rounded-full bg-card/95 dark:bg-[#0f1016]/95 px-3.5 py-1.5 sm:px-4 sm:py-2 backdrop-blur-md">
+            <div className="flex size-5.5 sm:size-6 items-center justify-center rounded-full bg-cyan-500/10 border border-cyan-500/25 text-[#61DAFB] shrink-0 shadow-[0_0_8px_rgba(97,218,251,0.25)]">
+              <ReactIcon className="size-3.5 sm:size-4" />
+            </div>
+            <span className="font-display font-semibold text-xs sm:text-sm text-foreground tracking-tight whitespace-nowrap">
+              {badgeRole}
+            </span>
+            <span className="relative flex size-2 shrink-0 ml-0.5" aria-hidden="true">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
