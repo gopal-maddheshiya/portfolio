@@ -60,125 +60,28 @@ export function CutoutPortrait({
   badge1 = "Java • DSA",
   badgeRole = "Full-Stack Developer",
 }: CutoutPortraitProps) {
-  // Helper to test if image is Gopal's photo (default asset, uploaded me-b.png, or gopal-profile)
-  const isGopalPhoto = (src?: string) => {
-    if (!src || src.trim().length === 0) return true;
+  // Resolve photo source:
+  // If empty, placeholder asset, or me-b (the raw studio shot),
+  // return gopalCutout (which is the high-res transparent studio cutout in the black suit).
+  // Otherwise, use the user's uploaded custom photo URL directly.
+  const resolvePhoto = (src?: string) => {
+    if (!src || src.trim().length === 0) return gopalCutout;
     const clean = src.trim().toLowerCase();
-    return (
-      clean.includes("gopal-profile") ||
-      clean.includes("me-b") ||
-      clean.includes("gopal-cutout") ||
-      clean.includes("default")
-    );
+    if (
+      clean.includes("gopal-profile.jpg") ||
+      clean === "/assets/gopal-profile.jpg" ||
+      clean.includes("me-b.png") ||
+      clean.includes("gopal-cutout")
+    ) {
+      return gopalCutout;
+    }
+    return src.trim();
   };
 
-  const initialSource = isGopalPhoto(photoSrc) ? gopalCutout : photoSrc!.trim();
-  const [currentPhoto, setCurrentPhoto] = useState<string>(initialSource);
+  const [currentPhoto, setCurrentPhoto] = useState<string>(() => resolvePhoto(photoSrc));
 
   useEffect(() => {
-    if (isGopalPhoto(photoSrc)) {
-      setCurrentPhoto(gopalCutout);
-      return;
-    }
-
-    const cleanSrc = photoSrc!.trim();
-    let isCancelled = false;
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      if (isCancelled) return;
-      try {
-        const canvas = document.createElement("canvas");
-        const w = img.naturalWidth || img.width;
-        const h = img.naturalHeight || img.height;
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          setCurrentPhoto(cleanSrc);
-          return;
-        }
-
-        ctx.drawImage(img, 0, 0);
-        const imgData = ctx.getImageData(0, 0, w, h);
-        const data = imgData.data;
-
-        // Check if image already has transparent pixels
-        let hasAlpha = false;
-        for (let i = 3; i < data.length; i += 40) {
-          const a = data[i] ?? 255;
-          if (a < 200) {
-            hasAlpha = true;
-            break;
-          }
-        }
-
-        if (hasAlpha) {
-          setCurrentPhoto(cleanSrc);
-          return;
-        }
-
-        // If opaque image, knock out outer background from left/right/top so it never overrides the orange shape
-        const bgR = data[0] ?? 0;
-        const bgG = data[1] ?? 0;
-        const bgB = data[2] ?? 0;
-
-        for (let y = 0; y < h; y++) {
-          for (let x = 0; x < w * 0.48; x++) {
-            const idx = (y * w + x) * 4;
-            const r = data[idx] ?? 0;
-            const g = data[idx + 1] ?? 0;
-            const b = data[idx + 2] ?? 0;
-            const d = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
-            if (d < 30) {
-              data[idx + 3] = 0;
-            } else {
-              break;
-            }
-          }
-          for (let x = w - 1; x > w * 0.52; x--) {
-            const idx = (y * w + x) * 4;
-            const r = data[idx] ?? 0;
-            const g = data[idx + 1] ?? 0;
-            const b = data[idx + 2] ?? 0;
-            const d = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
-            if (d < 30) {
-              data[idx + 3] = 0;
-            } else {
-              break;
-            }
-          }
-        }
-
-        for (let x = 0; x < w; x++) {
-          for (let y = 0; y < h * 0.35; y++) {
-            const idx = (y * w + x) * 4;
-            const r = data[idx] ?? 0;
-            const g = data[idx + 1] ?? 0;
-            const b = data[idx + 2] ?? 0;
-            const d = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
-            if (d < 30) {
-              data[idx + 3] = 0;
-            } else {
-              break;
-            }
-          }
-        }
-
-        ctx.putImageData(imgData, 0, 0);
-        setCurrentPhoto(canvas.toDataURL("image/webp", 0.95));
-      } catch {
-        setCurrentPhoto(cleanSrc);
-      }
-    };
-    img.onerror = () => {
-      if (!isCancelled) setCurrentPhoto(gopalCutout);
-    };
-    img.src = cleanSrc;
-
-    return () => {
-      isCancelled = true;
-    };
+    setCurrentPhoto(resolvePhoto(photoSrc));
   }, [photoSrc]);
 
   return (
