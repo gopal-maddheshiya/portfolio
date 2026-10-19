@@ -1,5 +1,5 @@
 import React from "react";
-import { User, Globe } from "lucide-react";
+import { User, Globe, Sparkles, RotateCcw } from "lucide-react";
 import type { PortfolioData } from "@/lib/supabase";
 import { TagListInput } from "@/components/admin/ui/TagListInput";
 import { ImageUploader } from "@/components/admin/ui/ImageUploader";
@@ -122,34 +122,78 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-              Top-Left Floating Chip
-            </label>
-            <input
-              type="text"
-              placeholder="Java • DSA"
-              value={hero.floatingBadge1 || ""}
-              onChange={(e) =>
-                updateData({ heroData: { ...hero, floatingBadge1: e.target.value } })
-              }
-              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
-            />
+          {/* Top-Left Floating HUD Badge */}
+          <div className="rounded-xl border border-border/80 bg-surface/40 p-4 space-y-3">
+            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-amber-500">
+              Top-Left Floating Badge (Core Stack)
+            </span>
+            <div className="space-y-2">
+              <div>
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  placeholder="Java • DSA"
+                  value={hero.floatingBadge1 || ""}
+                  onChange={(e) =>
+                    updateData({ heroData: { ...hero, floatingBadge1: e.target.value } })
+                  }
+                  className="w-full rounded-lg border border-border-strong bg-card px-3 py-2 text-xs font-semibold text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  Subtitle / Focus
+                </label>
+                <input
+                  type="text"
+                  placeholder="Problem Solver"
+                  value={hero.floatingBadge1Sub || ""}
+                  onChange={(e) =>
+                    updateData({ heroData: { ...hero, floatingBadge1Sub: e.target.value } })
+                  }
+                  className="w-full rounded-lg border border-border-strong bg-card px-3 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
+                />
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-              Bottom-Right Floating Chip
-            </label>
-            <input
-              type="text"
-              placeholder="Full-Stack"
-              value={hero.floatingBadge2 || ""}
-              onChange={(e) =>
-                updateData({ heroData: { ...hero, floatingBadge2: e.target.value } })
-              }
-              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
-            />
+          {/* Bottom-Right Floating HUD Badge */}
+          <div className="rounded-xl border border-border/80 bg-surface/40 p-4 space-y-3">
+            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-cyan-400">
+              Bottom-Right Floating Badge (Architecture)
+            </span>
+            <div className="space-y-2">
+              <div>
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  placeholder="Full-Stack Craft"
+                  value={hero.floatingBadge2 || ""}
+                  onChange={(e) =>
+                    updateData({ heroData: { ...hero, floatingBadge2: e.target.value } })
+                  }
+                  className="w-full rounded-lg border border-border-strong bg-card px-3 py-2 text-xs font-semibold text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  Subtitle / Stack
+                </label>
+                <input
+                  type="text"
+                  placeholder="React • Node • APIs"
+                  value={hero.floatingBadge2Sub || ""}
+                  onChange={(e) =>
+                    updateData({ heroData: { ...hero, floatingBadge2Sub: e.target.value } })
+                  }
+                  className="w-full rounded-lg border border-border-strong bg-card px-3 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
+                />
+              </div>
+            </div>
           </div>
 
           <div>
@@ -218,9 +262,63 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
         </div>
       </div>
 
-      {/* 2. Profile Photo Upload */}
+      {/* 2. Dedicated Hero Cutout Portrait Uploader */}
+      <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-soft space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
+          <div>
+            <h3 className="font-display font-bold text-sm sm:text-base text-foreground flex items-center gap-2">
+              <Sparkles className="size-4.5 text-primary" />
+              <span>Hero Cutout Portrait (Homepage Studio Cutout)</span>
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Upload a background-free transparent cutout (PNG or WebP). It overlays cleanly on top of the abstract orange blob and cosmic orbit rings.
+            </p>
+          </div>
+          {hero.cutoutPhoto && hero.cutoutPhoto.trim().length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                const updated = {
+                  ...data,
+                  heroData: { ...hero, cutoutPhoto: "" },
+                };
+                updateData(updated);
+                if (saveData) {
+                  saveData(updated);
+                }
+              }}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer shrink-0"
+            >
+              <RotateCcw className="size-3.5" />
+              <span>Reset to Default Studio Cutout</span>
+            </button>
+          )}
+        </div>
+
+        <ImageUploader
+          label="Hero Transparent Cutout Image (PNG / WebP)"
+          value={hero.cutoutPhoto || ""}
+          onChange={(url) => {
+            const updated = {
+              ...data,
+              heroData: { ...hero, cutoutPhoto: url },
+            };
+            updateData(updated);
+            if (saveData) {
+              saveData(updated);
+            }
+          }}
+          folder="hero-cutouts"
+          aspectRatio="portrait"
+          aspectRatioLabel="Transparent PNG or WebP"
+          placeholder="Upload a transparent portrait cutout"
+          helpText="Tip: Transparent cutout preserves the orange blob & cosmic orbital rings behind your head and torso. Leave blank to use default studio cutout."
+        />
+      </div>
+
+      {/* 3. General Profile Photo Upload */}
       <ImageUploader
-        label="Hero Profile Photo (Homepage Hanging ID Avatar)"
+        label="General Profile Photo (About Section, Meta Cards & Resume)"
         value={info.profilePhoto || ""}
         onChange={(url) => {
           const updated = {
@@ -235,7 +333,7 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
         folder="profile"
         aspectRatio="portrait"
         aspectRatioLabel="Recommended: 4:5 Portrait or 1:1 Square (800 × 1000 px)"
-        helpText="Upload a crisp portrait photo where your face and shoulders are well-centered. Automatically updates the hanging ID physics card on the homepage."
+        helpText="Standard portrait photo (with background). Displayed in About section snapshot, hanging ID card, and OpenGraph link previews. Changing this does NOT affect the Hero Cutout."
       />
 
       {/* 3. Universal Single Source Resume PDF */}

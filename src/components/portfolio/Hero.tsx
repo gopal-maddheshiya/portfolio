@@ -386,17 +386,15 @@ export function Hero() {
           <div className="hero-photo-entrance relative group shrink-0">
             <CutoutPortrait
               photoSrc={
-                info.profilePhoto && info.profilePhoto.trim().length > 0
-                  ? info.profilePhoto.trim()
+                hero.cutoutPhoto && hero.cutoutPhoto.trim().length > 0
+                  ? hero.cutoutPhoto.trim()
                   : undefined
               }
               name={info.name || "Gopal Maddheshiya"}
               badge1={hero.floatingBadge1 || "Java • DSA"}
-              badgeRole={
-                hero.floatingBadge2 && hero.floatingBadge2 !== "Full-Stack"
-                  ? hero.floatingBadge2
-                  : "Full-Stack Developer"
-              }
+              badge1Sub={hero.floatingBadge1Sub || "Problem Solver"}
+              badge2={hero.floatingBadge2 || "Full-Stack Craft"}
+              badge2Sub={hero.floatingBadge2Sub || "React • Node • APIs"}
             />
           </div>
         </div>
