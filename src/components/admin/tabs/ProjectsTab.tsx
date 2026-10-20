@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Briefcase, Plus, Trash2, Search, Star, ExternalLink, Github } from "lucide-react";
 import type { PortfolioData } from "@/lib/supabase";
 import type { Project } from "@/data/profile";

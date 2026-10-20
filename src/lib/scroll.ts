@@ -19,7 +19,7 @@ export function scrollToId(id: string) {
 }
 
 /** Scroll to an href hash (e.g. "#projects") and sync the URL without a jump. */
-export function scrollToHash(hash: string) {
+function scrollToHash(hash: string) {
   const id = hash.replace(/^#/, "");
   scrollToId(id);
   if (typeof window !== "undefined") {

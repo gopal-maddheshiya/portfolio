@@ -1,5 +1,4 @@
-import React from "react";
-import { User, Globe, Sparkles, RotateCcw } from "lucide-react";
+import { User, Globe } from "lucide-react";
 import type { PortfolioData } from "@/lib/supabase";
 import { TagListInput } from "@/components/admin/ui/TagListInput";
 import { ImageUploader } from "@/components/admin/ui/ImageUploader";

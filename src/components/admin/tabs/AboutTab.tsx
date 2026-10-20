@@ -1,4 +1,3 @@
-import React from "react";
 import { BookOpen, Sparkles, GraduationCap, Layers, Cpu, Plus, Trash2 } from "lucide-react";
 import type { PortfolioData } from "@/lib/supabase";
 import { TagListInput } from "@/components/admin/ui/TagListInput";

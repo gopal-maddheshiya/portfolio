@@ -11,11 +11,9 @@ import {
   MessageCircle,
   Rocket,
   Sparkles,
-  User,
 } from "lucide-react";
 
 import type { ChatAction, ChatMessage } from "@/server/ai";
-import { cn } from "@/lib/utils";
 
 function CodeBlock({ code, language }: { code: string; language?: string | undefined }) {
   const [copied, setCopied] = useState(false);

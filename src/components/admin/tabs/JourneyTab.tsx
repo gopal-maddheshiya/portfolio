@@ -1,4 +1,3 @@
-import React from "react";
 import { Sparkles, Clock, Plus, Trash2 } from "lucide-react";
 import type { PortfolioData } from "@/lib/supabase";
 import type { JourneyMilestone, HighlightItem } from "@/data/profile";

@@ -47,7 +47,6 @@ export function DSA() {
     totalSubmissions,
     submissionCalendar,
     recentSubmissions,
-    isLive,
     isFetching,
     refetch,
   } = useLeetCodeStats();
@@ -400,7 +399,10 @@ export function DSA() {
 
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
                 {/* Left: Authentic LeetCode Horseshoe Gauge */}
-                <div ref={gaugeCardRef} className="sm:col-span-6 flex flex-col items-center justify-center">
+                <div
+                  ref={gaugeCardRef}
+                  className="sm:col-span-6 flex flex-col items-center justify-center"
+                >
                   <div className="relative flex size-40 sm:size-44 items-center justify-center">
                     <svg
                       ref={donutSvgRef}

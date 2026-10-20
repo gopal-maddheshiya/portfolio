@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { ChevronDown, HelpCircle, MessageSquareText, Search, Sparkles } from "lucide-react";
 
-import { FAQS, type FAQItem } from "@/data/faq";
+import { FAQS } from "@/data/faq";
 import { cn } from "@/lib/utils";
 import { Section, SectionHeading } from "./Section";
 

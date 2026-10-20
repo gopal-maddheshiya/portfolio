@@ -1,4 +1,3 @@
-import React from "react";
 import { Mail, FileText } from "lucide-react";
 import type { PortfolioData } from "@/lib/supabase";
 import { TagListInput } from "@/components/admin/ui/TagListInput";

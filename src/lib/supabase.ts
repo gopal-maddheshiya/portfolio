@@ -193,7 +193,7 @@ export function parsePortfolioContent(rawContent: unknown, updatedAt?: string): 
   };
 }
 
-export const LOCAL_STORAGE_KEY = "gopal_portfolio_content_v1";
+const LOCAL_STORAGE_KEY = "gopal_portfolio_content_v1";
 
 /**
  * Retrieve portfolio data cached in browser localStorage.
@@ -231,7 +231,7 @@ let cachedPortfolioData: PortfolioData | null = null;
 let lastPortfolioFetchTime = 0;
 const PORTFOLIO_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes in-memory cache
 
-export function invalidatePortfolioCache() {
+function invalidatePortfolioCache() {
   cachedPortfolioData = null;
   lastPortfolioFetchTime = 0;
 }

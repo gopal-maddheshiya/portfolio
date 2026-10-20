@@ -1,11 +1,10 @@
 import { FAQS } from "@/data/faq";
-import { type Certification, type DsaInfo, type PersonalInfo, type Project } from "@/data/profile";
+import { type Certification, type PersonalInfo, type Project } from "@/data/profile";
 
 export function generateSeoSchema(
   info: PersonalInfo,
   projects: Project[] = [],
   certifications: Certification[] = [],
-  dsaInfo?: DsaInfo,
 ) {
   const baseUrl = info.siteUrl.replace(/\/$/, "");
   const personId = `${baseUrl}/#person`;

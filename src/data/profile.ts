@@ -413,7 +413,7 @@ export const PROJECTS: Project[] = [
   },
 ];
 
-export interface DsaDifficultyItem {
+interface DsaDifficultyItem {
   label: string;
   count: number;
   percent: number;

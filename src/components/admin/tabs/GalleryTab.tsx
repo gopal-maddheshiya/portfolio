@@ -1,15 +1,5 @@
-import React, { useState, useMemo } from "react";
-import {
-  Camera,
-  Video,
-  Plus,
-  Trash2,
-  Search,
-  Sparkles,
-  Tag,
-  ExternalLink,
-  Image as ImageIcon,
-} from "lucide-react";
+import { useState, useMemo } from "react";
+import { Camera, Video, Plus, Trash2, Search, Tag } from "lucide-react";
 import type { PortfolioData } from "@/lib/supabase";
 import type { AcademicMediaItem } from "@/data/profile";
 import { ReorderControls } from "@/components/admin/ui/ReorderControls";

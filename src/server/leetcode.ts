@@ -72,7 +72,7 @@ export const KNOWN_DIFFICULTIES: Record<string, "Easy" | "Medium" | "Hard"> = {
 };
 
 // Default fallback data matching Gopal's verified LeetCode profile
-export const FALLBACK_STATS: LeetCodeStatsResponse = {
+const FALLBACK_STATS: LeetCodeStatsResponse = {
   success: true,
   username: "gopal-maddheshiya",
   totalSolved: 54,

@@ -19,13 +19,13 @@ import { GopalAIAssistant } from "@/components/ai/GopalAIAssistant";
 import { BackToTop } from "@/components/portfolio/BackToTop";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { SmoothScrollProvider } from "@/components/common/SmoothScroll";
-import { CERTIFICATIONS, DSA_INFO, PERSONAL_INFO, PROJECTS } from "@/data/profile";
+import { CERTIFICATIONS, PERSONAL_INFO, PROJECTS } from "@/data/profile";
 import { generateSeoSchema } from "@/lib/seo-schema";
 
 const TITLE = `${PERSONAL_INFO.name} | ${PERSONAL_INFO.role}`;
 const DESCRIPTION = PERSONAL_INFO.siteDescription;
 
-const schemaData = generateSeoSchema(PERSONAL_INFO, PROJECTS, CERTIFICATIONS, DSA_INFO);
+const schemaData = generateSeoSchema(PERSONAL_INFO, PROJECTS, CERTIFICATIONS);
 
 export const Route = createFileRoute("/")({
   component: Index,

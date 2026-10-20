@@ -1,4 +1,3 @@
-import React from "react";
 import { Layers, Plus, Trash2, Star } from "lucide-react";
 import type { PortfolioData } from "@/lib/supabase";
 import type { SkillGroup } from "@/data/profile";

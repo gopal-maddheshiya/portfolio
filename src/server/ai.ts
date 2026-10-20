@@ -1,11 +1,8 @@
 import {
   CERTIFICATIONS,
-  CODING_PROFILES,
   DSA_INFO,
   EDUCATION,
   FOCUS_AREAS,
-  HIGHLIGHTS,
-  JOURNEY,
   PERSONAL_INFO,
   PROJECTS,
   SKILL_GROUPS,
@@ -149,7 +146,7 @@ function formatConversationContents(
  * Intelligent instant knowledge engine (0ms latency fallback).
  * Answers questions about projects, DSA, academics, OOPs, skills, contact in Hindi & English.
  */
-export function generateInstantKnowledgeResponse(
+function generateInstantKnowledgeResponse(
   rawQuery: string,
   resumeUrl?: string,
   whatsappNumber?: string,
@@ -672,6 +669,7 @@ export async function askGopalAiStream({
     }
   } catch (err) {
     console.warn("API /api/chat unreachable, activating instant client response:", err);
+    onError(err instanceof Error ? err : new Error(String(err)));
   }
 
   // Guaranteed instant client response with typewriter streaming chunks

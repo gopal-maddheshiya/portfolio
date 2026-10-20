@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Code,
   Cpu,
@@ -17,8 +16,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const AVAILABLE_ICONS = [
+const AVAILABLE_ICONS = [
   { id: "code", label: "Code", Icon: Code },
   { id: "cpu", label: "CPU / Architecture", Icon: Cpu },
   { id: "zap", label: "Lightning / Clean Code", Icon: Zap },

@@ -1,4 +1,3 @@
-import React from "react";
 import { Award, Plus, Trash2 } from "lucide-react";
 import type { PortfolioData } from "@/lib/supabase";
 import type { Certification } from "@/data/profile";

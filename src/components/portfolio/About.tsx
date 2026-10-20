@@ -6,7 +6,6 @@ import {
   Calendar,
   CheckCircle2,
   Code2,
-  Cpu,
   Flame,
   GraduationCap,
   MapPin,

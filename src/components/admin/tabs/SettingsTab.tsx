@@ -1,5 +1,5 @@
-import React, { useRef } from "react";
-import { Settings, Download, Upload, RotateCcw, ShieldCheck, Share2 } from "lucide-react";
+import { useRef, type ChangeEvent } from "react";
+import { Download, Upload, RotateCcw, ShieldCheck, Share2 } from "lucide-react";
 import type { PortfolioData } from "@/lib/supabase";
 import { ImageUploader } from "@/components/admin/ui/ImageUploader";
 import { toast } from "sonner";
@@ -8,10 +8,9 @@ interface SettingsTabProps {
   data: PortfolioData;
   updateData: (updater: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData)) => void;
   resetToDefaults: () => void;
-  saveData: (customData?: PortfolioData) => Promise<boolean>;
 }
 
-export function SettingsTab({ data, updateData, resetToDefaults, saveData }: SettingsTabProps) {
+export function SettingsTab({ data, updateData, resetToDefaults }: SettingsTabProps) {
   const info = data.personalInfo;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -35,7 +34,7 @@ export function SettingsTab({ data, updateData, resetToDefaults, saveData }: Set
   };
 
   // Import JSON Backup
-  const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportJson = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 

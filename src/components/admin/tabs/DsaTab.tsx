@@ -1,10 +1,8 @@
-import React from "react";
 import { Code2, Globe, Plus, Trash2, ExternalLink } from "lucide-react";
 import type { PortfolioData } from "@/lib/supabase";
 import type { CodingProfile, DsaTopicItem } from "@/data/profile";
 import { ReorderControls } from "@/components/admin/ui/ReorderControls";
 import { IconPicker } from "@/components/admin/ui/IconPicker";
-import { TagListInput } from "@/components/admin/ui/TagListInput";
 import { toast } from "sonner";
 
 interface DsaTabProps {

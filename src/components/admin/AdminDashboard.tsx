@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, type ComponentType } from "react";
 import {
   Save,
   RotateCcw,
@@ -55,7 +55,7 @@ interface NavGroup {
   items: Array<{
     id: TabType;
     label: string;
-    icon: React.ComponentType<{ className?: string }>;
+    icon: ComponentType<{ className?: string }>;
     count?: number;
     description: string;
   }>;
@@ -605,12 +605,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
           {activeTab === "journey" && <JourneyTab data={data} updateData={updateData} />}
           {activeTab === "contact" && <ContactTab data={data} updateData={updateData} />}
           {activeTab === "settings" && (
-            <SettingsTab
-              data={data}
-              updateData={updateData}
-              resetToDefaults={resetToDefaults}
-              saveData={saveData}
-            />
+            <SettingsTab data={data} updateData={updateData} resetToDefaults={resetToDefaults} />
           )}
         </main>
       </div>

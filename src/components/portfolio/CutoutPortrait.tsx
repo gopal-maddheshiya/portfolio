@@ -174,7 +174,13 @@ export function CutoutPortrait({
             </g>
 
             {/* Golden Amber Orbital Accent */}
-            <circle cx="410" cy="420" r="2.5" fill="#FB923C" filter="drop-shadow(0 0 5px #FB923C)" />
+            <circle
+              cx="410"
+              cy="420"
+              r="2.5"
+              fill="#FB923C"
+              filter="drop-shadow(0 0 5px #FB923C)"
+            />
 
             {/* North-west Cyan Energy Node */}
             <circle cx="120" cy="75" r="2.5" fill="#06B6D4" className="opacity-80" />
@@ -288,5 +294,3 @@ export function CutoutPortrait({
     </div>
   );
 }
-
-export default CutoutPortrait;
