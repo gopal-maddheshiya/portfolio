@@ -35,12 +35,11 @@ export function Reveal({
 
     const tween = gsap.fromTo(
       node,
-      { opacity: 0, y: 26, filter: "blur(6px)" },
+      { opacity: 0, y: 24 },
       {
         opacity: 1,
         y: 0,
-        filter: "blur(0px)",
-        duration: 0.75,
+        duration: 0.65,
         ease: "power3.out",
         delay: delay / 1000,
         clearProps: "all",

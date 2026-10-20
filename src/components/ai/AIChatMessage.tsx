@@ -52,7 +52,10 @@ function CodeBlock({ code, language }: { code: string; language?: string | undef
           )}
         </button>
       </div>
-      <pre className="overflow-x-auto p-3 text-xs leading-relaxed text-foreground">
+      <pre
+        data-lenis-prevent="true"
+        className="overflow-x-auto overscroll-contain p-3 text-xs leading-relaxed text-foreground"
+      >
         <code>{code}</code>
       </pre>
     </div>

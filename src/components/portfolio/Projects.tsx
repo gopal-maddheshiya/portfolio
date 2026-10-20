@@ -313,15 +313,14 @@ export function Projects() {
 
       gsap.fromTo(
         cards,
-        { opacity: 0, y: 48, scale: 0.985, filter: "blur(8px)" },
+        { opacity: 0, y: 32, scale: 0.98 },
         {
           opacity: 1,
           y: 0,
           scale: 1,
-          filter: "blur(0px)",
-          duration: 1.0,
+          duration: 0.7,
           ease: "power3.out",
-          stagger: 0.18,
+          stagger: 0.1,
           clearProps: "all",
           scrollTrigger: {
             trigger: cards,

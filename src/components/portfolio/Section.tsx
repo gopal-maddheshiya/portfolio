@@ -47,13 +47,12 @@ export function SectionHeading({
 
       gsap.fromTo(
         ".sect-anim-title",
-        { opacity: 0, y: 30, filter: "blur(8px)" },
+        { opacity: 0, y: 22 },
         {
           opacity: 1,
           y: 0,
-          filter: "blur(0px)",
-          duration: 0.7,
-          delay: 0.06,
+          duration: 0.6,
+          delay: 0.05,
           ease: "power3.out",
           clearProps: "all",
           scrollTrigger: { trigger: ref.current, start: "top 90%", once: true },

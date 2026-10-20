@@ -10,8 +10,21 @@ export function BackToTop() {
   const [isScrollingDown, setIsScrollingDown] = useState(false);
 
   const circleRef = useRef<SVGCircleElement>(null);
-  const lastScrollYRef = useRef(0);
-  const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Synchronize directly with AI Assistant's visibility state so the two components never collide
+  useEffect(() => {
+    const handleAssistantVisibility = (e: Event) => {
+      const customEvent = e as CustomEvent<{ isVisible: boolean }>;
+      if (typeof customEvent.detail?.isVisible === "boolean") {
+        setIsScrollingDown(!customEvent.detail.isVisible);
+      }
+    };
+
+    window.addEventListener("ai-assistant-visibility", handleAssistantVisibility);
+    return () => {
+      window.removeEventListener("ai-assistant-visibility", handleAssistantVisibility);
+    };
+  }, []);
 
   useEffect(() => {
     const updateProgress = () => {
@@ -31,29 +44,10 @@ export function BackToTop() {
       const shouldShow = scrollY > 280;
       setIsVisible((prev) => (prev !== shouldShow ? shouldShow : prev));
 
-      // Scroll direction tracking for coordinated layout with AI Assistant
-      const delta = scrollY - lastScrollYRef.current;
-
-      if (idleTimerRef.current) {
-        clearTimeout(idleTimerRef.current);
-      }
-
+      // Fallback: If near top of page, ensure arrow is at resting upper position
       if (scrollY <= 80) {
         setIsScrollingDown(false);
-      } else if (delta > 8) {
-        // Scrolling down -> AI button hides, so BackToTop drops smoothly to bottom corner
-        setIsScrollingDown(true);
-      } else if (delta < -8) {
-        // Scrolling up -> AI button shows, so BackToTop lifts smoothly above it
-        setIsScrollingDown(false);
       }
-
-      // When scroll stops for 1s, AI button returns, so BackToTop lifts to resting stacked position
-      idleTimerRef.current = setTimeout(() => {
-        setIsScrollingDown(false);
-      }, 1000);
-
-      lastScrollYRef.current = scrollY;
 
       // 120 FPS Direct Hardware DOM SVG Progress Update (Zero React re-render lag)
       if (circleRef.current) {
@@ -93,9 +87,6 @@ export function BackToTop() {
       if (window.__lenis && lenisAttached) {
         window.__lenis.off("scroll", updateProgress);
       }
-      if (idleTimerRef.current) {
-        clearTimeout(idleTimerRef.current);
-      }
     };
   }, []);
 
@@ -111,54 +102,57 @@ export function BackToTop() {
   };
 
   return (
-    <button
-      type="button"
-      onClick={scrollToTop}
-      aria-label="Back to top"
-      title="Back to top"
+    <div
       className={cn(
-        "fixed right-4 sm:right-6 z-40 flex size-10 sm:size-11 items-center justify-center rounded-full border border-border/80 bg-background/90 backdrop-blur-md shadow-md text-foreground transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary hover:border-primary/50 hover:bg-accent hover:scale-105 active:scale-95 cursor-pointer",
-        // Coordinate vertical position with AI Assistant
-        isScrollingDown
-          ? "bottom-4 sm:bottom-6" // Drops to bottom corner when AI button is hidden
-          : "bottom-18 sm:bottom-20", // Lifts cleanly above AI button when visible
-        // Visibility toggle
-        isVisible
-          ? "opacity-100 scale-100 pointer-events-auto"
-          : "opacity-0 scale-90 pointer-events-none translate-y-3",
+        "fixed right-4 sm:right-6 bottom-18 sm:bottom-20 z-45 pointer-events-none transition-transform duration-200 ease-out",
+        isScrollingDown ? "translate-y-14" : "translate-y-0",
       )}
     >
-      {/* Progress SVG Ring */}
-      <svg
-        className="absolute inset-0 size-full -rotate-90 pointer-events-none"
-        viewBox="0 0 44 44"
-        aria-hidden="true"
+      <button
+        type="button"
+        onClick={scrollToTop}
+        aria-label="Back to top"
+        title="Back to top"
+        className={cn(
+          "flex size-10 sm:size-11 items-center justify-center rounded-full border border-border/80 bg-background/90 backdrop-blur-md shadow-md text-foreground transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary hover:border-primary/50 hover:bg-accent hover:scale-105 active:scale-95 cursor-pointer",
+          // Visibility toggle
+          isVisible
+            ? "opacity-100 scale-100 pointer-events-auto"
+            : "opacity-0 scale-90 pointer-events-none translate-y-3",
+        )}
       >
-        <circle
-          cx="22"
-          cy="22"
-          r={RADIUS}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          className="opacity-15"
-        />
-        <circle
-          ref={circleRef}
-          cx="22"
-          cy="22"
-          r={RADIUS}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeDasharray={CIRCUMFERENCE}
-          strokeDashoffset={CIRCUMFERENCE}
-          strokeLinecap="round"
-          className="text-primary will-change-[stroke-dashoffset]"
-        />
-      </svg>
+        {/* Progress SVG Ring */}
+        <svg
+          className="absolute inset-0 size-full -rotate-90 pointer-events-none"
+          viewBox="0 0 44 44"
+          aria-hidden="true"
+        >
+          <circle
+            cx="22"
+            cy="22"
+            r={RADIUS}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            className="opacity-15"
+          />
+          <circle
+            ref={circleRef}
+            cx="22"
+            cy="22"
+            r={RADIUS}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeDasharray={CIRCUMFERENCE}
+            strokeDashoffset={CIRCUMFERENCE}
+            strokeLinecap="round"
+            className="text-primary will-change-[stroke-dashoffset]"
+          />
+        </svg>
 
-      <ArrowUp className="size-4 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5" />
-    </button>
+        <ArrowUp className="size-4 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5" />
+      </button>
+    </div>
   );
 }

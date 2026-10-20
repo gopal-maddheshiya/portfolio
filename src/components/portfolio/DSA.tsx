@@ -76,10 +76,10 @@ export function DSA() {
     progress: 1,
   });
   const hasTriggeredRef = useRef(false);
+  const gaugeCardRef = useRef<HTMLDivElement>(null);
+  const donutSvgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
-    if (!sectionRef.current) return;
-
     // If initial scroll entrance animation already completed, update with live synchronized metrics
     if (hasTriggeredRef.current) {
       setAnimatedValues((prev) => ({
@@ -108,7 +108,7 @@ export function DSA() {
       return;
     }
 
-    // Start with 0 for counter animation
+    // Start with 0 for counter and stroke sweep
     setAnimatedValues({
       total: 0,
       easy: 0,
@@ -117,29 +117,16 @@ export function DSA() {
       progress: 0,
     });
 
+    const triggerEl = gaugeCardRef.current || sectionRef.current;
+    if (!triggerEl) return;
+
     const obj = { total: 0, easy: 0, medium: 0, hard: 0, progress: 0 };
 
-    const tween = gsap.to(obj, {
-      total,
-      easy,
-      medium,
-      hard,
-      progress: 1,
-      duration: 1.6,
-      ease: "power2.out",
+    const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: sectionRef.current,
-        start: "top 78%",
+        trigger: triggerEl,
+        start: "top 82%",
         once: true,
-      },
-      onUpdate: () => {
-        setAnimatedValues({
-          total: Math.round(obj.total),
-          easy: Math.round(obj.easy),
-          medium: Math.round(obj.medium),
-          hard: Math.round(obj.hard),
-          progress: obj.progress,
-        });
       },
       onComplete: () => {
         hasTriggeredRef.current = true;
@@ -153,8 +140,51 @@ export function DSA() {
       },
     });
 
+    // Spin and settle the horseshoe donut from -40deg to 0deg with smooth scaling
+    if (donutSvgRef.current) {
+      tl.fromTo(
+        donutSvgRef.current,
+        {
+          rotate: -40,
+          scale: 0.94,
+          transformOrigin: "50% 50%",
+        },
+        {
+          rotate: 0,
+          scale: 1,
+          duration: 1.4,
+          ease: "power3.out",
+        },
+        0,
+      );
+    }
+
+    // Simultaneously sweep the arc progress from 0% to 100% and count up the numbers
+    tl.to(
+      obj,
+      {
+        total,
+        easy,
+        medium,
+        hard,
+        progress: 1,
+        duration: 1.4,
+        ease: "power2.out",
+        onUpdate: () => {
+          setAnimatedValues({
+            total: Math.round(obj.total),
+            easy: Math.round(obj.easy),
+            medium: Math.round(obj.medium),
+            hard: Math.round(obj.hard),
+            progress: obj.progress,
+          });
+        },
+      },
+      0,
+    );
+
     return () => {
-      tween.kill();
+      tl.kill();
     };
   }, [total, easy, medium, hard]);
 
@@ -306,10 +336,24 @@ export function DSA() {
   const totalArcLength = (260 / 360) * 2 * Math.PI * radius; // ~208.7
   const totalSolvedSafe = Math.max(total, 1);
 
-  const drawProgress = animatedValues.progress;
-  const currentEasyLen = (easy / totalSolvedSafe) * totalArcLength * drawProgress;
-  const currentMedLen = (medium / totalSolvedSafe) * totalArcLength * drawProgress;
-  const currentHardLen = (hard / totalSolvedSafe) * totalArcLength * drawProgress;
+  const easyRatio = easy / totalSolvedSafe;
+  const medRatio = medium / totalSolvedSafe;
+  const hardRatio = hard / totalSolvedSafe;
+
+  const easyTargetLen = easyRatio * totalArcLength;
+  const medTargetLen = medRatio * totalArcLength;
+  const hardTargetLen = hardRatio * totalArcLength;
+
+  const p = animatedValues.progress;
+  const filledTotal = p * totalArcLength;
+
+  // Sequential continuous sweep: Easy fills first, then Med sweeps from where Easy ends, then Hard completes
+  const currentEasyLen = Math.min(filledTotal, easyTargetLen);
+  const currentMedLen = Math.max(0, Math.min(filledTotal - easyTargetLen, medTargetLen));
+  const currentHardLen = Math.max(
+    0,
+    Math.min(filledTotal - easyTargetLen - medTargetLen, hardTargetLen),
+  );
 
   // Arc path: starts at 140° (bottom-left) and sweeps around to 40° (bottom-right)
   const arcPath = "M 24.77 89.57 A 46 46 0 1 1 95.23 89.57";
@@ -338,36 +382,31 @@ export function DSA() {
                     @{info.leetcodeUsername || PERSONAL_INFO.leetcodeUsername}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
-                    <span className="relative flex size-1.5">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                      <span className="relative inline-flex size-1.5 rounded-full bg-emerald-400" />
-                    </span>
-                    <span>{isFetching ? "Syncing..." : isLive ? "Live Synced" : "Active"}</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => refetch()}
-                    disabled={isFetching}
-                    title="Click to refresh live LeetCode stats"
-                    aria-label="Refresh LeetCode stats"
-                    className="flex items-center justify-center size-6 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary border border-transparent hover:border-border transition-all disabled:opacity-50 cursor-pointer"
-                  >
-                    <RefreshCw
-                      className={`size-3.5 transition-transform ${
-                        isFetching ? "animate-spin text-emerald-500" : ""
-                      }`}
-                    />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  title="Click to refresh live LeetCode stats"
+                  aria-label="Refresh LeetCode stats"
+                  className="flex items-center justify-center size-6 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary border border-transparent hover:border-border transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  <RefreshCw
+                    className={`size-3.5 transition-transform ${
+                      isFetching ? "animate-spin text-emerald-500" : ""
+                    }`}
+                  />
+                </button>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
                 {/* Left: Authentic LeetCode Horseshoe Gauge */}
-                <div className="sm:col-span-6 flex flex-col items-center justify-center">
+                <div ref={gaugeCardRef} className="sm:col-span-6 flex flex-col items-center justify-center">
                   <div className="relative flex size-40 sm:size-44 items-center justify-center">
-                    <svg className="size-full" viewBox="0 0 120 120">
+                    <svg
+                      ref={donutSvgRef}
+                      className="size-full origin-center will-change-transform"
+                      viewBox="0 0 120 120"
+                    >
                       {/* Background Horseshoe Track */}
                       <path
                         d={arcPath}
@@ -387,7 +426,6 @@ export function DSA() {
                         strokeDasharray={`${currentEasyLen} ${totalArcLength}`}
                         strokeDashoffset="0"
                         strokeLinecap="round"
-                        className="transition-all duration-300"
                       />
 
                       {/* Medium Arc (Amber / Yellow #ffc01e) */}
@@ -397,8 +435,7 @@ export function DSA() {
                         stroke="#ffc01e"
                         strokeWidth="6"
                         strokeDasharray={`${currentMedLen} ${totalArcLength}`}
-                        strokeDashoffset={`-${currentEasyLen}`}
-                        className="transition-all duration-300"
+                        strokeDashoffset={`-${easyTargetLen}`}
                       />
 
                       {/* Hard Arc (Red / Rose #ef4444) */}
@@ -408,9 +445,8 @@ export function DSA() {
                         stroke="#ef4444"
                         strokeWidth="6"
                         strokeDasharray={`${currentHardLen} ${totalArcLength}`}
-                        strokeDashoffset={`-${currentEasyLen + currentMedLen}`}
-                        strokeLinecap="round"
-                        className="transition-all duration-300"
+                        strokeDashoffset={`-${easyTargetLen + medTargetLen}`}
+                        strokeLinecap={hard > 0 ? "round" : undefined}
                       />
 
                       {/* Glowing dot indicator on track start */}

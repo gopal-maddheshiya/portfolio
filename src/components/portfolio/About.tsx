@@ -86,12 +86,11 @@ export function About() {
       // 1. Heading entrance with subtle blur clear
       gsap.fromTo(
         ".about-anim-heading",
-        { opacity: 0, y: 24, filter: "blur(4px)" },
+        { opacity: 0, y: 22 },
         {
           opacity: 1,
           y: 0,
-          filter: "blur(0px)",
-          duration: 0.7,
+          duration: 0.6,
           ease: "power3.out",
           clearProps: "all",
           scrollTrigger: { trigger: ".about-anim-heading", start: "top 88%", once: true },

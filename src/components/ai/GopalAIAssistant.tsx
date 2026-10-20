@@ -52,9 +52,20 @@ export function GopalAIAssistant() {
 
   // Scroll-aware auto-hide: hides when scrolling down to free screen space, reappears on scroll up or 1s idle
   useEffect(() => {
+    const updateVisibility = (visible: boolean) => {
+      setIsVisible(visible);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("ai-assistant-visibility", { detail: { isVisible: visible } }),
+        );
+      }
+    };
+
     const handleScroll = () => {
       if (typeof window === "undefined") return;
-      const currentScrollY = window.scrollY;
+      const currentScrollY = window.__lenis
+        ? window.__lenis.scroll
+        : window.scrollY || document.documentElement.scrollTop;
       const prevScrollY = lastScrollYRef.current;
       const delta = currentScrollY - prevScrollY;
 
@@ -65,27 +76,57 @@ export function GopalAIAssistant() {
 
       if (currentScrollY <= 80) {
         // Near top of page, always show
-        setIsVisible(true);
+        updateVisibility(true);
       } else if (delta > 8) {
         // Scrolling down -> hide immediately to keep screen unobstructed
-        setIsVisible(false);
+        updateVisibility(false);
         setShowDiscoveryCue(false);
       } else if (delta < -8) {
         // Scrolling up -> reveal immediately
-        setIsVisible(true);
+        updateVisibility(true);
       }
 
-      // Restore button smoothly 1s after user stops scrolling
+      // Restore button immediately as soon as user stops scrolling (180ms debounce)
       scrollStopTimerRef.current = setTimeout(() => {
-        setIsVisible(true);
-      }, 1000);
+        updateVisibility(true);
+      }, 180);
 
       lastScrollYRef.current = currentScrollY;
     };
 
+    const handleScrollEnd = () => {
+      if (scrollStopTimerRef.current) {
+        clearTimeout(scrollStopTimerRef.current);
+      }
+      updateVisibility(true);
+    };
+
+    // Attach to Lenis if available for 100% sync
+    let lenisAttached = false;
+    const attachLenis = () => {
+      if (window.__lenis && !lenisAttached) {
+        window.__lenis.on("scroll", handleScroll);
+        lenisAttached = true;
+        return true;
+      }
+      return false;
+    };
+
+    if (!attachLenis()) {
+      const interval = setInterval(() => {
+        if (attachLenis()) clearInterval(interval);
+      }, 100);
+      setTimeout(() => clearInterval(interval), 3000);
+    }
+
     window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("scrollend", handleScrollEnd, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scrollend", handleScrollEnd);
+      if (window.__lenis && lenisAttached) {
+        window.__lenis.off("scroll", handleScroll);
+      }
       if (scrollStopTimerRef.current) {
         clearTimeout(scrollStopTimerRef.current);
       }
@@ -200,6 +241,42 @@ export function GopalAIAssistant() {
       setIsOpen(false);
     }
   };
+
+  // Isolate wheel scrolling to chat window, prevent background website scrolling
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const aside = modalRef.current;
+    const messagesEl = scrollRef.current;
+    if (!aside || !messagesEl) return;
+
+    const onWheel = (e: WheelEvent) => {
+      e.stopPropagation();
+
+      const target = e.target as Node | null;
+      const isInsideMessages = target && messagesEl.contains(target);
+
+      if (isInsideMessages) {
+        // Inside messages: allow native vertical scroll, but cancel window scroll chaining at top/bottom bounds
+        const isAtTop = messagesEl.scrollTop <= 0 && e.deltaY < 0;
+        const isAtBottom =
+          messagesEl.scrollTop + messagesEl.clientHeight >= messagesEl.scrollHeight - 1 &&
+          e.deltaY > 0;
+        if (isAtTop || isAtBottom) {
+          e.preventDefault();
+        }
+      } else {
+        // Outside messages (e.g. header, borders, input area): forward scroll to messages list
+        messagesEl.scrollTop += e.deltaY;
+        e.preventDefault();
+      }
+    };
+
+    aside.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      aside.removeEventListener("wheel", onWheel);
+    };
+  }, [isOpen]);
 
   // Cleanup typewriter timer on unmount
   useEffect(() => {
@@ -383,16 +460,16 @@ export function GopalAIAssistant() {
       {!isOpen && (
         <div
           ref={launcherRef}
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 pointer-events-auto"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 pointer-events-auto"
           style={{ opacity: 0, transform: "translateX(180px)" }}
         >
-          {/* Scroll-aware animated wrapper: slides down when scrolling down, slides up when scrolling up or idle */}
+          {/* Scroll-aware animated wrapper: slides down immediately when scrolling down; when reappearing, delays slightly (150ms) so the BackToTop arrow has already lifted out of the way */}
           <div
             className={cn(
               "transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
               isVisible
-                ? "translate-y-0 opacity-100 pointer-events-auto"
-                : "translate-y-24 opacity-0 pointer-events-none",
+                ? "translate-y-0 opacity-100 pointer-events-auto delay-100"
+                : "translate-y-24 opacity-0 pointer-events-none delay-0",
             )}
           >
             {/* First-time visitor discovery tooltip bubble */}
@@ -443,9 +520,10 @@ export function GopalAIAssistant() {
       {isOpen && (
         <aside
           ref={modalRef}
+          data-lenis-prevent="true"
           aria-label="Ask Gopal Portfolio Assistant Chat Window"
           className={cn(
-            "fixed z-50 flex flex-col border border-primary/30 bg-background/98 backdrop-blur-2xl shadow-2xl ring-1 ring-white/10 transition-all duration-300",
+            "fixed z-50 flex flex-col border border-primary/30 bg-background/98 backdrop-blur-2xl shadow-2xl ring-1 ring-white/10 transition-all duration-300 overscroll-contain touch-pan-y",
             // Mobile full screen drawer or fixed widget
             "inset-x-2 bottom-2 top-14 sm:inset-auto sm:right-6 sm:bottom-6 rounded-3xl overflow-hidden",
             isExpanded ? "sm:w-[44rem] sm:h-[44rem]" : "sm:w-[28rem] sm:h-[38rem]",
@@ -515,7 +593,11 @@ export function GopalAIAssistant() {
           </div>
 
           {/* Chat Messages Body */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-sm">
+          <div
+            ref={scrollRef}
+            data-lenis-prevent="true"
+            className="flex-1 overflow-y-auto overscroll-contain touch-pan-y p-4 sm:p-5 space-y-4 text-sm"
+          >
             {messages
               .filter((msg) => msg.content.length > 0)
               .map((msg, index) => {

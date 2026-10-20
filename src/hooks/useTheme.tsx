@@ -3,14 +3,26 @@ import { useCallback, useEffect, useState } from "react";
 type Theme = "light" | "dark";
 const STORAGE_KEY = "portfolio-theme";
 
+let transitionTimer: ReturnType<typeof setTimeout> | null = null;
+
 function applyTheme(theme: Theme, transition = false) {
   const root = document.documentElement;
+
+  if (transitionTimer) {
+    clearTimeout(transitionTimer);
+    transitionTimer = null;
+  }
+
   if (transition) {
     root.classList.add("theme-transition");
-    window.setTimeout(() => {
+    transitionTimer = setTimeout(() => {
       root.classList.remove("theme-transition");
-    }, 300);
+      transitionTimer = null;
+    }, 320);
+  } else {
+    root.classList.remove("theme-transition");
   }
+
   root.classList.toggle("dark", theme === "dark");
   root.style.colorScheme = theme;
 
@@ -36,13 +48,24 @@ export function useTheme() {
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setTheme((current) => {
-      const next: Theme = current === "dark" ? "light" : "dark";
-      localStorage.setItem(STORAGE_KEY, next);
+    const next: Theme = theme === "dark" ? "light" : "dark";
+    localStorage.setItem(STORAGE_KEY, next);
+
+    const hasViewTransition =
+      typeof document !== "undefined" &&
+      "startViewTransition" in document &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (hasViewTransition) {
+      document.startViewTransition(() => {
+        applyTheme(next, false);
+        setTheme(next);
+      });
+    } else {
       applyTheme(next, true);
-      return next;
-    });
-  }, []);
+      setTheme(next);
+    }
+  }, [theme]);
 
   return { theme, toggleTheme, mounted };
 }
