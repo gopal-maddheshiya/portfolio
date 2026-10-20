@@ -383,7 +383,7 @@ export function Hero() {
 
         {/* Right Column: Premium Cutout Portrait with Abstract Orange Shape */}
         <div className="flex justify-center lg:justify-end min-w-0 -mt-2 sm:mt-0">
-          <div className="hero-photo-entrance relative group shrink-0">
+          <div className="hero-photo-entrance relative group shrink-0 w-full max-w-[275px] xs:max-w-[315px] sm:max-w-[360px] md:max-w-[395px] lg:max-w-[420px] xl:max-w-[430px] aspect-square">
             <CutoutPortrait
               photoSrc={
                 info.profilePhoto && info.profilePhoto.trim().length > 0
