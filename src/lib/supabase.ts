@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { compressImageToWebP, type CompressionResult } from "@/lib/image-compress";
 import {
   ABOUT_DATA,
   ACADEMIC_GALLERY,
@@ -383,12 +384,43 @@ export async function uploadPortfolioFile(
   }
 }
 
+export interface ImageUploadResponse {
+  url?: string;
+  error?: string;
+  originalSize?: number;
+  compressedSize?: number;
+  savingsPercent?: number;
+  converted?: boolean;
+}
+
 /**
- * Alias for uploading images to Supabase Storage bucket 'portfolio-media'
+ * Upload an image to Supabase Storage bucket 'portfolio-media'.
+ * Automatically compresses oversized images (PNG/JPEG/etc.) into optimized WebP format client-side.
  */
 export async function uploadPortfolioImage(
   file: File,
   folder = "projects",
-): Promise<{ url?: string; error?: string }> {
-  return uploadPortfolioFile(file, folder);
+  compressionOptions?: { maxWidth?: number; maxHeight?: number; quality?: number },
+): Promise<ImageUploadResponse> {
+  let fileToUpload = file;
+  let compressionResult: CompressionResult | null = null;
+
+  try {
+    if (typeof window !== "undefined") {
+      compressionResult = await compressImageToWebP(file, compressionOptions);
+      fileToUpload = compressionResult.file;
+    }
+  } catch (compressErr) {
+    console.warn("Client compression skipped, uploading original file:", compressErr);
+  }
+
+  const uploadRes = await uploadPortfolioFile(fileToUpload, folder);
+
+  return {
+    ...uploadRes,
+    originalSize: compressionResult?.originalSize ?? file.size,
+    compressedSize: compressionResult?.compressedSize ?? fileToUpload.size,
+    savingsPercent: compressionResult?.savingsPercent ?? 0,
+    converted: compressionResult?.converted ?? false,
+  };
 }

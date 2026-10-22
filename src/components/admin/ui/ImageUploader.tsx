@@ -32,11 +32,21 @@ export function ImageUploader({
 
     try {
       setIsUploading(true);
-      toast.info(`Uploading image (${(file.size / 1024).toFixed(0)} KB) to Cloud Storage...`);
+      const originalKb = (file.size / 1024).toFixed(0);
+      toast.info(`Optimizing & converting image to WebP (${originalKb} KB)...`);
+
       const res = await uploadPortfolioImage(file, folder);
+
       if (res.url) {
         onChange(res.url);
-        toast.success("Image uploaded and updated successfully!");
+        if (res.converted && res.savingsPercent && res.savingsPercent > 0) {
+          const compKb = ((res.compressedSize ?? 0) / 1024).toFixed(0);
+          toast.success(
+            `Optimized WebP uploaded! ${originalKb} KB → ${compKb} KB (saved ${res.savingsPercent}%)`,
+          );
+        } else {
+          toast.success("Image uploaded and updated successfully!");
+        }
       } else {
         toast.error(`Upload error: ${res.error || "Failed"}`);
       }
