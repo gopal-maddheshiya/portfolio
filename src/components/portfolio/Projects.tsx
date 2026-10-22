@@ -174,6 +174,7 @@ function ProjectVisual({
               alt=""
               aria-hidden="true"
               loading="lazy"
+              decoding="async"
               className="absolute inset-0 h-full w-full object-cover blur-md opacity-30 dark:opacity-20 scale-110 pointer-events-none"
             />
 
@@ -182,6 +183,7 @@ function ProjectVisual({
               src={image}
               alt={`${title} project preview`}
               loading="lazy"
+              decoding="async"
               width={900}
               height={500}
               className="relative z-10 h-full w-full object-contain object-center transition-transform duration-500 ease-out group-hover/image:scale-[1.02]"

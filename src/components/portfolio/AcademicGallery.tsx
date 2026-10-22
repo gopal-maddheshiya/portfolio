@@ -14,9 +14,46 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { usePortfolio } from "@/context/PortfolioContext";
+import { cn } from "@/lib/utils";
 import { Reveal } from "./Reveal";
 import { Section, SectionHeading } from "./Section";
 import type { AcademicMediaItem } from "@/data/profile";
+
+function GalleryCardImage({
+  src,
+  alt,
+  type,
+  thumbnailUrl,
+}: {
+  src: string;
+  alt: string;
+  type: "image" | "video";
+  thumbnailUrl?: string | undefined;
+}) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const displaySrc = type === "video" && thumbnailUrl ? thumbnailUrl : src;
+
+  return (
+    <div className="relative size-full overflow-hidden bg-surface">
+      {!isLoaded && (
+        <div className="absolute inset-0 skeleton-shimmer z-10 flex items-center justify-center">
+          <div className="size-6 rounded-full border-2 border-border border-t-primary animate-spin opacity-40" />
+        </div>
+      )}
+      <img
+        src={displaySrc}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        onLoad={() => setIsLoaded(true)}
+        className={cn(
+          "size-full object-cover transition-all duration-500 group-hover/media:scale-105",
+          isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-95",
+        )}
+      />
+    </div>
+  );
+}
 
 export function AcademicGallery() {
   const { data } = usePortfolio();
@@ -214,31 +251,22 @@ export function AcademicGallery() {
                 delay={index * 50}
                 className="group rounded-2xl border border-border bg-card overflow-hidden shadow-xs hover:border-primary/40 hover:shadow-soft transition-all flex flex-col justify-between"
               >
-                <div>
+                <div className="flex-1 flex flex-col">
                   {/* Media Visual Preview Area */}
                   <div
                     onClick={() => setActiveItem(item)}
-                    className="relative aspect-video w-full overflow-hidden bg-surface cursor-pointer group/media"
+                    className="relative aspect-[16/10] sm:aspect-video w-full overflow-hidden bg-surface cursor-pointer group/media"
                   >
-                    {item.type === "video" ? (
-                      item.thumbnailUrl ? (
-                        <img
-                          src={item.thumbnailUrl}
-                          alt={item.title}
-                          className="size-full object-cover transition-transform duration-500 group-hover/media:scale-105"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="size-full flex items-center justify-center bg-zinc-900 text-white">
-                          <Video className="size-10 text-primary/80" />
-                        </div>
-                      )
+                    {item.type === "video" && !item.thumbnailUrl ? (
+                      <div className="size-full flex items-center justify-center bg-zinc-900 text-white">
+                        <Video className="size-10 text-primary/80" />
+                      </div>
                     ) : (
-                      <img
+                      <GalleryCardImage
                         src={item.url}
                         alt={item.title}
-                        className="size-full object-cover transition-transform duration-500 group-hover/media:scale-105"
-                        loading="lazy"
+                        type={item.type}
+                        thumbnailUrl={item.thumbnailUrl}
                       />
                     )}
 
@@ -284,25 +312,27 @@ export function AcademicGallery() {
                   </div>
 
                   {/* Card Content & Details */}
-                  <div className="p-5 space-y-3.5">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-display font-semibold text-base sm:text-lg text-foreground line-clamp-2 leading-snug">
-                        {item.title}
-                      </h3>
-                      {item.date && (
-                        <span className="font-mono text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-md shrink-0">
-                          {item.date}
-                        </span>
-                      )}
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-3.5">
+                    <div className="space-y-1.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="font-display font-semibold text-base sm:text-lg text-foreground line-clamp-2 leading-snug">
+                          {item.title}
+                        </h3>
+                        {item.date && (
+                          <span className="font-mono text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-md shrink-0">
+                            {item.date}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* BOTTOM DEDICATED RELATION / CONTEXT BOX (User's Key Feature) */}
-                    <div className="rounded-xl border border-primary/20 bg-primary/5 p-3.5 space-y-1">
+                    <div className="rounded-xl border border-primary/20 bg-primary/5 p-3.5 space-y-1 mt-auto">
                       <div className="flex items-center gap-1.5 text-[11px] font-mono font-semibold uppercase tracking-wider text-primary">
                         <Tag className="size-3" />
                         <span>Related Context &amp; Significance</span>
                       </div>
-                      <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed line-clamp-3">
                         {item.caption || "Academic milestone and university memory."}
                       </p>
                     </div>

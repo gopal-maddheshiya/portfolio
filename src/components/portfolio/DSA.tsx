@@ -380,6 +380,17 @@ export function DSA() {
                   <span className="text-xs text-muted-foreground font-mono">
                     @{info.leetcodeUsername || PERSONAL_INFO.leetcodeUsername}
                   </span>
+                  {isFetching ? (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-[10px] font-mono text-amber-500 font-medium animate-pulse">
+                      <span className="size-1.5 rounded-full bg-amber-500" />
+                      <span>Syncing</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-medium">
+                      <span className="size-1.5 rounded-full bg-emerald-500" />
+                      <span>Live</span>
+                    </span>
+                  )}
                 </div>
                 <button
                   type="button"
@@ -466,10 +477,16 @@ export function DSA() {
                         </span>
                       </div>
 
-                      <span className="text-xs font-semibold text-[#00b8a3] flex items-center justify-center gap-1 mt-0.5">
-                        <CheckCircle2 className="size-3.5" />
-                        <span>Solved</span>
-                      </span>
+                      {isFetching ? (
+                        <span className="text-[11px] font-semibold text-amber-500 flex items-center justify-center gap-1 mt-0.5 animate-pulse">
+                          <span>Live Syncing...</span>
+                        </span>
+                      ) : (
+                        <span className="text-xs font-semibold text-[#00b8a3] flex items-center justify-center gap-1 mt-0.5">
+                          <CheckCircle2 className="size-3.5" />
+                          <span>Solved</span>
+                        </span>
+                      )}
 
                       <span className="text-[10px] text-muted-foreground font-mono mt-1 px-2 py-0.5 rounded-full bg-secondary border border-border">
                         Java Solutions
