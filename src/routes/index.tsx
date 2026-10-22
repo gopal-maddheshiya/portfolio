@@ -21,70 +21,79 @@ import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { SmoothScrollProvider } from "@/components/common/SmoothScroll";
 import { CERTIFICATIONS, PERSONAL_INFO, PROJECTS } from "@/data/profile";
 import { generateSeoSchema } from "@/lib/seo-schema";
+import { fetchPortfolioData } from "@/lib/supabase";
 
 const GopalAIAssistant = lazy(() =>
   import("@/components/ai/GopalAIAssistant").then((m) => ({ default: m.GopalAIAssistant })),
 );
 
-const TITLE = `${PERSONAL_INFO.name} | ${PERSONAL_INFO.role}`;
-const DESCRIPTION = PERSONAL_INFO.siteDescription;
-
-const schemaData = generateSeoSchema(PERSONAL_INFO, PROJECTS, CERTIFICATIONS);
-
 export const Route = createFileRoute("/")({
+  loader: async () => {
+    const portfolioData = await fetchPortfolioData();
+    return { portfolioData };
+  },
+  head: ({ loaderData }) => {
+    const data = loaderData?.portfolioData;
+    const info = data?.personalInfo ?? PERSONAL_INFO;
+    const projects = data?.projects ?? PROJECTS;
+    const certs = data?.certifications ?? CERTIFICATIONS;
+    const title = `${info.name} | ${info.role}`;
+    const description = info.siteDescription;
+    const schemaData = generateSeoSchema(info, projects, certs, data);
+
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        {
+          name: "keywords",
+          content: `${info.name}, ${info.name} SRMU, Java Developer, Full-Stack Developer, MERN Stack, React Developer, Node.js, LeetCode, DSA, Shri Ramswaroop Memorial University, SIH 2026, KisanSarthi, Software Engineering Intern, Web Development`,
+        },
+        {
+          name: "robots",
+          content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+        },
+        {
+          name: "googlebot",
+          content: "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+        },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "profile" },
+        { property: "og:url", content: `${info.siteUrl}/` },
+        { property: "og:image", content: info.ogImage },
+        { property: "og:image:secure_url", content: info.ogImage },
+        { property: "og:image:type", content: "image/jpeg" },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        {
+          property: "og:image:alt",
+          content: `${info.name} — ${info.role} Portfolio`,
+        },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        { name: "twitter:image", content: info.ogImage },
+      ],
+      links: [
+        { rel: "canonical", href: `${info.siteUrl}/` },
+        {
+          rel: "alternate",
+          type: "text/plain",
+          href: "/llms.txt",
+          title: "LLM Context",
+        },
+        { rel: "sitemap", type: "application/xml", href: "/sitemap.xml" },
+      ],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(schemaData),
+        },
+      ],
+    };
+  },
   component: Index,
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      {
-        name: "keywords",
-        content:
-          "Gopal Maddheshiya, Gopal Maddheshiya SRMU, Java Developer, Full-Stack Developer, MERN Stack, React Developer, Node.js, LeetCode, DSA, Shri Ramswaroop Memorial University, SIH 2026, KisanSarthi, Software Engineering Intern, Web Development",
-      },
-      {
-        name: "robots",
-        content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
-      },
-      {
-        name: "googlebot",
-        content: "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
-      },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "profile" },
-      { property: "og:url", content: `${PERSONAL_INFO.siteUrl}/` },
-      { property: "og:image", content: PERSONAL_INFO.ogImage },
-      { property: "og:image:secure_url", content: PERSONAL_INFO.ogImage },
-      { property: "og:image:type", content: "image/jpeg" },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
-      {
-        property: "og:image:alt",
-        content: `${PERSONAL_INFO.name} — ${PERSONAL_INFO.role} Portfolio`,
-      },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: TITLE },
-      { name: "twitter:description", content: DESCRIPTION },
-      { name: "twitter:image", content: PERSONAL_INFO.ogImage },
-    ],
-    links: [
-      { rel: "canonical", href: `${PERSONAL_INFO.siteUrl}/` },
-      {
-        rel: "alternate",
-        type: "text/plain",
-        href: "/llms.txt",
-        title: "LLM Context",
-      },
-      { rel: "sitemap", type: "application/xml", href: "/sitemap.xml" },
-    ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify(schemaData),
-      },
-    ],
-  }),
 });
 
 function Index() {

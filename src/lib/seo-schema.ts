@@ -1,47 +1,78 @@
 import { FAQS } from "@/data/faq";
 import { type Certification, type PersonalInfo, type Project } from "@/data/profile";
+import type { PortfolioData } from "@/lib/supabase";
 
 export function generateSeoSchema(
   info: PersonalInfo,
   projects: Project[] = [],
   certifications: Certification[] = [],
+  portfolioData?: Partial<PortfolioData> | null,
 ) {
-  const baseUrl = info.siteUrl.replace(/\/$/, "");
+  const baseUrl = (info.siteUrl || "https://gopal-maddheshiya.vercel.app").replace(/\/$/, "");
   const personId = `${baseUrl}/#person`;
   const websiteId = `${baseUrl}/#website`;
   const profilePageId = `${baseUrl}/#profilepage`;
 
-  const sameAsProfiles = [
-    info.github,
-    info.linkedin,
-    info.leetcode,
-    "https://www.geeksforgeeks.org/profile/gopalmaddheshiya",
-    "https://www.codechef.com/users/gopal_code_96",
-    "https://www.hackerrank.com/profile/gopalmaddheshiy1",
-  ].filter(Boolean);
+  const dynamicCodingUrls =
+    portfolioData?.codingProfiles
+      ?.map((p) => p.url)
+      .filter((url): url is string => Boolean(url && url.startsWith("http"))) || [];
 
-  const skillsList = [
-    "Java",
-    "Data Structures and Algorithms",
-    "Object-Oriented Programming (OOP)",
-    "React.js",
-    "Node.js",
-    "Express.js",
-    "MongoDB Atlas",
-    "Mongoose ODM",
-    "TypeScript",
-    "JavaScript ES6+",
-    "Tailwind CSS v4",
-    "Supabase",
-    "PostgreSQL",
-    "RESTful API Development",
-    "JWT Authentication",
-    "Git & GitHub",
-    "Vercel",
-    "Render",
-    "Full-Stack Web Development",
-    "Software Engineering",
-  ];
+  const sameAsProfiles = Array.from(
+    new Set(
+      [
+        info.github,
+        info.linkedin,
+        info.leetcode,
+        ...dynamicCodingUrls,
+        "https://www.geeksforgeeks.org/profile/gopalmaddheshiya",
+        "https://www.codechef.com/users/gopal_code_96",
+        "https://www.hackerrank.com/profile/gopalmaddheshiy1",
+      ].filter(Boolean),
+    ),
+  );
+
+  const dynamicSkills = portfolioData?.skillGroups?.flatMap((g) => g.skills) || [];
+  const skillsList = Array.from(
+    new Set([
+      "Java",
+      "Data Structures and Algorithms",
+      "Object-Oriented Programming (OOP)",
+      ...dynamicSkills,
+      "React.js",
+      "Node.js",
+      "Express.js",
+      "MongoDB Atlas",
+      "Mongoose ODM",
+      "TypeScript",
+      "JavaScript ES6+",
+      "Tailwind CSS v4",
+      "Supabase",
+      "PostgreSQL",
+      "RESTful API Development",
+      "JWT Authentication",
+      "Git & GitHub",
+      "Vercel",
+      "Render",
+      "Full-Stack Web Development",
+      "Software Engineering",
+    ]),
+  );
+
+  const dynamicEducation = portfolioData?.education || [];
+  const alumniList =
+    dynamicEducation.length > 0
+      ? dynamicEducation.map((edu) => ({
+          "@type": "EducationalOrganization" as const,
+          name: edu.org,
+        }))
+      : [
+          {
+            "@type": "EducationalOrganization" as const,
+            name: "Shri Ramswaroop Memorial University (SRMU)",
+            url: "https://srmu.ac.in",
+          },
+        ];
 
   const projectItemList = projects.map((proj, idx) => ({
     "@type": "SoftwareSourceCode",
@@ -87,11 +118,7 @@ export function generateSeoSchema(
           addressCountry: "IN",
         },
         sameAs: sameAsProfiles,
-        alumniOf: {
-          "@type": "EducationalOrganization",
-          name: "Shri Ramswaroop Memorial University (SRMU)",
-          url: "https://srmu.ac.in",
-        },
+        alumniOf: alumniList,
         knowsAbout: skillsList,
         knowsLanguage: ["en", "hi"],
         hasOccupation: {
