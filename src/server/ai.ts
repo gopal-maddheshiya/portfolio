@@ -88,16 +88,10 @@ RESPONSE FORMATTING GUIDELINES:
 
 // Ultra-fast and stable models verified on Google Gemini API in priority order
 const STABLE_FAST_MODELS = [
-  "gemini-flash-lite-latest",
-  "gemini-3.1-flash-lite",
-  "gemini-3.5-flash-lite",
-  "gemini-3.5-flash",
-  "gemini-3.6-flash",
-  "gemini-3-flash-preview",
-  "gemini-flash-latest",
-  "gemini-1.5-flash",
+  "gemini-2.5-flash",
   "gemini-2.0-flash",
-  "gemma-4-26b-a4b-it",
+  "gemini-1.5-flash",
+  "gemini-1.5-flash-8b",
 ];
 
 function formatConversationContents(

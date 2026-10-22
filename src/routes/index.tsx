@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { About } from "@/components/portfolio/About";
@@ -15,12 +16,15 @@ import { Profiles } from "@/components/portfolio/Profiles";
 import { Projects } from "@/components/portfolio/Projects";
 import { ResumeCTA } from "@/components/portfolio/ResumeCTA";
 import { Skills } from "@/components/portfolio/Skills";
-import { GopalAIAssistant } from "@/components/ai/GopalAIAssistant";
 import { BackToTop } from "@/components/portfolio/BackToTop";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { SmoothScrollProvider } from "@/components/common/SmoothScroll";
 import { CERTIFICATIONS, PERSONAL_INFO, PROJECTS } from "@/data/profile";
 import { generateSeoSchema } from "@/lib/seo-schema";
+
+const GopalAIAssistant = lazy(() =>
+  import("@/components/ai/GopalAIAssistant").then((m) => ({ default: m.GopalAIAssistant })),
+);
 
 const TITLE = `${PERSONAL_INFO.name} | ${PERSONAL_INFO.role}`;
 const DESCRIPTION = PERSONAL_INFO.siteDescription;
@@ -112,7 +116,9 @@ function Index() {
         <Footer />
         <BackToTop />
         <ErrorBoundary name="AI Assistant">
-          <GopalAIAssistant />
+          <Suspense fallback={null}>
+            <GopalAIAssistant />
+          </Suspense>
         </ErrorBoundary>
       </div>
     </SmoothScrollProvider>
