@@ -14,7 +14,6 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { usePortfolio } from "@/context/PortfolioContext";
-import { cn } from "@/lib/utils";
 import { Reveal } from "./Reveal";
 import { Section, SectionHeading } from "./Section";
 import type { AcademicMediaItem } from "@/data/profile";
@@ -31,26 +30,42 @@ function GalleryCardImage({
   thumbnailUrl?: string | undefined;
 }) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
   const displaySrc = type === "video" && thumbnailUrl ? thumbnailUrl : src;
 
+  // Handle cached images where onLoad doesn't fire after hydration
+  useEffect(() => {
+    if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
+      setIsLoaded(true);
+    }
+  }, [displaySrc]);
+
   return (
-    <div className="relative size-full overflow-hidden bg-surface">
-      {!isLoaded && (
-        <div className="absolute inset-0 skeleton-shimmer z-10 flex items-center justify-center">
-          <div className="size-6 rounded-full border-2 border-border border-t-primary animate-spin opacity-40" />
+    <div className="relative size-full overflow-hidden bg-muted/20">
+      {!isLoaded && !hasError && (
+        <div className="absolute inset-0 z-1 flex items-center justify-center bg-card/40 pointer-events-none transition-opacity duration-300">
+          <div className="size-6 rounded-full border-2 border-border border-t-primary animate-spin opacity-50" />
         </div>
       )}
-      <img
-        src={displaySrc}
-        alt={alt}
-        loading="lazy"
-        decoding="async"
-        onLoad={() => setIsLoaded(true)}
-        className={cn(
-          "size-full object-cover transition-all duration-500 group-hover/media:scale-105",
-          isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-95",
-        )}
-      />
+
+      {hasError ? (
+        <div className="size-full flex flex-col items-center justify-center bg-zinc-900 text-zinc-400 gap-2 p-4 text-center">
+          <Camera className="size-8 text-zinc-600" />
+          <span className="text-xs">Image unavailable</span>
+        </div>
+      ) : (
+        <img
+          ref={imgRef}
+          src={displaySrc}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          onLoad={() => setIsLoaded(true)}
+          onError={() => setHasError(true)}
+          className="size-full object-cover transition-transform duration-500 group-hover/media:scale-105"
+        />
+      )}
     </div>
   );
 }

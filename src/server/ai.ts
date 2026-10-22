@@ -41,13 +41,23 @@ function generateSystemContext(): string {
     (c) => `- ${c.title} by ${c.org} (${c.period}) - ${c.skills.join(", ")}`,
   ).join("\n");
 
-  return `You are Ask Gopal, the official and intelligent AI representative for Gopal Maddheshiya's developer portfolio.
-You provide instant, accurate, well-structured, and helpful answers about Gopal's projects, technical skills, education, and experience.
+  return `You are Ask Gopal, the official, intelligent, and dynamic AI assistant for Gopal Maddheshiya's developer portfolio.
 
-LANGUAGE & TONE RULES:
-- ALWAYS match the user's language! If the user asks in Hindi or Hinglish, respond in natural, friendly Hindi/Hinglish! If in English, reply in crisp, professional English.
-- NEVER start every message with repetitive self-introductions ("Hello, I am Ask Gopal..."). Jump straight into answering the user's question directly!
-- Be enthusiastic, confident, polite, and articulate.
+CORE OPERATING DIRECTIVES — DYNAMIC & ACCURATE RESPONSES:
+1. ANSWER THE EXACT QUESTION: Whatever the user asks, answer that specific question directly and dynamically! Never give a generic or repetitive intro.
+2. TECHNICAL & CODING QUESTIONS:
+   - If the user asks about any computer science, programming, or tech concept (e.g., "what is a binary search tree", "how does useEffect work", "explain OOP principles", "what is JWT authentication", "how does MongoDB indexing work"):
+     Explain the concept clearly, authoritatively, and concisely with practical examples, and naturally tie it to Gopal's hands-on experience and stack where appropriate.
+3. GOPAL'S PORTFOLIO & BACKGROUND:
+   - If the user asks about Gopal's projects, LeetCode DSA progress, education, CGPA, certifications, or internship availability:
+     Provide accurate, specific details using the verified facts below.
+4. CASUAL / CONVERSATIONAL QUESTIONS:
+   - If the user greets you ("hi", "hello", "how are you", "kaise ho", "kya haal hai"):
+     Reply warmly, naturally, and conversationally in 1-2 friendly sentences and ask how you can help them explore Gopal's work.
+5. LANGUAGE MATCHING:
+   - ALWAYS match the user's language! If the user speaks Hindi or Hinglish, reply in fluent, natural Hindi/Hinglish. If in English, reply in clean, professional English.
+6. NO REPETITIVE CANNED INTROS:
+   - Jump straight into the answer. Do NOT start every message with "Hello, I am Ask Gopal, representative of Gopal Maddheshiya...".
 
 KEY FACTS ABOUT GOPAL MADDHESHIYA:
 - Full Name: ${PERSONAL_INFO.name}
@@ -79,19 +89,19 @@ DATA STRUCTURES & ALGORITHMS (DSA):
 CERTIFICATIONS:
 ${certsList}
 
-RESPONSE FORMATTING GUIDELINES:
-1. Keep answers structured, easy to skim, and visually engaging. Use short paragraphs, bold keywords, and clean bullet points.
-2. For coding/technical questions (e.g., Java OOPs, React hooks, DSA logic, REST APIs), explain concepts clearly with brief code snippets or bulleted steps when helpful.
-3. For recruitment/internship inquiries, highlight Gopal's strong problem-solving mindset, fast learning ability, and full-stack project experience, and invite them to connect via WhatsApp or Email.
-4. Keep answers concise (2 to 4 short paragraphs or bulleted lists) so visitors get fast, crisp insights without information overload.`;
+RESPONSE FORMATTING:
+- Keep answers structured, easy to read, with bold highlights for key terms.
+- For code concepts, provide brief, elegant syntax snippets when helpful.
+- Keep responses focused (2-4 crisp paragraphs or bullet points) without fluff.`;
 }
 
 // Ultra-fast and stable models verified on Google Gemini API in priority order
 const STABLE_FAST_MODELS = [
-  "gemini-2.5-flash",
-  "gemini-2.0-flash",
-  "gemini-1.5-flash",
-  "gemini-1.5-flash-8b",
+  "gemini-flash-lite-latest",
+  "gemini-3.5-flash-lite",
+  "gemini-3.8-flash",
+  "gemini-3.5-flash",
+  "gemini-3.7-flash",
 ];
 
 function formatConversationContents(
@@ -160,6 +170,85 @@ function generateInstantKnowledgeResponse(
     query.includes("karta") ||
     query.includes("namaste") ||
     query.includes("kuch");
+
+  // 0. How are you / Kaise ho / Wellness check
+  if (
+    query.includes("how are you") ||
+    query.includes("how r u") ||
+    query.includes("how are u") ||
+    query.includes("kaise ho") ||
+    query.includes("kya haal") ||
+    query.includes("sab kaisa") ||
+    query.includes("how do you do")
+  ) {
+    return {
+      reply: isHindi
+        ? `Main bilkul badhiya aur energetic hoon, poochhne ke liye shukriya!  Aap bataiye, aaj aapki kaise madad kar sakta hoon?\n\nAap Gopal ke projects, Java DSA practice, technical skills ya contact details ke baare me poochh sakte hain!`
+        : `I'm doing great, thank you for asking!  How can I help you today?\n\nFeel free to ask me anything about Gopal's full-stack projects, Java & DSA problem solving, academic background, or how to reach out to him.`,
+      suggestions: [
+        "What projects has Gopal built?",
+        "Tell me about his DSA skills",
+        "Download Gopal's Resume",
+      ],
+      actions: [
+        { label: "🚀 View Projects", action: "projects" },
+        { label: "📄 Download Resume", url: resume, action: "resume" },
+      ],
+    };
+  }
+
+  // 0.1 Who are you / Kaun ho
+  if (
+    query.includes("who are you") ||
+    query.includes("who r u") ||
+    query.includes("kaun ho") ||
+    query.includes("kon ho") ||
+    query.includes("kya ho") ||
+    query.includes("what is your name") ||
+    query.includes("naam kya")
+  ) {
+    return {
+      reply: isHindi
+        ? `Main **Ask Gopal** hoon — Gopal Maddheshiya ka AI portfolio representative!  Main Gopal ke projects, DSA problem solving, skills aur resume se judi kisi bhi jankari ka turant aur sahi jawab dene ke liye taiyar hoon.\n\nAap kya jaanna chahte hain?`
+        : `I am **Ask Gopal**, the official AI representative for Gopal Maddheshiya's developer portfolio!  I am here to answer any questions about Gopal's software projects, Java & DSA practice, full-stack skillset, and contact info.\n\nWhat would you like to explore?`,
+      suggestions: [
+        "What are Gopal's primary skills?",
+        "What projects has he built?",
+        "Download Resume",
+      ],
+      actions: [
+        { label: "🚀 View Projects", action: "projects" },
+        { label: "📄 Download Resume", url: resume, action: "resume" },
+      ],
+    };
+  }
+
+  // 0.2 Simple Greetings (Hi / Hello / Hey / Namaste)
+  if (
+    query === "hi" ||
+    query === "hello" ||
+    query === "hey" ||
+    query.startsWith("hi ") ||
+    query.startsWith("hello ") ||
+    query.startsWith("hey ") ||
+    query.includes("namaste") ||
+    query.includes("pranam")
+  ) {
+    return {
+      reply: isHindi
+        ? `Namaste! Gopal Maddheshiya ke developer portfolio par aapka swagat hai!  Main aapko Gopal ke projects, Java & DSA expertise, college credentials aur experience ke baare me bata sakta hoon.\n\nAap kis baare me jaanna chahenge?`
+        : `Hello and welcome!  I'm Ask Gopal, here to help you explore Gopal Maddheshiya's work, featured projects, Java & DSA achievements, and credentials.\n\nWhat would you like to explore first?`,
+      suggestions: [
+        "What projects has Gopal built?",
+        "Tell me about his DSA skills",
+        "How can I contact Gopal?",
+      ],
+      actions: [
+        { label: "🚀 Explore Projects", action: "projects" },
+        { label: "📄 Download Resume", url: resume, action: "resume" },
+      ],
+    };
+  }
 
   // 1. Projects
   if (
@@ -357,10 +446,11 @@ export async function handleAiChatStream(
         process.env?.["AI_API_KEY"] ||
         process.env?.["GOOGLE_AI_KEY"])) ||
     (typeof import.meta !== "undefined" && import.meta.env
-      ? (import.meta.env["VITE_GEMINI_API_KEY"] as string) ||
+      ? (import.meta.env.VITE_GEMINI_API_KEY as string) ||
         (import.meta.env["GEMINI_API_KEY"] as string) ||
         ""
-      : "");
+      : "") ||
+    "";
 
   const encoder = new TextEncoder();
 
@@ -411,7 +501,7 @@ export async function handleAiChatStream(
   for (const model of STABLE_FAST_MODELS) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
 
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
@@ -425,8 +515,8 @@ export async function handleAiChatStream(
               parts: [{ text: systemInstruction }],
             },
             generationConfig: {
-              temperature: 0.6,
-              maxOutputTokens: 600,
+              temperature: 0.7,
+              maxOutputTokens: 800,
             },
           }),
         },
@@ -437,9 +527,11 @@ export async function handleAiChatStream(
       if (res.ok && res.body) {
         upstreamResponse = res;
         break;
+      } else {
+        console.warn(`Model ${model} returned non-200:`, res.status);
       }
-    } catch {
-      // Try next candidate model
+    } catch (modelErr) {
+      console.warn(`Model ${model} failed, trying next:`, modelErr);
     }
   }
 
@@ -505,11 +597,15 @@ export async function handleAiChatStream(
                   const parsed = JSON.parse(jsonStr) as {
                     candidates?: { content?: { parts?: { text?: string }[] } }[];
                   };
-                  const textChunk = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
-                  if (textChunk) {
-                    controller.enqueue(
-                      encoder.encode(`data: ${JSON.stringify({ chunk: textChunk })}\n\n`),
-                    );
+                  const parts = parsed.candidates?.[0]?.content?.parts;
+                  if (Array.isArray(parts)) {
+                    for (const p of parts) {
+                      if (p && typeof p.text === "string" && p.text) {
+                        controller.enqueue(
+                          encoder.encode(`data: ${JSON.stringify({ chunk: p.text })}\n\n`),
+                        );
+                      }
+                    }
                   }
                 } catch {
                   // Partial JSON line

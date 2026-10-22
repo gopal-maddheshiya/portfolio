@@ -296,10 +296,9 @@ export function GopalAIAssistant() {
 
     const tick = () => {
       if (bufferRef.current.length > 0) {
-        // Natural typewriter cadence:
-        // Speed up dynamically if network delivers a large chunk so it never falls behind
-        const charsToTake =
-          bufferRef.current.length > 80 ? 4 : bufferRef.current.length > 30 ? 2 : 1;
+        // Fast, fluid typewriter cadence — never keeps user waiting
+        const len = bufferRef.current.length;
+        const charsToTake = len > 120 ? 18 : len > 60 ? 10 : len > 20 ? 5 : 2;
         const piece = bufferRef.current.slice(0, charsToTake);
         bufferRef.current = bufferRef.current.slice(charsToTake);
 
@@ -315,7 +314,7 @@ export function GopalAIAssistant() {
           return next;
         });
 
-        timerRef.current = window.setTimeout(tick, 18);
+        timerRef.current = window.setTimeout(tick, 14);
       } else if (isDoneRef.current) {
         // Buffer is empty and stream generation is complete
         if (completionDataRef.current) {
@@ -338,11 +337,11 @@ export function GopalAIAssistant() {
         timerRef.current = null;
       } else {
         // Still waiting for more network chunks
-        timerRef.current = window.setTimeout(tick, 25);
+        timerRef.current = window.setTimeout(tick, 20);
       }
     };
 
-    timerRef.current = window.setTimeout(tick, 18);
+    timerRef.current = window.setTimeout(tick, 14);
   };
 
   const handleSendMessage = async (textToSend?: string) => {
