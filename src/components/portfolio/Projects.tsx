@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUpRight, CheckCircle2, Code2, ExternalLink, Github, Sparkles } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, ChevronDown, ChevronUp, Code2, ExternalLink, Github, Sparkles } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -233,10 +233,13 @@ function ProjectVisual({
   return content;
 }
 
+const INITIAL_PROJECT_COUNT = 3;
+
 /* ─────────────── Main Projects Section ─────────────── */
 export function Projects() {
   const { data } = usePortfolio();
   const [activeCategory, setActiveCategory] = useState<string>("All");
+  const [showAll, setShowAll] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const headingAnimatedRef = useRef(false);
 
@@ -253,6 +256,28 @@ export function Projects() {
       }),
     [data.projects, activeCategory],
   );
+
+  const displayedProjects = useMemo(() => {
+    if (showAll) return filteredProjects;
+    return filteredProjects.slice(0, INITIAL_PROJECT_COUNT);
+  }, [filteredProjects, showAll]);
+
+  const handleCategoryChange = useCallback((category: string) => {
+    setActiveCategory(category);
+    setShowAll(false);
+  }, []);
+
+  const toggleShowAll = useCallback(() => {
+    if (showAll) {
+      setShowAll(false);
+      document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      setShowAll(true);
+    }
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 150);
+  }, [showAll]);
 
   /* ── GSAP ScrollTrigger entrance ── */
   useEffect(() => {
@@ -334,7 +359,7 @@ export function Projects() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [filteredProjects]);
+  }, [displayedProjects]);
 
   return (
     <Section id="projects" ref={sectionRef}>
@@ -356,7 +381,7 @@ export function Projects() {
               key={category}
               type="button"
               aria-pressed={isActive}
-              onClick={() => setActiveCategory(category)}
+              onClick={() => handleCategoryChange(category)}
               className={cn(
                 "rounded-full px-3.5 py-1 font-mono text-xs font-medium transition-all cursor-pointer",
                 isActive
@@ -372,7 +397,7 @@ export function Projects() {
 
       {/* Project Cards */}
       <div className="mt-6 sm:mt-8 space-y-4 sm:space-y-6">
-        {filteredProjects.map((project, index) => {
+        {displayedProjects.map((project, index) => {
           const isEven = index % 2 === 1;
 
           return (
@@ -448,6 +473,32 @@ export function Projects() {
           );
         })}
       </div>
+
+      {/* View More / Show Less Toggle Button */}
+      {filteredProjects.length > INITIAL_PROJECT_COUNT && (
+        <div className="mt-8 sm:mt-10 flex justify-center">
+          <MagneticWrap strength={0.2} className="inline-block">
+            <button
+              type="button"
+              onClick={toggleShowAll}
+              aria-expanded={showAll}
+              className="group inline-flex items-center gap-2.5 rounded-full border border-border-strong bg-card/90 px-5 py-2.5 font-mono text-xs sm:text-sm font-medium text-foreground backdrop-blur-xs shadow-soft transition-all hover:border-primary/60 hover:bg-secondary hover:shadow-glow active:scale-[0.98] cursor-pointer"
+            >
+              <span>{showAll ? "Show Less" : "View More Projects"}</span>
+              {!showAll && (
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                  +{filteredProjects.length - INITIAL_PROJECT_COUNT} more
+                </span>
+              )}
+              {showAll ? (
+                <ChevronUp className="size-4 text-muted-foreground transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:text-foreground" />
+              ) : (
+                <ChevronDown className="size-4 text-muted-foreground transition-transform duration-200 group-hover:translate-y-0.5 group-hover:text-foreground" />
+              )}
+            </button>
+          </MagneticWrap>
+        </div>
+      )}
     </Section>
   );
 }

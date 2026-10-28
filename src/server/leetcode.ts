@@ -75,15 +75,15 @@ export const KNOWN_DIFFICULTIES: Record<string, "Easy" | "Medium" | "Hard"> = {
 const FALLBACK_STATS: LeetCodeStatsResponse = {
   success: true,
   username: "gopal-maddheshiya",
-  totalSolved: 54,
+  totalSolved: 57,
   totalQuestions: 4060,
-  easySolved: 30,
+  easySolved: 33,
   totalEasy: 966,
   mediumSolved: 22,
   totalMedium: 2117,
   hardSolved: 2,
   totalHard: 977,
-  ranking: 2633618,
+  ranking: 2590814,
   badges: [
     {
       id: "10507504",
@@ -203,10 +203,10 @@ const FALLBACK_STATS: LeetCodeStatsResponse = {
   updatedAt: new Date().toISOString(),
 };
 
-// In-memory cache for fast response and avoiding LeetCode rate limits (3-minute TTL)
+// In-memory cache for fast response and avoiding rate limits (15-minute TTL)
 let cachedStats: LeetCodeStatsResponse | null = null;
 let lastFetchTime = 0;
-const CACHE_TTL_MS = 3 * 60 * 1000;
+const CACHE_TTL_MS = 15 * 60 * 1000;
 
 /**
  * Strategy 1: Fetch directly from LeetCode Official GraphQL API
@@ -601,14 +601,14 @@ export async function fetchLeetCodeStats(
     return cachedStats;
   }
 
-  // 1. Try official LeetCode GraphQL
+  // 1. Try FaisalShohag proxy (fastest and most reliable endpoint)
   try {
-    const result = await fetchFromLeetCodeGraphQL(username);
+    const result = await fetchFromFaisalShohag(username);
     cachedStats = result;
     lastFetchTime = now;
     return result;
-  } catch (graphqlErr) {
-    console.warn("LeetCode GraphQL error, attempting Alfa proxy:", graphqlErr);
+  } catch (faisalErr: any) {
+    console.log(`[LeetCode] FaisalShohag proxy unavailable (${faisalErr?.message || "error"}), trying Alfa proxy...`);
   }
 
   // 2. Try Alfa LeetCode proxy
@@ -617,21 +617,21 @@ export async function fetchLeetCodeStats(
     cachedStats = result;
     lastFetchTime = now;
     return result;
-  } catch (alfaErr) {
-    console.warn("Alfa proxy error, attempting FaisalShohag proxy:", alfaErr);
+  } catch (alfaErr: any) {
+    console.log(`[LeetCode] Alfa proxy unavailable (${alfaErr?.message || "error"}), trying GraphQL...`);
   }
 
-  // 3. Try FaisalShohag proxy
+  // 3. Try official LeetCode GraphQL
   try {
-    const result = await fetchFromFaisalShohag(username);
+    const result = await fetchFromLeetCodeGraphQL(username);
     cachedStats = result;
     lastFetchTime = now;
     return result;
-  } catch (faisalErr) {
-    console.warn("FaisalShohag proxy error:", faisalErr);
+  } catch (graphqlErr: any) {
+    console.log(`[LeetCode] LeetCode GraphQL unavailable (${graphqlErr?.message || "error"}).`);
   }
 
-  // 4. Return cached stats if available
+  // 4. Return cached stats if available (even if expired)
   if (cachedStats) {
     return cachedStats;
   }

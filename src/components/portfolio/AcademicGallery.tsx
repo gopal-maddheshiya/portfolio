@@ -70,6 +70,400 @@ function GalleryCardImage({
   );
 }
 
+/* ─────────────── Gallery Card Item ─────────────── */
+function GalleryCardItem({
+  item,
+  onClick,
+}: {
+  item: AcademicMediaItem;
+  onClick: () => void;
+}) {
+  return (
+    <article
+      onClick={onClick}
+      className="group relative flex flex-col justify-between rounded-2xl border border-border bg-card overflow-hidden shadow-xs hover:border-primary/40 hover:shadow-soft transition-all cursor-pointer select-none h-full"
+    >
+      <div className="flex-1 flex flex-col">
+        {/* Media Visual Preview Area */}
+        <div className="relative aspect-[16/10] sm:aspect-video w-full overflow-hidden bg-surface group/media">
+          {item.type === "video" && !item.thumbnailUrl ? (
+            <div className="size-full flex items-center justify-center bg-zinc-900 text-white">
+              <Video className="size-10 text-primary/80" />
+            </div>
+          ) : (
+            <GalleryCardImage
+              src={item.url}
+              alt={item.title}
+              type={item.type}
+              thumbnailUrl={item.thumbnailUrl}
+            />
+          )}
+
+          {/* Media Type & Date Overlay Badges */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
+
+          <div className="absolute top-2.5 left-2.5 z-10">
+            <span className="inline-flex items-center gap-1 rounded-md bg-black/60 backdrop-blur-md px-2.5 py-1 text-[11px] font-semibold text-white border border-white/15">
+              {item.type === "video" ? (
+                <>
+                  <Video className="size-3 text-red-400" />
+                  <span>Video</span>
+                </>
+              ) : (
+                <>
+                  <Camera className="size-3 text-primary" />
+                  <span>Photo</span>
+                </>
+              )}
+            </span>
+          </div>
+
+          {item.category && (
+            <div className="absolute top-2.5 right-2.5 z-10">
+              <span className="inline-flex items-center gap-1 rounded-md bg-black/60 backdrop-blur-md px-2 py-0.5 text-[11px] font-mono text-zinc-200 border border-white/10">
+                {item.category}
+              </span>
+            </div>
+          )}
+
+          {/* Play / Expand hover icon */}
+          <div className="absolute inset-0 flex items-center justify-center z-10 opacity-90 group-hover/media:opacity-100 transition-opacity">
+            {item.type === "video" ? (
+              <div className="flex size-11 sm:size-13 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 group-hover/media:scale-110 transition-transform">
+                <Play className="size-4 sm:size-5 fill-current translate-x-0.5" />
+              </div>
+            ) : (
+              <div className="flex size-9 sm:size-11 items-center justify-center rounded-full bg-black/60 backdrop-blur-md text-white border border-white/20 opacity-0 group-hover/media:opacity-100 group-hover/media:scale-105 transition-all">
+                <Maximize2 className="size-3.5 sm:size-4" />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Card Content & Details */}
+        <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+          <div className="space-y-1">
+            <div className="flex items-start justify-between gap-2">
+              <h3 className="font-display font-semibold text-sm sm:text-base text-foreground line-clamp-2 leading-snug">
+                {item.title}
+              </h3>
+              {item.date && (
+                <span className="font-mono text-[11px] sm:text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-md shrink-0">
+                  {item.date}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Dedicated Relation / Context Box */}
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 space-y-1 mt-auto">
+            <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono font-semibold uppercase tracking-wider text-primary">
+              <Tag className="size-3" />
+              <span>Related Context &amp; Significance</span>
+            </div>
+            <p className="text-[11px] sm:text-xs text-foreground/90 leading-relaxed line-clamp-2">
+              {item.caption || "Academic milestone and university memory."}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Action */}
+      <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-0">
+        <div className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface group-hover:bg-secondary text-foreground text-xs font-semibold py-2 transition-all">
+          {item.type === "video" ? (
+            <>
+              <Play className="size-3.5 text-primary" />
+              <span>Watch Video & Details</span>
+            </>
+          ) : (
+            <>
+              <Maximize2 className="size-3.5 text-primary" />
+              <span>View Full Details</span>
+            </>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+/* ─────────────── Infinite Draggable Gallery Carousel ─────────────── */
+function InfiniteGalleryCarousel({
+  items,
+  onSelectItem,
+}: {
+  items: AcademicMediaItem[];
+  onSelectItem: (item: AcademicMediaItem) => void;
+}) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const singleSetRef = useRef<HTMLDivElement>(null);
+
+  const [direction, setDirection] = useState<-1 | 1>(-1); // -1 = left, 1 = right
+
+  const offsetRef = useRef(0);
+  const directionRef = useRef<-1 | 1>(-1);
+  const isDraggingRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const lastPointerXRef = useRef(0);
+  const lastPointerTimeRef = useRef(0);
+  const dragVelocityRef = useRef(0);
+  const hasDraggedRef = useRef(false);
+  const isHoveredRef = useRef(false);
+  const inertiaSpeedRef = useRef(0);
+  const singleSetWidthRef = useRef(0);
+
+  // Sync state to ref
+  useEffect(() => {
+    directionRef.current = direction;
+  }, [direction]);
+
+  // Multiply items for infinite loop seamlessness
+  const repeatCount = useMemo(() => {
+    if (items.length <= 1) return 1;
+    return Math.max(3, Math.ceil(12 / items.length));
+  }, [items.length]);
+
+  const loopedSets = useMemo(() => {
+    const sets: AcademicMediaItem[][] = [];
+    for (let i = 0; i < repeatCount; i++) {
+      sets.push(items);
+    }
+    return sets;
+  }, [items, repeatCount]);
+
+  // Measure single set width accurately
+  const measureSetWidth = useCallback(() => {
+    if (singleSetRef.current) {
+      const width = singleSetRef.current.getBoundingClientRect().width;
+      if (width > 0) {
+        singleSetWidthRef.current = width;
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    measureSetWidth();
+    window.addEventListener("resize", measureSetWidth);
+    const observer = new ResizeObserver(measureSetWidth);
+    if (singleSetRef.current) observer.observe(singleSetRef.current);
+
+    return () => {
+      window.removeEventListener("resize", measureSetWidth);
+      observer.disconnect();
+    };
+  }, [measureSetWidth, items]);
+
+  // Reset offset on category change
+  useEffect(() => {
+    offsetRef.current = 0;
+    inertiaSpeedRef.current = 0;
+  }, [items]);
+
+  // Continuous animation loop at 60fps
+  useEffect(() => {
+    if (items.length <= 1) return;
+
+    let animationFrameId: number;
+    const BASE_SPEED = 0.75; // Smooth cinematic velocity (~45px/s)
+
+    const animate = () => {
+      const singleWidth = singleSetWidthRef.current;
+
+      if (!isDraggingRef.current) {
+        const targetSpeed = isHoveredRef.current ? 0 : BASE_SPEED * directionRef.current;
+
+        if (Math.abs(inertiaSpeedRef.current) > 0.05) {
+          offsetRef.current += inertiaSpeedRef.current;
+          inertiaSpeedRef.current *= 0.94; // Smooth friction decay
+          if (Math.abs(inertiaSpeedRef.current) < Math.abs(BASE_SPEED) && !isHoveredRef.current) {
+            inertiaSpeedRef.current = 0;
+          }
+        } else {
+          offsetRef.current += targetSpeed;
+        }
+
+        // Seamless wrap around single set width
+        if (singleWidth > 0) {
+          while (offsetRef.current <= -singleWidth) {
+            offsetRef.current += singleWidth;
+          }
+          while (offsetRef.current > 0) {
+            offsetRef.current -= singleWidth;
+          }
+        }
+
+        if (trackRef.current) {
+          trackRef.current.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animationFrameId = requestAnimationFrame(animate);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [items.length]);
+
+  // Pointer drag events
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (e.button !== 0 && e.pointerType === "mouse") return;
+
+    isDraggingRef.current = true;
+    dragStartXRef.current = e.clientX;
+    lastPointerXRef.current = e.clientX;
+    lastPointerTimeRef.current = performance.now();
+    dragVelocityRef.current = 0;
+    hasDraggedRef.current = false;
+    inertiaSpeedRef.current = 0;
+
+    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDraggingRef.current) return;
+
+    const now = performance.now();
+    const dt = Math.max(1, now - lastPointerTimeRef.current);
+    const dx = e.clientX - lastPointerXRef.current;
+
+    if (Math.abs(e.clientX - dragStartXRef.current) > 6) {
+      hasDraggedRef.current = true;
+    }
+
+    offsetRef.current += dx;
+
+    // Wrap while dragging
+    const singleWidth = singleSetWidthRef.current;
+    if (singleWidth > 0) {
+      while (offsetRef.current <= -singleWidth) {
+        offsetRef.current += singleWidth;
+      }
+      while (offsetRef.current > 0) {
+        offsetRef.current -= singleWidth;
+      }
+    }
+
+    if (trackRef.current) {
+      trackRef.current.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
+    }
+
+    dragVelocityRef.current = (dx / dt) * 16.67;
+    lastPointerXRef.current = e.clientX;
+    lastPointerTimeRef.current = now;
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
+    } catch {}
+
+    const velocity = dragVelocityRef.current;
+    if (Math.abs(velocity) > 0.3) {
+      if (velocity < 0) {
+        directionRef.current = -1;
+        setDirection(-1);
+      } else {
+        directionRef.current = 1;
+        setDirection(1);
+      }
+      inertiaSpeedRef.current = Math.sign(velocity) * Math.min(Math.abs(velocity), 14);
+    } else if (hasDraggedRef.current) {
+      const totalDx = lastPointerXRef.current - dragStartXRef.current;
+      if (totalDx < 0) {
+        directionRef.current = -1;
+        setDirection(-1);
+      } else if (totalDx > 0) {
+        directionRef.current = 1;
+        setDirection(1);
+      }
+    }
+
+    setTimeout(() => {
+      hasDraggedRef.current = false;
+    }, 120);
+  };
+
+  const handleCardClick = (item: AcademicMediaItem) => {
+    if (hasDraggedRef.current) return;
+    onSelectItem(item);
+  };
+
+  const handleManualNudge = (dir: -1 | 1) => {
+    directionRef.current = dir;
+    setDirection(dir);
+    inertiaSpeedRef.current = dir * 6;
+  };
+
+  if (items.length <= 1) {
+    return (
+      <div className="flex justify-center py-4">
+        <div className="w-[84vw] max-w-[320px] sm:max-w-[380px]">
+          {items[0] && (
+            <GalleryCardItem
+              item={items[0]}
+              onClick={() => handleCardClick(items[0]!)}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Draggable infinite track container */}
+      <div
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        onMouseEnter={() => {
+          isHoveredRef.current = true;
+        }}
+        onMouseLeave={() => {
+          isHoveredRef.current = false;
+        }}
+        className="relative -mx-4 sm:-mx-8 lg:-mx-16 xl:-mx-24 overflow-hidden select-none py-2 cursor-grab active:cursor-grabbing touch-pan-y"
+      >
+        {/* Ambient fade masks on edges */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-16 bg-gradient-to-r from-background/90 via-background/40 to-transparent z-10" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-16 bg-gradient-to-l from-background/90 via-background/40 to-transparent z-10" />
+
+        {/* Translating Track */}
+        <div ref={trackRef} className="flex will-change-transform">
+          {loopedSets.map((set, setIndex) => (
+            <div
+              key={setIndex}
+              ref={setIndex === 0 ? singleSetRef : undefined}
+              className="flex gap-4 sm:gap-6 pr-4 sm:pr-6 shrink-0"
+            >
+              {set.map((item, itemIndex) => (
+                <div
+                  key={`${item.id || item.title}-${setIndex}-${itemIndex}`}
+                  className="w-[84vw] max-w-[310px] sm:w-[340px] lg:w-[370px] shrink-0"
+                >
+                  <GalleryCardItem
+                    item={item}
+                    onClick={() => handleCardClick(item)}
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
 export function AcademicGallery() {
   const { data } = usePortfolio();
   const galleryItems: AcademicMediaItem[] = useMemo<AcademicMediaItem[]>(
@@ -258,124 +652,11 @@ export function AcademicGallery() {
             })}
           </div>
 
-          {/* Media Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredItems.map((item, index) => (
-              <Reveal
-                key={item.id || index}
-                delay={index * 50}
-                className="group rounded-2xl border border-border bg-card overflow-hidden shadow-xs hover:border-primary/40 hover:shadow-soft transition-all flex flex-col justify-between"
-              >
-                <div className="flex-1 flex flex-col">
-                  {/* Media Visual Preview Area */}
-                  <div
-                    onClick={() => setActiveItem(item)}
-                    className="relative aspect-[16/10] sm:aspect-video w-full overflow-hidden bg-surface cursor-pointer group/media"
-                  >
-                    {item.type === "video" && !item.thumbnailUrl ? (
-                      <div className="size-full flex items-center justify-center bg-zinc-900 text-white">
-                        <Video className="size-10 text-primary/80" />
-                      </div>
-                    ) : (
-                      <GalleryCardImage
-                        src={item.url}
-                        alt={item.title}
-                        type={item.type}
-                        thumbnailUrl={item.thumbnailUrl}
-                      />
-                    )}
-
-                    {/* Media Type & Date Overlay Badges */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
-
-                    <div className="absolute top-3 left-3 z-10">
-                      <span className="inline-flex items-center gap-1.5 rounded-md bg-black/60 backdrop-blur-md px-2.5 py-1 text-[11px] font-semibold text-white border border-white/15">
-                        {item.type === "video" ? (
-                          <>
-                            <Video className="size-3 text-red-400" />
-                            <span>Video</span>
-                          </>
-                        ) : (
-                          <>
-                            <Camera className="size-3 text-primary" />
-                            <span>Photo</span>
-                          </>
-                        )}
-                      </span>
-                    </div>
-
-                    {item.category && (
-                      <div className="absolute top-3 right-3 z-10">
-                        <span className="inline-flex items-center gap-1 rounded-md bg-black/60 backdrop-blur-md px-2 py-1 text-[11px] font-mono text-zinc-200 border border-white/10">
-                          {item.category}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Play / Expand hover icon */}
-                    <div className="absolute inset-0 flex items-center justify-center z-10 opacity-90 group-hover/media:opacity-100 transition-opacity">
-                      {item.type === "video" ? (
-                        <div className="flex size-13 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 group-hover/media:scale-110 transition-transform">
-                          <Play className="size-5 fill-current translate-x-0.5" />
-                        </div>
-                      ) : (
-                        <div className="flex size-11 items-center justify-center rounded-full bg-black/60 backdrop-blur-md text-white border border-white/20 opacity-0 group-hover/media:opacity-100 group-hover/media:scale-105 transition-all">
-                          <Maximize2 className="size-4" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Card Content & Details */}
-                  <div className="p-5 flex-1 flex flex-col justify-between space-y-3.5">
-                    <div className="space-y-1.5">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-display font-semibold text-base sm:text-lg text-foreground line-clamp-2 leading-snug">
-                          {item.title}
-                        </h3>
-                        {item.date && (
-                          <span className="font-mono text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-md shrink-0">
-                            {item.date}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* BOTTOM DEDICATED RELATION / CONTEXT BOX (User's Key Feature) */}
-                    <div className="rounded-xl border border-primary/20 bg-primary/5 p-3.5 space-y-1 mt-auto">
-                      <div className="flex items-center gap-1.5 text-[11px] font-mono font-semibold uppercase tracking-wider text-primary">
-                        <Tag className="size-3" />
-                        <span>Related Context &amp; Significance</span>
-                      </div>
-                      <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed line-clamp-3">
-                        {item.caption || "Academic milestone and university memory."}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Footer Action */}
-                <div className="px-5 pb-5 pt-1">
-                  <button
-                    onClick={() => setActiveItem(item)}
-                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface hover:bg-secondary text-foreground text-xs font-semibold py-2.5 transition-all cursor-pointer active:scale-[0.98]"
-                  >
-                    {item.type === "video" ? (
-                      <>
-                        <Play className="size-3.5 text-primary" />
-                        <span>Watch Video</span>
-                      </>
-                    ) : (
-                      <>
-                        <Maximize2 className="size-3.5 text-primary" />
-                        <span>View Full Photo</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+                    {/* Infinite Smooth Draggable Carousel */}
+          <InfiniteGalleryCarousel
+            items={filteredItems}
+            onSelectItem={(item) => setActiveItem(item)}
+          />
         </div>
       )}
 
