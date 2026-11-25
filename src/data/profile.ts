@@ -31,6 +31,7 @@ export interface PersonalInfo {
   monogram?: string | undefined;
   universityShort?: string | undefined;
   footerTagline?: string | undefined;
+  googleSiteVerification?: string | undefined;
 }
 
 export const PERSONAL_INFO: PersonalInfo = {
@@ -60,6 +61,7 @@ export const PERSONAL_INFO: PersonalInfo = {
   monogram: "GM",
   universityShort: "SRMU · CSE '28",
   footerTagline: "Built with code and continuous learning.",
+  googleSiteVerification: "DBbEkYQxgYrKiM28vTT1ra7egl9PV9s57syIfXm-0ts",
 };
 
 export interface HeroData {

@@ -14,6 +14,7 @@ import { Toaster } from "sonner";
 
 import { PortfolioProvider } from "@/context/PortfolioContext";
 import { PERSONAL_INFO } from "@/data/profile";
+import { collectSameAsProfiles, extractGoogleVerificationToken } from "@/lib/seo-schema";
 import { fetchPortfolioData } from "@/lib/supabase";
 import appCss from "../styles.css?url";
 
@@ -81,10 +82,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: ({ loaderData }) => {
     const info = loaderData?.portfolioData?.personalInfo ?? PERSONAL_INFO;
     const pageTitle = `${info.name} | ${info.role}`;
+    const gscToken = extractGoogleVerificationToken(
+      info.googleSiteVerification ||
+        (import.meta.env["VITE_GOOGLE_SITE_VERIFICATION"] as string | undefined) ||
+        PERSONAL_INFO.googleSiteVerification,
+    );
+    const sameAsLinks = collectSameAsProfiles(info, loaderData?.portfolioData);
+
     return {
       meta: [
         { charSet: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
+        ...(gscToken ? [{ name: "google-site-verification", content: gscToken }] : []),
         { title: pageTitle },
         {
           name: "description",
@@ -93,7 +102,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         {
           name: "keywords",
           content:
-            "Gopal Maddheshiya, Gopal Maddheshiya SRMU, Java Developer, Full-Stack Developer, MERN Stack, React Developer, Node.js, LeetCode, DSA, Shri Ramswaroop Memorial University, SIH 2026, KisanSarthi, Software Engineering Intern, Web Development",
+            "Gopal Maddheshiya, gopal-maddheshiya, gopalmaddheshiya63, gopal_96, Gopal Maddheshiya SRMU, Java Developer, Full-Stack Developer, MERN Stack, React Developer, Node.js, LeetCode, DSA, DSA Tracker, Arun Gopal Traders, SIH 2026, KisanSarthi, Software Engineering Intern",
         },
         { name: "author", content: info.name },
         { name: "creator", content: info.name },
@@ -169,8 +178,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           href: "/llms.txt",
           title: "LLM Context",
         },
-        { rel: "me", href: info.github },
-        { rel: "me", href: info.linkedin },
+        ...sameAsLinks.map((href) => ({ rel: "me", href })),
         { rel: "author", href: `${info.siteUrl}/` },
       ],
     };

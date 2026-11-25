@@ -1,6 +1,7 @@
 import { useRef, type ChangeEvent } from "react";
 import { Download, Upload, RotateCcw, ShieldCheck, Share2, Sparkles } from "lucide-react";
 import { HERO_DATA } from "@/data/profile";
+import { extractGoogleVerificationToken } from "@/lib/seo-schema";
 import { parsePortfolioContent, type PortfolioData } from "@/lib/supabase";
 import { ImageUploader } from "@/components/admin/ui/ImageUploader";
 import { toast } from "sonner";
@@ -109,6 +110,30 @@ export function SettingsTab({ data, updateData, resetToDefaults }: SettingsTabPr
               }
               className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none min-h-[65px]"
             />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              Google Search Console Verification Code (meta content)
+            </label>
+            <input
+              type="text"
+              value={info.googleSiteVerification || ""}
+              placeholder='Paste content token or full <meta name="google-site-verification" content="..." /> tag'
+              onChange={(e) =>
+                updateData({
+                  personalInfo: {
+                    ...info,
+                    googleSiteVerification: extractGoogleVerificationToken(e.target.value),
+                  },
+                })
+              }
+              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs font-mono text-foreground focus:border-primary focus:outline-none"
+            />
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Rendered automatically in SSR &lt;head&gt; for Google Search Console HTML tag
+              verification — no code edit needed after saving live.
+            </p>
           </div>
 
           {/* Social Share Preview Image */}

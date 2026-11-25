@@ -1,6 +1,45 @@
 import { FAQS } from "@/data/faq";
-import { type Certification, type PersonalInfo, type Project } from "@/data/profile";
+import { PERSONAL_INFO, type Certification, type PersonalInfo, type Project } from "@/data/profile";
 import type { PortfolioData } from "@/lib/supabase";
+
+/** Extracts a raw token even if the user pastes the full GSC `<meta name="google-site-verification" content="..." />` tag. */
+export function extractGoogleVerificationToken(raw?: string | null): string {
+  if (!raw) return "";
+  const trimmed = raw.trim();
+  const match = trimmed.match(/content=["']([^"']+)["']/i);
+  return (match?.[1] ?? trimmed).trim();
+}
+
+/** Single source of truth for canonical profile URLs used across JSON-LD `sameAs` and `<link rel="me">`. */
+export function collectSameAsProfiles(
+  info: PersonalInfo,
+  portfolioData?: Partial<PortfolioData> | null,
+): string[] {
+  const dynamicCodingUrls =
+    portfolioData?.codingProfiles
+      ?.filter((p) => !p.hidden)
+      .map((p) => p.url)
+      .filter((url): url is string => Boolean(url && url.trim().startsWith("http"))) || [];
+
+  const candidates = [
+    info.github,
+    info.linkedin,
+    info.leetcode,
+    info.medium ?? PERSONAL_INFO.medium,
+    info.substack ?? PERSONAL_INFO.substack,
+    info.reddit ?? PERSONAL_INFO.reddit,
+    info.facebook ?? PERSONAL_INFO.facebook,
+    info.instagram ?? PERSONAL_INFO.instagram,
+    ...dynamicCodingUrls,
+    "https://www.geeksforgeeks.org/profile/gopalmaddheshiya",
+    "https://www.codechef.com/users/gopal_code_96",
+    "https://www.hackerrank.com/profile/gopalmaddheshiy1",
+  ]
+    .map((u) => (typeof u === "string" ? u.trim() : ""))
+    .filter((u) => u.startsWith("http"));
+
+  return Array.from(new Set(candidates));
+}
 
 export function generateSeoSchema(
   info: PersonalInfo,
@@ -13,29 +52,7 @@ export function generateSeoSchema(
   const websiteId = `${baseUrl}/#website`;
   const profilePageId = `${baseUrl}/#profilepage`;
 
-  const dynamicCodingUrls =
-    portfolioData?.codingProfiles
-      ?.map((p) => p.url)
-      .filter((url): url is string => Boolean(url && url.startsWith("http"))) || [];
-
-  const sameAsProfiles = Array.from(
-    new Set(
-      [
-        info.github,
-        info.linkedin,
-        info.leetcode,
-        info.medium,
-        info.substack,
-        info.reddit,
-        info.facebook,
-        info.instagram,
-        ...dynamicCodingUrls,
-        "https://www.geeksforgeeks.org/profile/gopalmaddheshiya",
-        "https://www.codechef.com/users/gopal_code_96",
-        "https://www.hackerrank.com/profile/gopalmaddheshiy1",
-      ].filter(Boolean),
-    ),
-  );
+  const sameAsProfiles = collectSameAsProfiles(info, portfolioData);
 
   const dynamicSkills = portfolioData?.skillGroups?.flatMap((g) => g.skills) || [];
   const skillsList = Array.from(
@@ -112,7 +129,16 @@ export function generateSeoSchema(
         "@type": "Person",
         "@id": personId,
         name: info.name,
-        alternateName: ["Gopal", "Gopal Maddhesia", "Gopal Kumar Maddheshiya"],
+        alternateName: [
+          "Gopal",
+          "Gopal Maddhesia",
+          "Gopal Kumar Maddheshiya",
+          "gopal-maddheshiya",
+          "gopalmaddheshiya63",
+          "gopal_96",
+          "@gopal-maddheshiya",
+          "@gopalmaddheshiya",
+        ],
         jobTitle: info.role,
         description: info.siteDescription,
         url: baseUrl,

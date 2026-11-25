@@ -46,7 +46,7 @@ export const Route = createFileRoute("/")({
         { name: "description", content: description },
         {
           name: "keywords",
-          content: `${info.name}, ${info.name} SRMU, Java Developer, Full-Stack Developer, MERN Stack, React Developer, Node.js, LeetCode, DSA, Shri Ramswaroop Memorial University, SIH 2026, KisanSarthi, Software Engineering Intern, Web Development`,
+          content: `${info.name}, gopal-maddheshiya, gopalmaddheshiya63, gopal_96, ${info.name} SRMU, Java Developer, Full-Stack Developer, MERN Stack, React Developer, Node.js, LeetCode, DSA, DSA Tracker, Arun Gopal Traders, Shri Ramswaroop Memorial University, SIH 2026, KisanSarthi, Software Engineering Intern`,
         },
         {
           name: "robots",

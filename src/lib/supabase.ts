@@ -114,12 +114,16 @@ export function parsePortfolioContent(rawContent: unknown, updatedAt?: string): 
 
   const aboutDataRaw = pickObject<Record<string, unknown>>("aboutData");
   const dsaInfoRaw = pickObject<Record<string, unknown>>("dsaInfo");
+  const personalInfoRaw = pickObject<Partial<PortfolioData["personalInfo"]>>("personalInfo");
 
   return {
     ...DEFAULT_PORTFOLIO_DATA,
     personalInfo: {
       ...DEFAULT_PORTFOLIO_DATA.personalInfo,
-      ...pickObject<Partial<PortfolioData["personalInfo"]>>("personalInfo"),
+      ...personalInfoRaw,
+      googleSiteVerification:
+        personalInfoRaw.googleSiteVerification?.trim() ||
+        DEFAULT_PORTFOLIO_DATA.personalInfo.googleSiteVerification,
     },
     heroData: {
       ...DEFAULT_PORTFOLIO_DATA.heroData,

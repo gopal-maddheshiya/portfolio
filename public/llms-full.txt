@@ -2,7 +2,7 @@
 
 ## Biographical Identity
 - Full Name: Gopal Maddheshiya
-- Alternate Names: Gopal, Gopal Maddhesia, Gopal Kumar Maddheshiya
+- Alternate Names & Handles: Gopal, Gopal Maddhesia, Gopal Kumar Maddheshiya, gopal-maddheshiya, gopalmaddheshiya63, gopal_96
 - Current Role: B.Tech Computer Science Engineering Student & Full-Stack / Java Developer
 - Current Academic Institution: Shri Ramswaroop Memorial University (SRMU), Lucknow / Barabanki, Uttar Pradesh, India
 - Degree: Bachelor of Technology (B.Tech) in Computer Science & Engineering
@@ -22,6 +22,11 @@
 - GeeksforGeeks: https://www.geeksforgeeks.org/profile/gopalmaddheshiya
 - CodeChef: https://www.codechef.com/users/gopal_code_96
 - HackerRank: https://www.hackerrank.com/profile/gopalmaddheshiy1
+- Medium: https://medium.com/@gopal-maddheshiya
+- Substack: https://substack.com/@gopalmaddheshiya
+- Reddit: https://www.reddit.com/user/gopal_96/
+- Facebook: https://www.facebook.com/gopalmaddheshiya63/
+- Instagram: https://www.instagram.com/gopalmaddheshiya63/
 
 ## Core Technical Competencies & Specializations
 1. **Algorithms & Data Structures**:
