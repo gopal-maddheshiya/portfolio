@@ -1,302 +1,391 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  ArrowUpRight,
-  BookOpen,
-  Code2,
-  Cpu,
-  Database,
-  Globe,
-  Layers,
-  Layout,
-  Network,
-  Server,
-  ShieldCheck,
-  Sparkles,
-  Terminal,
-  Wrench,
-  Zap,
-} from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ExternalLink, FolderGit2, X } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+import { canHoverFinePointer, prefersReducedMotion } from "@/components/common/MagneticWrap";
 import { usePortfolio } from "@/context/PortfolioContext";
-import { SKILL_GROUPS } from "@/data/profile";
-import { scrollToId } from "@/lib/scroll";
+import {
+  DEFAULT_SECTION_HEADERS,
+  PROJECTS,
+  SKILL_GROUPS,
+  type Project,
+  type SkillGroup,
+} from "@/data/profile";
 import { cn } from "@/lib/utils";
-import { Section, SectionHeading } from "./Section";
+import { Section } from "./Section";
+import { resolveTechIcon } from "./skills/TechBrandIcons";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-// Map category title to its header icon
-const CATEGORY_ICONS: Record<string, typeof Code2> = {
-  "Programming & DSA": Code2,
-  "Frontend Development": Layout,
-  "Backend & APIs": Server,
-  "Databases & Cloud": Database,
-  "Developer Tools": Wrench,
-  "CS Fundamentals": Cpu,
-};
+const CORE_TAB = "__core__";
 
-// Map individual skills to specialized icons and accent colors (Strictly warm & harmonious, ZERO GREEN)
-function getSkillIcon(skill: string) {
-  const lower = skill.toLowerCase();
+const CORE_PRIORITY_TOKENS = [
+  "java",
+  "react",
+  "typescript",
+  "tailwind",
+  "node",
+  "express",
+  "mongo",
+  "supabase",
+];
 
-  if (lower.includes("java") && !lower.includes("javascript")) {
-    return {
-      icon: Code2,
-      color: "text-amber-500",
-      bg: "bg-amber-500/10",
-      border: "border-amber-500/25",
-    };
-  }
-  if (lower.includes("react")) {
-    return {
-      icon: Layers,
-      color: "text-cyan-400",
-      bg: "bg-cyan-500/10",
-      border: "border-cyan-500/25",
-    };
-  }
-  if (lower.includes("typescript")) {
-    return {
-      icon: Code2,
-      color: "text-blue-400",
-      bg: "bg-blue-500/10",
-      border: "border-blue-500/25",
-    };
-  }
-  if (lower.includes("javascript")) {
-    return {
-      icon: Code2,
-      color: "text-yellow-400",
-      bg: "bg-yellow-500/10",
-      border: "border-yellow-500/25",
-    };
-  }
-  if (lower.includes("tailwind")) {
-    return {
-      icon: Layout,
-      color: "text-sky-400",
-      bg: "bg-sky-500/10",
-      border: "border-sky-500/25",
-    };
-  }
-  if (lower.includes("node")) {
-    return {
-      icon: Server,
-      color: "text-amber-500",
-      bg: "bg-amber-500/10",
-      border: "border-amber-500/25",
-    };
-  }
-  if (lower.includes("express") || lower.includes("rest")) {
-    return {
-      icon: Zap,
-      color: "text-primary",
-      bg: "bg-primary/10",
-      border: "border-primary/25",
-    };
-  }
-  if (lower.includes("mongo")) {
-    return {
-      icon: Database,
-      color: "text-primary",
-      bg: "bg-primary/10",
-      border: "border-primary/25",
-    };
-  }
-  if (lower.includes("supabase")) {
-    return {
-      icon: Zap,
-      color: "text-amber-400",
-      bg: "bg-amber-400/10",
-      border: "border-amber-400/25",
-    };
-  }
-  if (lower.includes("postgres") || lower.includes("mysql") || lower.includes("dbms")) {
-    return {
-      icon: Database,
-      color: "text-blue-400",
-      bg: "bg-blue-500/10",
-      border: "border-blue-500/25",
-    };
-  }
-  if (lower.includes("git") || lower.includes("github")) {
-    return {
-      icon: Terminal,
-      color: "text-orange-500",
-      bg: "bg-orange-500/10",
-      border: "border-orange-500/25",
-    };
-  }
-  if (lower.includes("postman")) {
-    return {
-      icon: Globe,
-      color: "text-orange-400",
-      bg: "bg-orange-500/10",
-      border: "border-orange-500/25",
-    };
-  }
-  if (lower.includes("jwt") || lower.includes("auth")) {
-    return {
-      icon: ShieldCheck,
-      color: "text-rose-400",
-      bg: "bg-rose-500/10",
-      border: "border-rose-500/25",
-    };
-  }
-  if (lower.includes("network")) {
-    return {
-      icon: Network,
-      color: "text-purple-400",
-      bg: "bg-purple-500/10",
-      border: "border-purple-500/25",
-    };
-  }
-  if (lower.includes("oop") || lower.includes("operating")) {
-    return {
-      icon: Cpu,
-      color: "text-indigo-400",
-      bg: "bg-indigo-500/10",
-      border: "border-indigo-500/25",
-    };
-  }
-  if (lower.includes("leetcode")) {
-    return {
-      icon: Code2,
-      color: "text-amber-500",
-      bg: "bg-amber-500/10",
-      border: "border-amber-500/25",
-    };
-  }
-
-  return {
-    icon: BookOpen,
-    color: "text-primary",
-    bg: "bg-primary/10",
-    border: "border-primary/25",
-  };
+/** Concise label helper for horizontal tab bar while supporting custom Admin category names. */
+function getShortTabLabel(title: string): string {
+  const lower = title.toLowerCase();
+  if (lower.includes("programming") && lower.includes("dsa")) return "Java & DSA";
+  if (lower.includes("frontend")) return "Frontend";
+  if (lower.includes("backend")) return "Backend";
+  if (lower.includes("database")) return "Cloud & DB";
+  if (lower.includes("developer tools")) return "Tools";
+  if (lower.includes("cs fundamentals")) return "CS Core";
+  return title;
 }
 
-type FilterKey = "all" | "primary" | "dsa" | "frontend" | "backend" | "database" | "tools";
+/** Concise 2-word role descriptor per technology so every card shares balanced rhythm. */
+function getSkillSubtitle(skillName: string, fallbackCategory: string): string {
+  const lower = skillName.toLowerCase();
+  if (lower.includes("java") && !lower.includes("javascript")) return "OOP & Core";
+  if (lower.includes("react")) return "UI · v19";
+  if (lower.includes("typescript")) return "Strict Types";
+  if (lower.includes("javascript")) return "ES6+ · Async";
+  if (lower.includes("tailwind")) return "Design System";
+  if (lower.includes("html")) return "Semantic Web";
+  if (lower.includes("node")) return "Async Runtime";
+  if (lower.includes("express")) return "REST Routing";
+  if (lower.includes("rest")) return "HTTP · JSON";
+  if (lower.includes("jwt")) return "Token Security";
+  if (lower.includes("postman")) return "API Testing";
+  if (lower.includes("mongo")) return "NoSQL · Atlas";
+  if (lower.includes("mongoose")) return "Schema ODM";
+  if (lower.includes("supabase")) return "Postgres · RLS";
+  if (lower.includes("postgres")) return "Relational SQL";
+  if (lower.includes("mysql")) return "ACID SQL";
+  if (lower.includes("data structure")) return "Trees · Graphs";
+  if (lower.includes("algorithm")) return "DP · Greedy";
+  if (lower.includes("complexity")) return "Big-O Tuning";
+  if (lower.includes("oop")) return "System Design";
+  if (lower.includes("dbms")) return "Normalization";
+  if (lower.includes("operating")) return "OS · Threads";
+  if (lower.includes("network")) return "TCP/IP · HTTP";
+  if (lower.includes("git") && !lower.includes("github")) return "Version Control";
+  if (lower.includes("github")) return "Repos & CI";
+  if (lower.includes("vercel")) return "Edge Deploy";
+  if (lower.includes("render")) return "Cloud Host";
+  if (lower.includes("leetcode")) return "DSA Arena";
+  if (lower.includes("vs code")) return "Code Editor";
+  if (lower.includes("intellij")) return "Java IDE";
+  return getShortTabLabel(fallbackCategory);
+}
 
-export function Skills() {
-  const { data } = usePortfolio();
-  const skillGroups = data?.skillGroups || SKILL_GROUPS;
+/** Loose token matching between a skill name and a project's declared technology tags. */
+function doesSkillMatchTech(skill: string, projectTech: string): boolean {
+  const normalize = (val: string) =>
+    val
+      .toLowerCase()
+      .replace(/\.js|\(es6\+\)|\(oop\)|\(dbms\)|atlas|odm|api testing|concepts/gi, "")
+      .replace(/[^a-z0-9]/g, " ")
+      .trim();
 
-  const [activeFilter, setActiveFilter] = useState<FilterKey>("all");
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const cardsGridRef = useRef<HTMLDivElement>(null);
-  const animatedRef = useRef(false);
+  const s = normalize(skill);
+  const p = normalize(projectTech);
+  if (!s || !p) return false;
 
-  // Total technology count
-  const totalSkillsCount = useMemo(() => {
-    return skillGroups.reduce((acc, g) => acc + g.skills.length, 0);
-  }, [skillGroups]);
+  if (s === "java" && p.includes("javascript")) return false;
+  if (s.includes("javascript") && p === "java") return false;
 
-  // Filter options with dynamic counts
-  const filters: { key: FilterKey; label: string; count?: number }[] = [
-    { key: "all", label: "All Stack", count: skillGroups.length },
-    {
-      key: "primary",
-      label: "Core Pillars",
-      count: skillGroups.filter((g) => g.primary).length,
-    },
-    { key: "dsa", label: "Java & DSA" },
-    { key: "frontend", label: "Frontend" },
-    { key: "backend", label: "Backend & APIs" },
-    { key: "database", label: "Databases & Cloud" },
-    { key: "tools", label: "Tools & CS" },
-  ];
+  const sTokens = s.split(/\s+/).filter((t) => t.length >= 2);
+  return sTokens.some((token) => p.includes(token)) || p.includes(s);
+}
 
-  // Filtered skill groups based on active tab
-  const filteredGroups = useMemo(() => {
-    if (activeFilter === "all") return skillGroups;
-    if (activeFilter === "primary") return skillGroups.filter((g) => g.primary);
-    if (activeFilter === "dsa") {
-      return skillGroups.filter((g) => g.title.toLowerCase().includes("programming"));
-    }
-    if (activeFilter === "frontend") {
-      return skillGroups.filter((g) => g.title.toLowerCase().includes("frontend"));
-    }
-    if (activeFilter === "backend") {
-      return skillGroups.filter((g) => g.title.toLowerCase().includes("backend"));
-    }
-    if (activeFilter === "database") {
-      return skillGroups.filter((g) => g.title.toLowerCase().includes("database"));
-    }
-    if (activeFilter === "tools") {
-      return skillGroups.filter(
-        (g) =>
-          g.title.toLowerCase().includes("tools") || g.title.toLowerCase().includes("fundamentals"),
-      );
-    }
-    return skillGroups;
-  }, [skillGroups, activeFilter]);
+function getMatchingProjects(skillNames: string[], projects: Project[]): Project[] {
+  if (!skillNames.length || !projects.length) return [];
+  return projects.filter((project) =>
+    project.technologies.some((tech) =>
+      skillNames.some((skill) => doesSkillMatchTech(skill, tech)),
+    ),
+  );
+}
 
-  // GSAP ScrollTrigger Entrance Animation on Mount
+/** Choose symmetric grid columns by item count to avoid orphan gaps. */
+function getSymmetricGridClasses(count: number): string {
+  if (count === 5) return "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5";
+  if (count === 3) return "grid-cols-2 sm:grid-cols-3";
+  return "grid-cols-2 md:grid-cols-4";
+}
+
+interface CardItem {
+  name: string;
+  category: string;
+}
+
+/** Unique animated showcase card: conic aurora border trace, subtle desktop 3D tilt, and pointer spotlight. */
+function AnimatedSkillCard({
+  item,
+  isSelected,
+  spanFullOnLastOddMobile,
+  onSelect,
+}: {
+  item: CardItem;
+  isSelected: boolean;
+  spanFullOnLastOddMobile: boolean;
+  onSelect: () => void;
+}) {
+  const cardRef = useRef<HTMLButtonElement>(null);
+  const quickRotXRef = useRef<gsap.QuickToFunc | null>(null);
+  const quickRotYRef = useRef<gsap.QuickToFunc | null>(null);
+  const quickYRef = useRef<gsap.QuickToFunc | null>(null);
+  const { Icon, toneClass } = resolveTechIcon(item.name);
+  const subtitle = getSkillSubtitle(item.name, item.category);
+
   useEffect(() => {
-    if (animatedRef.current || !sectionRef.current) return;
+    const el = cardRef.current;
+    if (!el || prefersReducedMotion()) return;
+
+    const ctx = gsap.context(() => {
+      gsap.set(el, { transformPerspective: 650 });
+      quickRotXRef.current = gsap.quickTo(el, "rotateX", { duration: 0.25, ease: "power2.out" });
+      quickRotYRef.current = gsap.quickTo(el, "rotateY", { duration: 0.25, ease: "power2.out" });
+      quickYRef.current = gsap.quickTo(el, "y", { duration: 0.25, ease: "power2.out" });
+    }, cardRef);
+
+    return () => {
+      quickRotXRef.current = null;
+      quickRotYRef.current = null;
+      quickYRef.current = null;
+      ctx.revert();
+    };
+  }, []);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
+    const el = cardRef.current;
     if (
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      !el ||
+      !quickRotXRef.current ||
+      !quickRotYRef.current ||
+      !quickYRef.current ||
+      !canHoverFinePointer()
     ) {
       return;
     }
 
-    animatedRef.current = true;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const rotateY = (x / rect.width - 0.5) * 8;
+    const rotateX = (y / rect.height - 0.5) * -8;
+
+    el.style.setProperty("--spot-x", `${x}px`);
+    el.style.setProperty("--spot-y", `${y}px`);
+    quickRotXRef.current(rotateX);
+    quickRotYRef.current(rotateY);
+    quickYRef.current(-2);
+  }, []);
+
+  const handlePointerLeave = useCallback(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    el.style.setProperty("--spot-x", "-300px");
+    el.style.setProperty("--spot-y", "-300px");
+    if (canHoverFinePointer()) {
+      gsap.to(el, {
+        rotateX: 0,
+        rotateY: 0,
+        y: 0,
+        duration: 0.4,
+        ease: "elastic.out(1, 0.5)",
+        overwrite: "auto",
+      });
+    }
+  }, []);
+
+  return (
+    <button
+      ref={cardRef}
+      type="button"
+      onClick={onSelect}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
+      aria-pressed={isSelected}
+      data-active={isSelected}
+      title={item.name}
+      className={cn(
+        "skill-card-item skill-card-aurora group flex items-center gap-3 rounded-xl border p-3 sm:p-3.5 text-left transition-[background-color,border-color,box-shadow] duration-200 cursor-pointer active:scale-[0.97]",
+        "focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2",
+        spanFullOnLastOddMobile && "max-sm:col-span-2",
+        isSelected
+          ? "border-transparent bg-card shadow-soft"
+          : "border-border bg-card hover:bg-surface/80 hover:shadow-xs",
+      )}
+      style={{
+        backgroundImage:
+          "radial-gradient(220px circle at var(--spot-x, -300px) var(--spot-y, -300px), oklch(0.72 0.15 52 / 0.09), transparent 72%)",
+      }}
+    >
+      <span
+        className={cn(
+          "flex size-9 sm:size-10 shrink-0 items-center justify-center rounded-lg border border-border/80 bg-surface transition-transform duration-200 group-hover:scale-105",
+          toneClass,
+        )}
+      >
+        <Icon className="size-4.5 sm:size-5" aria-hidden="true" />
+      </span>
+
+      <span className="min-w-0 flex-1">
+        <span className="block truncate font-display text-[13px] sm:text-sm font-semibold text-foreground leading-snug">
+          {item.name}
+        </span>
+        <span className="block truncate font-mono text-[10.5px] sm:text-[11px] text-muted-foreground mt-0.5">
+          {subtitle}
+        </span>
+      </span>
+    </button>
+  );
+}
+
+export function Skills() {
+  const { data } = usePortfolio();
+  const skillGroups: SkillGroup[] =
+    data.skillGroups && data.skillGroups.length > 0 ? data.skillGroups : SKILL_GROUPS;
+  const projects: Project[] = data.projects && data.projects.length > 0 ? data.projects : PROJECTS;
+
+  const [activeTab, setActiveTab] = useState<string>(CORE_TAB);
+  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
+
+  const sectionRef = useRef<HTMLElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const prevTabRef = useRef<string>(CORE_TAB);
+
+  // Build balanced up-to-8-card Core Stack dynamically from Admin selections or canonical tokens
+  const coreCards: CardItem[] = useMemo(() => {
+    const allItems: CardItem[] = [];
+    skillGroups.forEach((group) => {
+      (group.skills || []).forEach((name) => {
+        allItems.push({ name, category: group.title });
+      });
+    });
+
+    const picked: CardItem[] = [];
+    const seen = new Set<string>();
+
+    const adminFeatured = (data.featuredSkills || []).map((s) => s.trim()).filter(Boolean);
+    adminFeatured.slice(0, 8).forEach((skillName) => {
+      const lower = skillName.toLowerCase();
+      if (seen.has(lower)) return;
+      seen.add(lower);
+      const matched = allItems.find((item) => item.name.toLowerCase() === lower);
+      picked.push(matched || { name: skillName, category: "Core Stack" });
+    });
+
+    if (picked.length < 8) {
+      CORE_PRIORITY_TOKENS.forEach((token) => {
+        if (picked.length >= 8) return;
+        const match = allItems.find((item) => {
+          const lower = item.name.toLowerCase();
+          if (token === "java" && lower.includes("javascript")) return false;
+          return lower.includes(token) && !seen.has(lower);
+        });
+        if (match) {
+          seen.add(match.name.toLowerCase());
+          picked.push(match);
+        }
+      });
+    }
+
+    if (picked.length < 8) {
+      const primaryPool = allItems.filter((item) => !seen.has(item.name.toLowerCase()));
+      for (const candidate of primaryPool) {
+        if (picked.length >= 8) break;
+        seen.add(candidate.name.toLowerCase());
+        picked.push(candidate);
+      }
+    }
+
+    return picked.slice(0, 8);
+  }, [skillGroups, data.featuredSkills]);
+
+  const activeCategoryGroup = useMemo(() => {
+    if (activeTab === CORE_TAB) return null;
+    return skillGroups.find((g) => g.title === activeTab) || null;
+  }, [activeTab, skillGroups]);
+
+  const visibleCards: CardItem[] = useMemo(() => {
+    if (activeTab === CORE_TAB) return coreCards;
+    if (!activeCategoryGroup) return coreCards;
+    return (activeCategoryGroup.skills || []).map((name) => ({
+      name,
+      category: activeCategoryGroup.title,
+    }));
+  }, [activeTab, coreCards, activeCategoryGroup]);
+
+  const footerProjects = useMemo(() => {
+    if (selectedSkill) return getMatchingProjects([selectedSkill], projects);
+    if (activeCategoryGroup) return getMatchingProjects(activeCategoryGroup.skills || [], projects);
+    return projects.filter((p) => p.featured).slice(0, 3);
+  }, [selectedSkill, activeCategoryGroup, projects]);
+
+  const handleToggleSkill = useCallback((skillName: string) => {
+    setSelectedSkill((prev) => (prev === skillName ? null : skillName));
+  }, []);
+
+  const handleTabSelect = useCallback((tabId: string, index: number) => {
+    setActiveTab(tabId);
+    setSelectedSkill(null);
+    tabRefs.current[index]?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "nearest",
+    });
+  }, []);
+
+  const tabIds = useMemo(() => [CORE_TAB, ...skillGroups.map((g) => g.title)], [skillGroups]);
+
+  const handleTabKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLButtonElement>, currentIndex: number) => {
+      let nextIndex: number | null = null;
+      if (e.key === "ArrowRight") nextIndex = (currentIndex + 1) % tabIds.length;
+      else if (e.key === "ArrowLeft")
+        nextIndex = (currentIndex - 1 + tabIds.length) % tabIds.length;
+      else if (e.key === "Home") nextIndex = 0;
+      else if (e.key === "End") nextIndex = tabIds.length - 1;
+
+      if (nextIndex !== null) {
+        e.preventDefault();
+        const targetId = tabIds[nextIndex];
+        if (targetId) {
+          handleTabSelect(targetId, nextIndex);
+          tabRefs.current[nextIndex]?.focus();
+        }
+      }
+    },
+    [tabIds, handleTabSelect],
+  );
+
+  // Initial GSAP ScrollTrigger entrance (once on scroll into view; StrictMode safe)
+  useEffect(() => {
+    if (!gridRef.current || !sectionRef.current || prefersReducedMotion()) return;
+
+    const cards = gridRef.current.querySelectorAll(".skill-card-item");
+    if (!cards.length) return;
 
     const ctx = gsap.context(() => {
-      // Metrics Bar Entrance
       gsap.fromTo(
-        ".skills-metrics-anim",
-        { opacity: 0, y: 20 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 85%",
-            once: true,
-          },
-        },
-      );
-
-      // Filter Tabs Entrance
-      gsap.fromTo(
-        ".skills-filter-anim",
-        { opacity: 0, y: 15 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          delay: 0.1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 85%",
-            once: true,
-          },
-        },
-      );
-
-      // Cards Grid Staggered Slide & Scale
-      gsap.fromTo(
-        ".skill-card-item",
-        { opacity: 0, y: 35, scale: 0.96 },
+        cards,
+        { opacity: 0, y: 16, scale: 0.97 },
         {
           opacity: 1,
           y: 0,
           scale: 1,
-          duration: 0.65,
-          stagger: 0.08,
+          duration: 0.45,
+          stagger: 0.04,
           ease: "power3.out",
+          clearProps: "transform,opacity",
           scrollTrigger: {
-            trigger: cardsGridRef.current,
+            trigger: sectionRef.current,
             start: "top 88%",
             once: true,
           },
@@ -304,292 +393,205 @@ export function Skills() {
       );
     }, sectionRef);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+    };
   }, []);
 
-  // GSAP Smooth Transition when Switching Filters
+  // Staggered card reveal only when activeTab changes interactively (StrictMode-safe)
   useEffect(() => {
-    if (!cardsGridRef.current) return;
-    if (
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      return;
-    }
+    if (prevTabRef.current === activeTab) return;
+    prevTabRef.current = activeTab;
+    if (!gridRef.current || prefersReducedMotion()) return;
 
-    gsap.fromTo(
-      ".skill-card-item",
-      { opacity: 0, y: 16, scale: 0.98 },
+    const cards = gridRef.current.querySelectorAll(".skill-card-item");
+    if (!cards.length) return;
+
+    const tween = gsap.fromTo(
+      cards,
+      { opacity: 0, y: 10, scale: 0.97 },
       {
         opacity: 1,
         y: 0,
         scale: 1,
-        duration: 0.38,
-        stagger: 0.05,
+        duration: 0.3,
+        stagger: 0.032,
         ease: "power2.out",
+        clearProps: "transform,opacity",
       },
     );
-  }, [activeFilter]);
 
-  // Ambient Cursor Spotlight on Mouse Move
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    e.currentTarget.style.setProperty("--mouse-x", `${x}px`);
-    e.currentTarget.style.setProperty("--mouse-y", `${y}px`);
+    return () => {
+      tween.kill();
+    };
+  }, [activeTab]);
+
+  const activeTabDomId =
+    activeTab === CORE_TAB
+      ? "skills-tab-core"
+      : `skills-tab-${Math.max(
+          0,
+          skillGroups.findIndex((g) => g.title === activeTab),
+        )}`;
+
+  const sectionHeader = {
+    eyebrow: data.sectionHeaders?.skills?.eyebrow || DEFAULT_SECTION_HEADERS.skills.eyebrow,
+    title: data.sectionHeaders?.skills?.title || "Skills & Core Stack",
+    description: data.sectionHeaders?.skills?.description || "",
   };
 
   return (
-    <Section id="skills" ref={sectionRef} tone="surface">
-      <SectionHeading
-        eyebrow="Technical Stack"
-        title="Skills &amp; Modern Technologies"
-        description="Production-tested engineering competencies across algorithmic problem solving, modern frontend frameworks, scalable backend APIs, and cloud databases."
-      />
-
-      {/* ── Top Metric Highlights Bar ── */}
-      <div className="skills-metrics-anim mt-8 sm:mt-10 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <div className="rounded-xl border border-white/10 bg-card/90 p-3.5 sm:p-4 shadow-sm backdrop-blur-md flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[11px] text-muted-foreground uppercase">
-              Technologies
-            </span>
-            <Code2 className="size-3.5 text-primary" />
-          </div>
-          <div className="mt-2 flex items-baseline gap-1.5">
-            <span className="font-display text-xl sm:text-2xl font-bold text-foreground">
-              {totalSkillsCount}+
-            </span>
-            <span className="text-[11px] font-mono text-primary font-medium">Stack Tools</span>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-white/10 bg-card/90 p-3.5 sm:p-4 shadow-sm backdrop-blur-md flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[11px] text-muted-foreground uppercase">
-              Core Pillars
-            </span>
-            <Sparkles className="size-3.5 text-primary" />
-          </div>
-          <div className="mt-2 flex items-baseline gap-1.5">
-            <span className="font-display text-xl sm:text-2xl font-bold text-foreground">3</span>
-            <span className="text-[11px] font-mono text-primary font-medium">Primary Focus</span>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-white/10 bg-card/90 p-3.5 sm:p-4 shadow-sm backdrop-blur-md flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[11px] text-muted-foreground uppercase">
-              Algorithmic Core
-            </span>
-            <Zap className="size-3.5 text-amber-500" />
-          </div>
-          <div className="mt-2 flex items-baseline gap-1.5">
-            <span className="font-display text-xl sm:text-2xl font-bold text-foreground">
-              Java &amp; DSA
-            </span>
-            <span className="text-[11px] font-mono text-muted-foreground">LeetCode</span>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-white/10 bg-card/90 p-3.5 sm:p-4 shadow-sm backdrop-blur-md flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[11px] text-muted-foreground uppercase">
-              Architecture
-            </span>
-            <Layers className="size-3.5 text-cyan-400" />
-          </div>
-          <div className="mt-2 flex items-baseline gap-1.5">
-            <span className="font-display text-xl sm:text-2xl font-bold text-foreground">
-              MERN Stack
-            </span>
-            <span className="text-[11px] font-mono text-muted-foreground">Full-Stack</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Interactive Category Filter Pills ── */}
-      <div className="skills-filter-anim mt-6 sm:mt-8 flex flex-wrap items-center gap-1.5 sm:gap-2 pb-1">
-        {filters.map((tab) => {
-          const isActive = activeFilter === tab.key;
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => setActiveFilter(tab.key)}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 cursor-pointer",
-                isActive
-                  ? "border border-primary/60 bg-primary/15 text-primary font-semibold shadow-xs ring-1 ring-primary/30"
-                  : "border border-border/80 bg-surface/60 text-muted-foreground hover:border-border-strong hover:text-foreground hover:bg-surface",
-              )}
-            >
-              <span>{tab.label}</span>
-              {tab.count !== undefined && (
-                <span
-                  className={cn(
-                    "rounded-full px-1.5 py-0.2 font-mono text-[10px]",
-                    isActive ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  {tab.count}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ── Technical Stack Cards Grid ── */}
-      <div
-        ref={cardsGridRef}
-        className="mt-6 sm:mt-8 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3"
-      >
-        {filteredGroups.map((group) => {
-          const CategoryIcon = CATEGORY_ICONS[group.title] || Code2;
-
-          return (
-            <div
-              key={group.title}
-              onMouseMove={handleMouseMove}
-              className={cn(
-                "skill-card-item group relative flex flex-col justify-between overflow-hidden rounded-2xl p-5 sm:p-6 transition-all duration-300",
-                "border border-white/10 bg-card/90 shadow-md ring-1 ring-white/5 backdrop-blur-xl",
-                "hover:border-primary/50 hover:shadow-xl hover:shadow-black/40 hover:-translate-y-1",
-                group.primary && "border-primary/35 shadow-primary/5",
-              )}
-              style={{
-                backgroundImage:
-                  "radial-gradient(400px circle at var(--mouse-x, -500px) var(--mouse-y, -500px), oklch(0.72 0.15 52 / 0.08), transparent 75%)",
-              }}
-            >
-              {/* Subtle top ember border line */}
-              <div
-                className={cn(
-                  "absolute inset-x-0 top-0 h-[2px] transition-opacity duration-300",
-                  group.primary
-                    ? "bg-gradient-to-r from-transparent via-primary to-transparent opacity-80"
-                    : "bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-40 group-hover:via-primary/50 group-hover:opacity-80",
-                )}
-              />
-
-              <div>
-                {/* Category Header */}
-                <div className="flex items-center justify-between gap-3 border-b border-border/70 pb-3.5">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={cn(
-                        "flex size-9 items-center justify-center rounded-xl font-mono text-xs font-bold transition-all duration-300 group-hover:scale-110",
-                        group.primary
-                          ? "bg-primary/20 text-primary ring-1 ring-primary/30 shadow-xs"
-                          : "bg-secondary text-foreground group-hover:bg-primary/15 group-hover:text-primary",
-                      )}
-                    >
-                      <CategoryIcon className="size-4.5" />
-                    </div>
-                    <div>
-                      <h3 className="font-display text-sm sm:text-base font-bold text-foreground group-hover:text-primary transition-colors">
-                        {group.title}
-                      </h3>
-                      <span className="text-[11px] font-mono text-muted-foreground">
-                        {group.skills.length} competencies
-                      </span>
-                    </div>
-                  </div>
-
-                  {group.primary ? (
-                    <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-primary/15 border border-primary/30 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-primary font-semibold shadow-2xs">
-                      <Sparkles className="size-2.5" />
-                      <span>Primary</span>
-                    </span>
-                  ) : null}
-                </div>
-
-                {/* Skill Chips with High-Fidelity Icons */}
-                <ul className="mt-4 flex flex-wrap gap-2">
-                  {group.skills.map((skill) => {
-                    const { icon: SkillIcon, color, bg, border } = getSkillIcon(skill);
-
-                    return (
-                      <li
-                        key={skill}
-                        className={cn(
-                          "group/chip inline-flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-medium transition-all duration-200 cursor-default",
-                          "bg-surface/80 border-border/80 text-foreground",
-                          "hover:border-primary/50 hover:bg-primary/10 hover:scale-[1.03] hover:shadow-xs",
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            "flex size-5 items-center justify-center rounded-md border",
-                            bg,
-                            border,
-                          )}
-                        >
-                          <SkillIcon className={cn("size-3 transition-transform", color)} />
-                        </span>
-                        <span className="font-mono text-[11px] sm:text-xs text-foreground/90 group-hover/chip:text-primary transition-colors">
-                          {skill}
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-
-              {/* Bottom Card Footer Accent */}
-              <div className="mt-5 pt-3 border-t border-border/40 flex items-center justify-between text-[10px] text-muted-foreground font-mono">
-                <span className="flex items-center gap-1.5">
-                  <span
-                    className={cn(
-                      "size-1.5 rounded-full",
-                      group.primary ? "bg-primary" : "bg-muted-foreground/50",
-                    )}
-                  />
-                  <span>
-                    {group.primary ? "Verified Production Stack" : "Practical Proficiency"}
-                  </span>
-                </span>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-primary flex items-center gap-0.5">
-                  <span>Explore</span>
-                  <ArrowUpRight className="size-2.5" />
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* ── Bottom Interactive Navigation Banner (Lenis Smooth Scroll) ── */}
-      <div className="mt-8 sm:mt-12 rounded-2xl border border-white/10 bg-card/80 p-5 sm:p-6 backdrop-blur-xl shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+    <Section id="skills" ref={sectionRef} tone="surface" className="py-12 sm:py-16">
+      {/* ── Ultra-Clean Compact Header + Inline Tabs ── */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
-          <h4 className="font-display text-sm sm:text-base font-bold text-foreground">
-            Want to see these technologies implemented in real applications?
-          </h4>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Inspect live deployed projects, GitHub source code, and algorithmic LeetCode solutions.
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-primary">
+            {sectionHeader.eyebrow}
           </p>
+          <h2 className="mt-1 font-display text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
+            {sectionHeader.title}
+          </h2>
+          {sectionHeader.description ? (
+            <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground max-w-xl">
+              {sectionHeader.description}
+            </p>
+          ) : null}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0 w-full sm:w-auto">
-          <button
-            type="button"
-            onClick={() => scrollToId("projects")}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-sm shadow-primary/25 hover:opacity-90 active:scale-95 transition-all cursor-pointer"
-          >
-            <span>Explore Projects</span>
-            <ArrowUpRight className="size-3.5" />
-          </button>
+        {/* Accessible Scrollable Domain Switcher */}
+        <div className="border-b border-border/80 lg:border-none max-w-full">
+          <div className="skills-edge-mask overflow-x-auto py-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div
+              role="tablist"
+              aria-label="Filter skills by engineering category"
+              className="skills-tablist inline-flex min-w-max items-center gap-1 pr-6 md:pr-0 pb-1.5"
+            >
+              <button
+                ref={(el) => {
+                  tabRefs.current[0] = el;
+                }}
+                type="button"
+                role="tab"
+                id="skills-tab-core"
+                aria-selected={activeTab === CORE_TAB}
+                tabIndex={activeTab === CORE_TAB ? 0 : -1}
+                onClick={() => handleTabSelect(CORE_TAB, 0)}
+                onKeyDown={(e) => handleTabKeyDown(e, 0)}
+                className={cn(
+                  "skills-tab-item shrink-0 rounded-lg px-3 py-1.5 font-mono text-xs transition-colors cursor-pointer",
+                  activeTab === CORE_TAB
+                    ? "text-foreground font-semibold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-card/60",
+                )}
+              >
+                Core Stack
+              </button>
 
-          <button
-            type="button"
-            onClick={() => scrollToId("dsa")}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface px-4 py-2 text-xs font-semibold text-foreground hover:border-primary/40 hover:bg-surface/90 active:scale-95 transition-all cursor-pointer"
-          >
-            <span>LeetCode Stats</span>
-            <Code2 className="size-3.5 text-primary" />
-          </button>
+              {skillGroups.map((group, idx) => {
+                const tabIndex = idx + 1;
+                const isSelected = activeTab === group.title;
+                return (
+                  <button
+                    key={group.title}
+                    ref={(el) => {
+                      tabRefs.current[tabIndex] = el;
+                    }}
+                    type="button"
+                    role="tab"
+                    id={`skills-tab-${idx}`}
+                    aria-selected={isSelected}
+                    tabIndex={isSelected ? 0 : -1}
+                    onClick={() => handleTabSelect(group.title, tabIndex)}
+                    onKeyDown={(e) => handleTabKeyDown(e, tabIndex)}
+                    className={cn(
+                      "skills-tab-item shrink-0 rounded-lg px-3 py-1.5 font-mono text-xs transition-colors cursor-pointer",
+                      isSelected
+                        ? "text-foreground font-semibold"
+                        : "text-muted-foreground hover:text-foreground hover:bg-card/60",
+                    )}
+                  >
+                    {getShortTabLabel(group.title)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Compact Animated Bento Card Grid ── */}
+      <div
+        ref={gridRef}
+        role="tabpanel"
+        aria-labelledby={activeTabDomId}
+        className={cn(
+          "mt-5 sm:mt-6 grid gap-2.5 sm:gap-3.5",
+          getSymmetricGridClasses(visibleCards.length),
+        )}
+      >
+        {visibleCards.map((item, index) => {
+          const isLastOddMobile =
+            visibleCards.length % 2 === 1 && index === visibleCards.length - 1;
+          return (
+            <AnimatedSkillCard
+              key={`${item.category}-${item.name}`}
+              item={item}
+              isSelected={selectedSkill === item.name}
+              spanFullOnLastOddMobile={isLastOddMobile}
+              onSelect={() => handleToggleSkill(item.name)}
+            />
+          );
+        })}
+      </div>
+
+      {/* ── Minimal Contextual Project Evidence Strip ── */}
+      <div className="mt-4 pt-3.5 border-t border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] text-muted-foreground">
+          {selectedSkill ? (
+            <>
+              <span className="text-foreground font-medium">
+                {footerProjects.length > 0
+                  ? `Used in (${selectedSkill}):`
+                  : `${selectedSkill} — Core Engineering Foundation`}
+              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedSkill(null)}
+                aria-label="Clear selected skill"
+                className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-1.5 py-0.5 text-[10px] text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <X className="size-2.5" aria-hidden="true" />
+                <span>Reset</span>
+              </button>
+            </>
+          ) : (
+            <span>Tap a card to filter related work:</span>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {footerProjects.length > 0 ? (
+            footerProjects.slice(0, 3).map((proj) => (
+              <a
+                key={proj.title}
+                href={proj.liveUrl || proj.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1 font-mono text-[11px] text-foreground transition-colors hover:border-primary/50 hover:text-primary"
+              >
+                <FolderGit2 className="size-3 shrink-0 text-primary" aria-hidden="true" />
+                <span>{proj.title.split("—")[0]?.trim()}</span>
+                <ExternalLink
+                  className="size-2.5 shrink-0 text-muted-foreground"
+                  aria-hidden="true"
+                />
+              </a>
+            ))
+          ) : (
+            <span className="font-mono text-[11px] text-muted-foreground">
+              Applied across coursework &amp; engineering architecture
+            </span>
+          )}
         </div>
       </div>
     </Section>

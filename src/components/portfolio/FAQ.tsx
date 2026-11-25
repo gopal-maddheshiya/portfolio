@@ -10,7 +10,10 @@ import {
   X,
 } from "lucide-react";
 
+import { usePortfolio } from "@/context/PortfolioContext";
 import { FAQS } from "@/data/faq";
+import { DEFAULT_SECTION_HEADERS } from "@/data/profile";
+import { pauseSmoothScroll, resumeSmoothScroll } from "@/lib/scroll";
 import { cn } from "@/lib/utils";
 import { Section } from "./Section";
 
@@ -26,20 +29,30 @@ const CATEGORIES = [
 type Category = (typeof CATEGORIES)[number];
 
 export function FAQ() {
+  const { data } = usePortfolio();
+  const faqs = data.faqs && data.faqs.length > 0 ? data.faqs : FAQS;
+  const faqHeader = {
+    eyebrow: data.sectionHeaders?.faq?.eyebrow || DEFAULT_SECTION_HEADERS.faq.eyebrow,
+    title: data.sectionHeaders?.faq?.title || DEFAULT_SECTION_HEADERS.faq.title,
+    description: data.sectionHeaders?.faq?.description || DEFAULT_SECTION_HEADERS.faq.description,
+  };
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category>("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [openIds, setOpenIds] = useState<Set<string>>(() => new Set([FAQS[0]?.id || ""]));
+  const [openIds, setOpenIds] = useState<Set<string>>(() => new Set([faqs[0]?.id || ""]));
 
-  // Lock body scroll when drawer is open
+  // Lock body scroll & pause Lenis when drawer is open so mouse wheel works inside drawer
   useEffect(() => {
     if (!isDrawerOpen) {
       return undefined;
     }
+    pauseSmoothScroll();
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = originalOverflow;
+      resumeSmoothScroll();
     };
   }, [isDrawerOpen]);
 
@@ -92,7 +105,7 @@ export function FAQ() {
   };
 
   const filteredFaqs = useMemo(() => {
-    return FAQS.filter((item) => {
+    return faqs.filter((item) => {
       const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
       const matchesSearch =
         searchQuery.trim() === "" ||
@@ -100,7 +113,7 @@ export function FAQ() {
         item.answer.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [faqs, selectedCategory, searchQuery]);
 
   const handleAskAI = (question?: string) => {
     setIsDrawerOpen(false);
@@ -131,27 +144,25 @@ export function FAQ() {
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/25 px-3 py-1 text-xs font-mono font-medium text-primary">
                 <Sparkles className="size-3.5 text-primary" aria-hidden="true" />
-                KNOWLEDGE BASE &amp; AEO
+                {faqHeader.eyebrow}
               </span>
               <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="size-2 rounded-full bg-primary animate-pulse" />
                 Schema.org FAQPage • AI Engine Verified
               </span>
             </div>
 
             <h2 className="mt-3 text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
-              Frequently Asked Questions &amp; Verified Facts
+              {faqHeader.title}
             </h2>
             <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              Clear, structured facts about Gopal Maddheshiya&apos;s background, B.Tech CSE at SRMU,
-              Java &amp; Full-Stack skills, SIH hackathon projects, and internship availability for
-              visitors and AI answer engines.
+              {faqHeader.description}
             </p>
 
             {/* Quick interactive preview chips */}
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <span className="text-xs text-muted-foreground font-medium">Quick preview:</span>
-              {FAQS.slice(0, 2).map((item) => (
+              {faqs.slice(0, 2).map((item) => (
                 <button
                   key={item.id}
                   type="button"
@@ -173,7 +184,7 @@ export function FAQ() {
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-xs sm:text-sm font-semibold text-primary-foreground hover:opacity-90 shadow-xs transition-all cursor-pointer group"
             >
               <BookOpen className="size-4 shrink-0" aria-hidden="true" />
-              <span>Explore Knowledge Base ({FAQS.length} Q&amp;As)</span>
+              <span>Explore Knowledge Base ({faqs.length} Q&amp;As)</span>
               <ArrowRight
                 className="size-4 shrink-0 group-hover:translate-x-0.5 transition-transform"
                 aria-hidden="true"
@@ -225,15 +236,15 @@ export function FAQ() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-mono text-xs uppercase tracking-wider text-primary font-semibold">
-                  Knowledge Base &amp; AEO
+                  {faqHeader.eyebrow}
                 </span>
-                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="size-1.5 rounded-full bg-primary animate-pulse" />
               </div>
               <h3 className="text-lg sm:text-xl font-semibold text-foreground mt-1">
                 Frequently Asked Questions
               </h3>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Verified facts &amp; details about Gopal Maddheshiya
+                Verified facts &amp; details about {data.personalInfo?.name || "Gopal Maddheshiya"}
               </p>
             </div>
             <button
@@ -271,11 +282,7 @@ export function FAQ() {
             </div>
 
             {/* Category Pills */}
-            <div
-              className="flex flex-wrap gap-1.5"
-              role="tablist"
-              aria-label="FAQ Categories"
-            >
+            <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="FAQ Categories">
               {CATEGORIES.map((cat) => {
                 const active = selectedCategory === cat;
                 return (
@@ -301,9 +308,10 @@ export function FAQ() {
 
           {/* Scrollable Accordion List (Microdata Schema for Crawlers) */}
           <div
+            data-lenis-prevent=""
             itemScope
             itemType="https://schema.org/FAQPage"
-            className="flex-1 overflow-y-auto p-4 sm:p-5 divide-y divide-border space-y-2 overscroll-contain"
+            className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 divide-y divide-border space-y-2 overscroll-contain"
           >
             {filteredFaqs.length === 0 ? (
               <div className="py-12 text-center text-muted-foreground text-sm">
@@ -392,7 +400,7 @@ export function FAQ() {
           {/* Drawer Footer */}
           <div className="p-4 sm:p-5 border-t border-border bg-card/90 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="size-2 rounded-full bg-emerald-500" />
+              <span className="size-2 rounded-full bg-primary" />
               <span className="font-mono text-[11px]">Schema.org FAQPage • JSON-LD</span>
             </div>
 

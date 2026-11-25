@@ -3,7 +3,7 @@ import tradingCompanyImage from "@/assets/trading-company.webp";
 import chatImage from "@/assets/node-chat.webp";
 import jobsImage from "@/assets/job-card.webp";
 import weatherImage from "@/assets/weather.webp";
-import defaultProfilePhoto from "@/assets/gopal-profile.jpg";
+import defaultProfilePhoto from "@/assets/gopal-cutout.webp";
 
 export interface PersonalInfo {
   name: string;
@@ -18,11 +18,19 @@ export interface PersonalInfo {
   leetcode: string;
   leetcodeUsername: string;
   linkedin: string;
+  medium?: string | undefined;
+  substack?: string | undefined;
+  reddit?: string | undefined;
+  facebook?: string | undefined;
+  instagram?: string | undefined;
   resume: string;
   siteUrl: string;
   ogImage: string;
   siteDescription: string;
-  profilePhoto?: string;
+  profilePhoto?: string | undefined;
+  monogram?: string | undefined;
+  universityShort?: string | undefined;
+  footerTagline?: string | undefined;
 }
 
 export const PERSONAL_INFO: PersonalInfo = {
@@ -38,12 +46,20 @@ export const PERSONAL_INFO: PersonalInfo = {
   leetcode: "https://leetcode.com/u/gopal-maddheshiya/",
   leetcodeUsername: "gopal-maddheshiya",
   linkedin: "https://www.linkedin.com/in/gopal-maddheshiya",
+  medium: "https://medium.com/@gopal-maddheshiya",
+  substack: "https://substack.com/@gopalmaddheshiya",
+  reddit: "https://www.reddit.com/user/gopal_96/",
+  facebook: "https://www.facebook.com/gopalmaddheshiya63/",
+  instagram: "https://www.instagram.com/gopalmaddheshiya63/",
   resume: "/gopal-cv.pdf",
   siteUrl: "https://gopal-maddheshiya.vercel.app",
   ogImage: "https://gopal-maddheshiya.vercel.app/og-image.jpg",
   siteDescription:
     "Computer Science student focused on Java, Data Structures & Algorithms and full-stack web development with React, Node.js and MongoDB.",
   profilePhoto: defaultProfilePhoto,
+  monogram: "GM",
+  universityShort: "SRMU · CSE '28",
+  footerTagline: "Built with code and continuous learning.",
 };
 
 export interface HeroData {
@@ -53,6 +69,8 @@ export interface HeroData {
   floatingBadge1: string;
   floatingBadge2: string;
   availabilityStatus: string;
+  ctaPrimary?: string | undefined;
+  ctaSecondary?: string | undefined;
 }
 
 export const HERO_DATA: HeroData = {
@@ -66,7 +84,9 @@ export const HERO_DATA: HeroData = {
   ],
   floatingBadge1: "Java • DSA",
   floatingBadge2: "Full-Stack Developer",
-  availabilityStatus: "Online",
+  availabilityStatus: "Open to Work",
+  ctaPrimary: "View my work",
+  ctaSecondary: "View Resume",
 };
 
 export interface AboutData {
@@ -75,6 +95,7 @@ export interface AboutData {
   description: string;
   storyTitle: string;
   storyParagraphs: string[];
+  availabilityBadge?: string | undefined;
   principles: Array<{ title: string; description: string; icon: string }>;
   snapshot: {
     degree: string;
@@ -97,6 +118,7 @@ export const ABOUT_DATA: AboutData = {
     "I'm a Computer Science Engineering student at Shri Ramswaroop Memorial University, actively preparing for software engineering roles. My daily work revolves around two pillars: solving algorithmic problems in Java and engineering end-to-end web applications.",
     "On the algorithmic side, I practice problem-solving daily on LeetCode with deliberate focus on time and space complexity. On the development side, I turn ideas into responsive React interfaces backed by Express REST APIs and MongoDB databases.",
   ],
+  availabilityBadge: "Open to Internships",
   principles: [
     {
       title: "Java & DSA",
@@ -140,6 +162,7 @@ export interface ResumeCTAData {
   description: string;
   tags: string[];
   buttonText: string;
+  updatedLabel?: string | undefined;
 }
 
 export const RESUME_CTA_DATA: ResumeCTAData = {
@@ -149,6 +172,7 @@ export const RESUME_CTA_DATA: ResumeCTAData = {
     "My single-page resume covers my academic coursework at SRMU, core competencies in Java & DSA, full-stack project portfolio, and coding profile achievements.",
   tags: ["Single-Page PDF", "Java & Full-Stack Focus"],
   buttonText: "Download Resume",
+  updatedLabel: "Updated 2026 · 1-Page PDF",
 };
 
 export interface ContactData {
@@ -156,6 +180,9 @@ export interface ContactData {
   title: string;
   description: string;
   availabilityNote: string;
+  availabilityTitle?: string | undefined;
+  availabilitySubtitle?: string | undefined;
+  directHeading?: string | undefined;
 }
 
 export const CONTACT_DATA: ContactData = {
@@ -164,6 +191,10 @@ export const CONTACT_DATA: ContactData = {
   description:
     "Have an internship opportunity, a project to collaborate on, or just want to discuss algorithms and full-stack development? Reach out via form or WhatsApp!",
   availabilityNote: "Open to Summer 2026 SWE & Full-Stack Internships",
+  availabilityTitle: "Open for Internship & Full-Time Roles",
+  availabilitySubtitle:
+    "B.Tech CSE at SRMU · Verified DSA & Full-Stack track record · Typical response within 24 hours.",
+  directHeading: "Direct contact",
 };
 
 export interface HighlightItem {
@@ -246,15 +277,19 @@ export const SKILL_GROUPS: SkillGroup[] = [
 export type Project = {
   title: string;
   year: string;
-  category?: string;
+  category?: string | undefined;
+  role?: string | undefined;
   summary: string;
-  problem?: string;
+  problem?: string | undefined;
+  architecture?: string | undefined;
+  challenges?: string | undefined;
+  impact?: string[] | undefined;
   technologies: string[];
   features: string[];
-  image?: string;
+  image?: string | undefined;
   githubUrl: string;
-  liveUrl?: string;
-  featured?: boolean;
+  liveUrl?: string | undefined;
+  featured?: boolean | undefined;
 };
 
 export const PROJECTS: Project[] = [
@@ -262,10 +297,20 @@ export const PROJECTS: Project[] = [
     title: "DSA & Interview Prep Tracker",
     year: "2026",
     category: "Full-Stack MERN",
+    role: "Sole Full-Stack Developer",
     summary:
       "A production-ready preparation platform to track problem-solving velocity, log multi-attempt learnings, and prioritize revision using an interval-based spaced repetition model.",
     problem:
       "Engineered to solve unstructured coding practice with automated revision queues, difficulty distribution trends, and developer heatmap insights.",
+    architecture:
+      "Built on a decoupled React SPA and Express REST backend with stateless JWT auth, MongoDB Atlas schema indexing on attempt timestamps, and server-side aggregation pipelines computing daily streaks and difficulty splits.",
+    challenges:
+      "Balancing fast dashboard load times with multi-attempt history queries by replacing client-side reductions with indexed MongoDB $group and $facet pipelines.",
+    impact: [
+      "Automated due-date scheduling for spaced-repetition revision queues",
+      "Unified 20-week heatmap, topic accuracy, and difficulty breakdown views",
+      "JWT-protected multi-attempt timeline logging per problem",
+    ],
     technologies: [
       "React.js",
       "Node.js",
@@ -292,10 +337,20 @@ export const PROJECTS: Project[] = [
     title: "Arun Gopal Traders — E-Commerce",
     year: "2026",
     category: "Full-Stack & Cloud",
+    role: "Lead Full-Stack & Database Architect",
     summary:
       "A production-ready bilingual grocery and retail e-commerce platform with live order tracking, Supabase PostgreSQL with RLS, realtime sync, Gemini AI, and automated billing.",
     problem:
       "Built for commercial retail operations with real-time stock and order management, localized dual language catalog, and AI-assisted admin intelligence.",
+    architecture:
+      "Powered by React 19 + TanStack Start backed by Supabase PostgreSQL with strict Row-Level Security (RLS) policies, Supabase Realtime channels for live inventory/order broadcasts, Gemini AI catalog search, and client-ready PDF bill generation.",
+    challenges:
+      "Preventing stock drift and unauthorized admin mutations while keeping checkout snappy — solved via transactional PostgreSQL RPC updates and role-scoped RLS rules.",
+    impact: [
+      "Dual-language Hindi & English storefront broadening local accessibility",
+      "Instant Pub/Sub order tracking & stock sync across customer and admin views",
+      "Automated PDF invoice generation cutting manual billing effort",
+    ],
     technologies: [
       "React 19",
       "TanStack Start",
@@ -322,10 +377,20 @@ export const PROJECTS: Project[] = [
     title: "KisanSarthi AI — Krishi Suraksha Platform",
     year: "2026",
     category: "AI & Full-Stack",
+    role: "Full-Stack & AI Workflow Engineer (SIH 2026)",
     summary:
       "An AI-powered agricultural decision support system combining multimodal vision diagnostics, real-time microclimate risk analysis, and ICAR advisory workflows for farmers.",
     problem:
       "Solves critical delays in crop pest identification and weather vulnerability by providing offline-ready multimodal AI diagnosis, early warning alerts, and verified expert intervention.",
+    architecture:
+      "Integrates React 18 & TypeScript frontend with Google Gemini Vision AI for leaf/pest image analysis, Open-Meteo telemetry for humidity/temperature risk scoring, Leaflet regional heatmaps, and Supabase PostgreSQL persistence.",
+    challenges:
+      "Structuring noisy weather and multimodal vision outputs into clear, actionable ICAR-aligned crop advisories usable in low-connectivity rural workflows.",
+    impact: [
+      "Selected & pitched at Smart India Hackathon (SIH) 2026",
+      "Combines leaf image diagnostics with real-time regional disease heatmaps",
+      "Actionable ICAR preventive guidance tailored to local microclimate risk",
+    ],
     technologies: [
       "React 18",
       "TypeScript",
@@ -350,10 +415,19 @@ export const PROJECTS: Project[] = [
     title: "Node.js & MongoDB Message REST API",
     year: "2025",
     category: "Backend & APIs",
+    role: "Backend Engineer",
     summary:
       "A RESTful message API built with Node.js, Express.js, MongoDB and Mongoose, implementing complete CRUD operations with persistent cloud database storage on Render.",
     problem:
       "Built to understand how persistent data flows across the web stack — connecting Express REST endpoints with Mongoose schema modeling and MongoDB Atlas.",
+    architecture:
+      "Modular Express router architecture separating route controllers, Mongoose validation schemas (sender, receiver, timestamped message documents), HTTP method-override support, and cloud MongoDB Atlas persistence hosted on Render.",
+    challenges:
+      "Designing clean schema validation and predictable error handling across full create/read/update/delete lifecycles in stateless HTTP routes.",
+    impact: [
+      "End-to-end persistent CRUD API deployed live on Render",
+      "Clean MVC separation between routing, validation, and data models",
+    ],
     technologies: ["Node.js", "Express.js", "MongoDB", "Mongoose", "JavaScript", "HTML/CSS"],
     features: [
       "RESTful API endpoints",
@@ -372,10 +446,19 @@ export const PROJECTS: Project[] = [
     title: "Weather Forecast Web App",
     year: "2025",
     category: "Frontend",
+    role: "Frontend Developer",
     summary:
       "A client-side weather application integrating the OpenWeatherMap API with asynchronous JavaScript, browser geolocation, temperature conversion and responsive UI.",
     problem:
       "Checking current weather and multi-day forecasts seamlessly across cities with instant geolocation detection and unit conversion.",
+    architecture:
+      "Vanilla ES6 async/await fetch layer querying OpenWeatherMap REST endpoints alongside the browser Geolocation API, caching unit preferences for instant °C/°F switching.",
+    challenges:
+      "Gracefully handling geolocation permission denials and invalid city lookups without breaking UI state.",
+    impact: [
+      "Instant coordinate-based local weather lookup via browser Geolocation API",
+      "Zero-dependency fast static deployment on GitHub Pages",
+    ],
     technologies: ["JavaScript", "HTML5", "CSS3", "OpenWeatherMap API", "Geolocation API"],
     features: [
       "OpenWeatherMap REST API integration",
@@ -394,10 +477,16 @@ export const PROJECTS: Project[] = [
     title: "Job Listing Cards — React",
     year: "2026",
     category: "Frontend",
+    role: "Frontend Developer",
     summary:
       "A React component practice project focused on reusable components, props-driven rendering and responsive card layouts.",
     problem:
       "Practicing modular React component composition, structured prop passing, and data-driven rendering of dynamic role cards.",
+    architecture:
+      "Component-driven React architecture mapping typed job role objects into reusable card components styled with responsive CSS layouts.",
+    challenges:
+      "Maintaining uniform card geometry and spacing across varying title lengths and tag counts.",
+    impact: ["Clean, reusable prop-driven card UI components deployed live on Render"],
     technologies: ["React.js", "JavaScript", "CSS3"],
     features: [
       "Reusable React components",
@@ -505,7 +594,8 @@ export interface CodingProfile {
   username: string;
   description: string;
   icon: "code" | "terminal" | "codechef" | "trophy";
-  hidden?: boolean;
+  highlight?: string | undefined;
+  hidden?: boolean | undefined;
 }
 
 export const CODING_PROFILES: CodingProfile[] = [
@@ -515,6 +605,7 @@ export const CODING_PROFILES: CodingProfile[] = [
     username: PERSONAL_INFO.leetcodeUsername,
     description: "Java solutions and ongoing problem-solving practice.",
     icon: "code",
+    highlight: "Daily Java Practice",
   },
   {
     name: "GeeksforGeeks",
@@ -522,6 +613,7 @@ export const CODING_PROFILES: CodingProfile[] = [
     username: "gopalmaddheshiya",
     description: "Coding practice and data structures learning.",
     icon: "terminal",
+    highlight: "DSA Core",
   },
   {
     name: "CodeChef",
@@ -529,6 +621,7 @@ export const CODING_PROFILES: CodingProfile[] = [
     username: "gopal_code_96",
     description: "Competitive programming and algorithm practice.",
     icon: "codechef",
+    highlight: "Contests",
   },
   {
     name: "HackerRank",
@@ -536,65 +629,7 @@ export const CODING_PROFILES: CodingProfile[] = [
     username: "gopalmaddheshiy1",
     description: "Problem solving challenges and skills badges.",
     icon: "trophy",
-  },
-];
-
-export interface JourneyMilestone {
-  phase: string;
-  title: string;
-  detail: string;
-  status: "done" | "active" | "next";
-  tags: string[];
-}
-
-export const JOURNEY: JourneyMilestone[] = [
-  {
-    phase: "01",
-    title: "Java Fundamentals & OOP",
-    detail:
-      "Object-oriented principles, classes, inheritance, collections framework, and clean code structure.",
-    status: "done",
-    tags: ["Java", "OOP", "Collections"],
-  },
-  {
-    phase: "02",
-    title: "Core Data Structures",
-    detail:
-      "Arrays, strings, recursion, sorting algorithms, and searching techniques with Big-O complexity analysis.",
-    status: "done",
-    tags: ["Arrays", "Recursion", "Big-O"],
-  },
-  {
-    phase: "03",
-    title: "Daily LeetCode Problem Solving",
-    detail:
-      "Practicing Java problem solving with arrays, strings, recursion and common problem-solving patterns.",
-    status: "active",
-    tags: ["LeetCode", "Java", "Algorithms"],
-  },
-  {
-    phase: "04",
-    title: "Full-Stack Web Development",
-    detail:
-      "Building end-to-end applications with React interfaces, Express REST APIs, and MongoDB persistence.",
-    status: "active",
-    tags: ["React", "Node.js", "MongoDB"],
-  },
-  {
-    phase: "05",
-    title: "Trees, Graphs & Advanced Patterns",
-    detail:
-      "Currently practicing binary search trees, tree traversals, graph algorithms (BFS/DFS), and dynamic programming.",
-    status: "next",
-    tags: ["Trees", "Graphs", "DP"],
-  },
-  {
-    phase: "06",
-    title: "System Fundamentals & Architecture",
-    detail:
-      "Deepening understanding of database indexing, REST design patterns, and deployment pipelines.",
-    status: "next",
-    tags: ["System Basics", "Databases", "APIs"],
+    highlight: "Verified Badges",
   },
 ];
 
@@ -620,9 +655,11 @@ export type Certification = {
   title: string;
   org: string;
   period: string;
+  category?: string | undefined;
+  featured?: boolean | undefined;
   detail: string;
   skills: string[];
-  certificateUrl?: string;
+  certificateUrl?: string | undefined;
 };
 
 export const CERTIFICATIONS: Certification[] = [
@@ -630,6 +667,8 @@ export const CERTIFICATIONS: Certification[] = [
     title: "Find The Language",
     org: "Shri Ramswaroop Memorial University",
     period: "Feb 2026",
+    category: "Contest Win",
+    featured: true,
     detail: "Critical thinking, problem-solving, and algorithmic programming contest.",
     skills: ["Problem Solving", "Logic", "Java"],
     certificateUrl: "/certificates/find-the-language.pdf",
@@ -638,6 +677,7 @@ export const CERTIFICATIONS: Certification[] = [
     title: "HTML Course Completion",
     org: "Prashant Jain",
     period: "Nov 2024",
+    category: "Coursework",
     detail: "Semantic HTML5, DOM architecture, web accessibility, and page layout structuring.",
     skills: ["HTML5", "Semantic Web", "DOM"],
     certificateUrl: "/certificates/html-certificate.pdf",
@@ -646,6 +686,7 @@ export const CERTIFICATIONS: Certification[] = [
     title: "CSS Course Completion",
     org: "Prashant Jain",
     period: "Nov 2024",
+    category: "Coursework",
     detail: "Modern CSS layout models, Flexbox, CSS Grid, responsive design, and transitions.",
     skills: ["CSS3", "Flexbox", "CSS Grid", "Responsive Design"],
     certificateUrl: "/certificates/css-certificate.pdf",
@@ -658,9 +699,10 @@ export interface AcademicMediaItem {
   caption: string; // What this relates to / description
   type: "image" | "video";
   url: string;
-  thumbnailUrl?: string;
-  category?: string; // e.g. "Hackathon", "College Event", "Lab Project", "Workshop", "Campus"
-  date?: string; // e.g. "2025" or "Oct 2025"
+  thumbnailUrl?: string | undefined;
+  category?: string | undefined; // e.g. "Hackathon", "College Event", "Lab Project", "Workshop", "Campus"
+  date?: string | undefined; // e.g. "2025" or "Oct 2025"
+  featured?: boolean | undefined;
 }
 
 export const ACADEMIC_GALLERY: AcademicMediaItem[] = [
@@ -674,6 +716,7 @@ export const ACADEMIC_GALLERY: AcademicMediaItem[] = [
       "Participated in Smart India Hackathon (SIH) 2026 with project 'KisanSarthi', focused on solving core agricultural and farmer workflow challenges. Contributed to problem statement research, technical architecture, and pitch presentation.",
     category: "Smart India Hackathon",
     thumbnailUrl: "",
+    featured: true,
   },
   {
     id: "14d5d31c-4e82-4d26-bc19-47dd41a9524b",
@@ -710,3 +753,60 @@ export const NAV_LINKS = [
   { id: "faq", label: "FAQ" },
   { id: "contact", label: "Contact" },
 ];
+
+export type EditableSectionKey =
+  "skills" | "projects" | "dsa" | "profiles" | "certifications" | "gallery" | "faq";
+
+export interface SectionHeaderMeta {
+  eyebrow?: string | undefined;
+  title?: string | undefined;
+  description?: string | undefined;
+}
+
+export type SectionHeadersMap = Partial<Record<EditableSectionKey, SectionHeaderMeta>>;
+
+export const DEFAULT_SECTION_HEADERS: Record<
+  EditableSectionKey,
+  { eyebrow: string; title: string; description: string }
+> = {
+  skills: {
+    eyebrow: "Technical Stack",
+    title: "Skills & Tech Stack",
+    description: "Core full-stack & Java technologies I build with, organized by layer.",
+  },
+  projects: {
+    eyebrow: "Featured Projects",
+    title: "Selected Engineering Work",
+    description:
+      "Production full-stack builds, AI-driven workflows, and REST APIs — inspect code or open any Case Study.",
+  },
+  dsa: {
+    eyebrow: "DSA & Problem Solving",
+    title: "Live LeetCode & Problem Solving",
+    description:
+      "Real-time synchronized coding metrics, problem difficulty distribution, badges, and 1-year practice activity directly from LeetCode.",
+  },
+  profiles: {
+    eyebrow: "Coding Profiles",
+    title: "Platforms & Practice",
+    description: "Public problem solving, open-source work, and competitive programming profiles.",
+  },
+  certifications: {
+    eyebrow: "Certifications & Achievements",
+    title: "Certificates",
+    description:
+      "Course completions, technical certifications, and university academic achievements.",
+  },
+  gallery: {
+    eyebrow: "Campus Life & Highlights",
+    title: "Academic Moments & Media",
+    description:
+      "A visual showcase of university milestones, hackathon participations, campus workshops, and technical demonstrations.",
+  },
+  faq: {
+    eyebrow: "KNOWLEDGE BASE & AEO",
+    title: "Frequently Asked Questions & Verified Facts",
+    description:
+      "Clear, structured facts about Gopal Maddheshiya's background, B.Tech CSE at SRMU, Java & Full-Stack skills, SIH hackathon projects, and internship availability for visitors and AI answer engines.",
+  },
+};

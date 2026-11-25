@@ -4,11 +4,14 @@ import {
   DEFAULT_PORTFOLIO_DATA,
   RECORD_ID,
   TABLE_NAME,
+  clearAdminDraftPortfolioData,
+  clearLegacyPublicCache,
   fetchPortfolioData,
-  getLocalStoredPortfolioData,
-  setLocalStoredPortfolioData,
+  getAdminDraftPortfolioData,
+  invalidatePortfolioCache,
   parsePortfolioContent,
   savePortfolioData,
+  setAdminDraftPortfolioData,
   supabase,
   type PortfolioData,
 } from "@/lib/supabase";
@@ -32,7 +35,6 @@ function notifyContentUpdate() {
   });
 }
 
-/** Helper to compare visual portfolio data ignoring timestamp fields */
 function arePortfolioContentsEqual(a: PortfolioData, b: PortfolioData): boolean {
   if (a === b) return true;
   const { updatedAt: _a, ...restA } = a;
@@ -51,45 +53,36 @@ export function PortfolioProvider({
 }) {
   const [data, setData] = useState<PortfolioData>(() => {
     if (typeof window !== "undefined") {
-      const local = getLocalStoredPortfolioData();
-      if (local?.updatedAt) {
-        if (
-          !initialData?.updatedAt ||
-          new Date(local.updatedAt).getTime() >= new Date(initialData.updatedAt).getTime()
-        ) {
-          return local;
-        }
+      clearLegacyPublicCache();
+      if (window.location.pathname.startsWith("/admin")) {
+        const draft = getAdminDraftPortfolioData();
+        if (draft) return draft;
       }
     }
     return initialData || DEFAULT_PORTFOLIO_DATA;
   });
   const [isLoading, setIsLoading] = useState<boolean>(!initialData);
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [isDirty, setIsDirty] = useState<boolean>(false);
+  const [isDirty, setIsDirty] = useState<boolean>(() => {
+    if (typeof window !== "undefined" && window.location.pathname.startsWith("/admin")) {
+      return Boolean(getAdminDraftPortfolioData());
+    }
+    return false;
+  });
 
   const lastFetchTimeRef = useRef<number>(Date.now());
-
-  // Track whether the user has unsaved local edits.
-  // When dirty, skip ALL remote overwrites (realtime, broadcast, focus refresh)
-  // so that file-picker blur/re-focus cycles don't wipe out admin work.
-  const isDirtyRef = useRef<boolean>(false);
+  const isDirtyRef = useRef<boolean>(isDirty);
 
   const loadData = useCallback(async (silent = false) => {
     try {
       if (!silent) setIsLoading(true);
-      const remoteData = await fetchPortfolioData();
+      const remoteData = await fetchPortfolioData(true);
       lastFetchTimeRef.current = Date.now();
 
       setData((prev) => {
+        if (isDirtyRef.current) return prev;
         if (arePortfolioContentsEqual(prev, remoteData)) {
           return prev;
-        }
-        // Timestamp conflict protection: Never overwrite local data if local has newer edits
-        if (prev.updatedAt && remoteData.updatedAt) {
-          if (new Date(prev.updatedAt).getTime() > new Date(remoteData.updatedAt).getTime()) {
-            console.log("⚡ [Context] Preserving newer local edits over older remote database row");
-            return prev;
-          }
         }
         notifyContentUpdate();
         return remoteData;
@@ -102,12 +95,10 @@ export function PortfolioProvider({
   }, []);
 
   useEffect(() => {
-    // If SSR loader did not supply initialData, fetch once
     if (!initialData) {
       loadData();
     }
 
-    // 1. Supabase Realtime Channel Subscription (WebSocket)
     const channel = supabase
       .channel("portfolio-realtime-channel")
       .on(
@@ -119,51 +110,30 @@ export function PortfolioProvider({
           filter: `id=eq.${RECORD_ID}`,
         },
         (payload) => {
-          // Skip remote overwrite while admin has unsaved changes
-          if (isDirtyRef.current) {
-            console.log("⚡ [Realtime Sync] Skipped — local unsaved edits present");
-            return;
-          }
-          console.log("⚡ [Realtime Sync] Supabase update received:", payload);
+          if (isDirtyRef.current) return;
+          invalidatePortfolioCache();
           if (payload.new && typeof payload.new === "object" && "content" in payload.new) {
             const raw = payload.new as { content?: unknown; updated_at?: string };
             const parsed = parsePortfolioContent(raw.content, raw.updated_at);
-            setData((prev) => {
-              if (prev.updatedAt && parsed.updatedAt) {
-                if (new Date(prev.updatedAt).getTime() > new Date(parsed.updatedAt).getTime()) {
-                  console.log("⚡ [Realtime Sync] Ignored older remote update");
-                  return prev;
-                }
-              }
-              setLocalStoredPortfolioData(parsed);
-              notifyContentUpdate();
-              return parsed;
-            });
+            setData(parsed);
+            notifyContentUpdate();
           } else {
             loadData(true);
           }
         },
       )
-      .subscribe((status) => {
-        console.log("⚡ Supabase Realtime sync status:", status);
-      });
+      .subscribe();
 
-    // 2. Multi-Tab Instant Sync via BroadcastChannel
     let broadcast: BroadcastChannel | null = null;
     if (typeof window !== "undefined" && "BroadcastChannel" in window) {
       try {
         broadcast = new BroadcastChannel("gopal_portfolio_tab_sync");
         broadcast.onmessage = (event) => {
-          // Skip if admin is actively editing (dirty state)
-          if (isDirtyRef.current) {
-            console.log("⚡ [Cross-Tab Sync] Skipped — local unsaved edits present");
-            return;
-          }
+          if (isDirtyRef.current) return;
           if (event.data?.type === "PORTFOLIO_SAVED" && event.data?.payload) {
-            console.log("⚡ [Cross-Tab Sync] Instant sync received from Admin Studio");
+            invalidatePortfolioCache();
             const parsed = parsePortfolioContent(event.data.payload, new Date().toISOString());
             setData(parsed);
-            setLocalStoredPortfolioData(parsed);
             notifyContentUpdate();
           }
         };
@@ -172,17 +142,10 @@ export function PortfolioProvider({
       }
     }
 
-    // 3. Tab Focus / Visibility Auto-Refresh
-    // Skip on initial load and only refresh if tab has been in background for > 2 mins
     const handleVisibility = () => {
-      if (isDirtyRef.current) {
-        console.log("⚡ [Focus Refresh] Skipped — local unsaved edits present");
-        return;
-      }
+      if (isDirtyRef.current) return;
       const now = Date.now();
-      if (now - lastFetchTimeRef.current < 2 * 60 * 1000) {
-        return;
-      }
+      if (now - lastFetchTimeRef.current < 2 * 60 * 1000) return;
       if (typeof document !== "undefined" && document.visibilityState === "visible") {
         lastFetchTimeRef.current = now;
         loadData(true);
@@ -196,9 +159,7 @@ export function PortfolioProvider({
 
     return () => {
       supabase.removeChannel(channel);
-      if (broadcast) {
-        broadcast.close();
-      }
+      if (broadcast) broadcast.close();
       if (typeof window !== "undefined") {
         window.removeEventListener("focus", handleVisibility);
         document.removeEventListener("visibilitychange", handleVisibility);
@@ -209,13 +170,11 @@ export function PortfolioProvider({
   const updateData = (
     updater: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData),
   ) => {
-    // Mark as dirty — prevents remote sync from overwriting local edits
     isDirtyRef.current = true;
     setIsDirty(true);
     setData((prev) => {
       const next = typeof updater === "function" ? updater(prev) : { ...prev, ...updater };
-      // Save synchronously to localStorage so that sudden reloads or tab switches never lose edits
-      setLocalStoredPortfolioData(next);
+      setAdminDraftPortfolioData(next);
       return next;
     });
   };
@@ -227,31 +186,31 @@ export function PortfolioProvider({
       const res = await savePortfolioData(dataToSave);
       const updated = { ...dataToSave, updatedAt: new Date().toISOString() };
       setData(updated);
-      setLocalStoredPortfolioData(updated);
-      isDirtyRef.current = false;
-      setIsDirty(false);
-
-      // Notify all open tabs instantly in < 5ms without page reload
-      if (typeof window !== "undefined" && "BroadcastChannel" in window) {
-        try {
-          const bc = new BroadcastChannel("gopal_portfolio_tab_sync");
-          bc.postMessage({ type: "PORTFOLIO_SAVED", payload: updated });
-          bc.close();
-        } catch {
-          // Handled by Supabase Realtime channel
-        }
-      }
 
       if (res.success) {
+        clearAdminDraftPortfolioData();
+        isDirtyRef.current = false;
+        setIsDirty(false);
+        if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+          try {
+            const bc = new BroadcastChannel("gopal_portfolio_tab_sync");
+            bc.postMessage({ type: "PORTFOLIO_SAVED", payload: updated });
+            bc.close();
+          } catch {
+            // Handled by Supabase Realtime channel
+          }
+        }
         toast.success("Portfolio changes saved live!");
         return true;
-      } else if (res.savedLocally) {
-        toast.success("Changes saved locally in your browser!");
-        return true;
-      } else {
-        toast.error(`Save failed: ${res.error || "Unknown error"}`);
+      }
+
+      if (res.savedLocally) {
+        toast.warning("Saved to local Admin draft (sign in or check connection to sync cloud).");
         return false;
       }
+
+      toast.error(`Save failed: ${res.error || "Unknown error"}`);
+      return false;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error saving";
       toast.error(`Save failed: ${msg}`);
@@ -262,11 +221,13 @@ export function PortfolioProvider({
   };
 
   const resetToDefaults = () => {
+    clearAdminDraftPortfolioData();
+    clearLegacyPublicCache();
+    invalidatePortfolioCache();
     setData(DEFAULT_PORTFOLIO_DATA);
-    setLocalStoredPortfolioData(DEFAULT_PORTFOLIO_DATA);
-    isDirtyRef.current = false;
-    setIsDirty(false);
-    toast.info("Reset to default profile values. Click 'Save Live' to persist.");
+    isDirtyRef.current = true;
+    setIsDirty(true);
+    toast.info("Reset to default profile values. Click 'Save Live' to publish to Supabase.");
   };
 
   return (
@@ -291,7 +252,6 @@ export function PortfolioProvider({
 export function usePortfolio() {
   const context = useContext(PortfolioContext);
   if (!context) {
-    // If used outside provider, gracefully return defaults
     return {
       data: DEFAULT_PORTFOLIO_DATA,
       isLoading: false,

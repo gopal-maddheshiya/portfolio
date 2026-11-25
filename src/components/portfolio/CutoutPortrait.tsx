@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import gopalCutout from "@/assets/gopal-cutout.webp";
 import defaultProfilePhoto from "@/assets/gopal-profile.jpg";
 
@@ -68,9 +68,8 @@ export function CutoutPortrait({
     if (!src || src.trim().length === 0) return gopalCutout;
     const clean = src.trim().toLowerCase();
     if (
-      clean.includes("gopal-profile.jpg") ||
-      clean === "/assets/gopal-profile.jpg" ||
-      clean.includes("me-b.png") ||
+      clean.includes("gopal-profile") ||
+      clean.includes("me-b") ||
       clean.includes("gopal-cutout")
     ) {
       return gopalCutout;
@@ -79,13 +78,34 @@ export function CutoutPortrait({
   };
 
   const [currentPhoto, setCurrentPhoto] = useState<string>(() => resolvePhoto(photoSrc));
+  const [isPaused, setIsPaused] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setCurrentPhoto(resolvePhoto(photoSrc));
   }, [photoSrc]);
 
+  // Pause orbital SVG and glow animations when scrolled out of viewport
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry) setIsPaused(!entry.isIntersecting);
+      },
+      { rootMargin: "120px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="relative w-full h-full aspect-square flex items-center justify-center select-none isolate">
+    <div
+      ref={rootRef}
+      data-paused={isPaused ? "true" : "false"}
+      className="relative w-full h-full aspect-square flex items-center justify-center select-none isolate"
+    >
       {/* ── Layer 0: Controlled, Softened Ambient Glow Behind Blob & Portrait ── */}
       <div
         className="portrait-glow-entrance absolute inset-0 -inset-x-4 -inset-y-4 rounded-full bg-[radial-gradient(ellipse_at_50%_45%,rgba(249,115,22,0.14),rgba(249,115,22,0.03)_50%,transparent_70%)] blur-xl sm:blur-2xl pointer-events-none opacity-55 animate-ambient-glow -z-10"
@@ -149,18 +169,25 @@ export function CutoutPortrait({
               strokeLinecap="round"
             />
 
-            {/* Bright neon accent segment with radiant glow */}
+            {/* Bright neon accent segment with lightweight GPU halo (zero per-frame drop-shadow repaint) */}
+            <path
+              d="M 280 32 C 375 52, 452 135, 462 230"
+              stroke="#06B6D4"
+              strokeWidth="6"
+              strokeLinecap="round"
+              opacity="0.18"
+            />
             <path
               d="M 280 32 C 375 52, 452 135, 462 230"
               stroke="#06B6D4"
               strokeWidth="2.6"
               strokeLinecap="round"
-              filter="drop-shadow(0 0 6px #06B6D4)"
             />
 
-            {/* Cyan Lead Satellite with energetic pulse */}
+            {/* Cyan Lead Satellite with subtle outer halo ring */}
             <g transform="translate(462, 230)">
-              <circle r="4" fill="#06B6D4" filter="drop-shadow(0 0 10px #06B6D4)" />
+              <circle r="8" fill="#06B6D4" opacity="0.22" />
+              <circle r="4" fill="#06B6D4" />
               <circle
                 r="7"
                 fill="#06B6D4"
@@ -170,17 +197,13 @@ export function CutoutPortrait({
 
             {/* Vibrant Orange Secondary Satellite */}
             <g transform="translate(455, 145)">
-              <circle r="3.5" fill="#F97316" filter="drop-shadow(0 0 8px #F97316)" />
+              <circle r="7" fill="#F97316" opacity="0.22" />
+              <circle r="3.5" fill="#F97316" />
             </g>
 
             {/* Golden Amber Orbital Accent */}
-            <circle
-              cx="410"
-              cy="420"
-              r="2.5"
-              fill="#FB923C"
-              filter="drop-shadow(0 0 5px #FB923C)"
-            />
+            <circle cx="410" cy="420" r="5.5" fill="#FB923C" opacity="0.22" />
+            <circle cx="410" cy="420" r="2.5" fill="#FB923C" />
 
             {/* North-west Cyan Energy Node */}
             <circle cx="120" cy="75" r="2.5" fill="#06B6D4" className="opacity-80" />

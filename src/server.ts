@@ -124,7 +124,12 @@ export default {
         (request.method === "GET" || request.method === "POST")
       ) {
         try {
-          const stats = await fetchLeetCodeStats();
+          const rawUsername = url.searchParams.get("username")?.trim();
+          const safeUsername =
+            rawUsername && /^[a-zA-Z0-9_-]{1,40}$/.test(rawUsername)
+              ? rawUsername
+              : "gopal-maddheshiya";
+          const stats = await fetchLeetCodeStats(safeUsername);
           return new Response(JSON.stringify(stats), {
             status: 200,
             headers: {

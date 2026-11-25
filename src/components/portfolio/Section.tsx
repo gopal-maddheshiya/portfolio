@@ -23,52 +23,49 @@ export function SectionHeading({
   animate?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const animatedRef = useRef(false);
 
   useEffect(() => {
-    if (!animate || animatedRef.current || !ref.current) return;
+    if (!animate || !ref.current) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    animatedRef.current = true;
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
         ".sect-anim-eyebrow",
-        { opacity: 0, y: 12 },
+        { opacity: 0, y: 10 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.5,
+          duration: 0.45,
           ease: "power3.out",
-          clearProps: "all",
+          clearProps: "transform,opacity",
           scrollTrigger: { trigger: ref.current, start: "top 90%", once: true },
         },
       );
 
       gsap.fromTo(
         ".sect-anim-title",
-        { opacity: 0, y: 22 },
+        { opacity: 0, y: 16 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.6,
-          delay: 0.05,
+          duration: 0.52,
+          delay: 0.04,
           ease: "power3.out",
-          clearProps: "all",
+          clearProps: "transform,opacity",
           scrollTrigger: { trigger: ref.current, start: "top 90%", once: true },
         },
       );
 
       gsap.fromTo(
         ".sect-anim-desc",
-        { opacity: 0, y: 16 },
+        { opacity: 0, y: 12 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.6,
-          delay: 0.16,
+          duration: 0.52,
+          delay: 0.1,
           ease: "power3.out",
-          clearProps: "all",
+          clearProps: "transform,opacity",
           scrollTrigger: { trigger: ref.current, start: "top 90%", once: true },
         },
       );

@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Code2, FileText, Github, Linkedin, MapPin } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+import { MagneticWrap, prefersReducedMotion } from "@/components/common/MagneticWrap";
 import { CutoutPortrait } from "@/components/portfolio/CutoutPortrait";
 import { usePortfolio } from "@/context/PortfolioContext";
 import { handleAnchorClick } from "@/lib/scroll";
@@ -17,9 +18,6 @@ const DEFAULT_TYPING_ROLES = [
   "MERN Stack Specialist",
   "B.Tech CSE Student",
 ];
-
-const REDUCED_MOTION =
-  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function TypewriterRole({
   roles = DEFAULT_TYPING_ROLES,
@@ -37,7 +35,7 @@ function TypewriterRole({
   const [started, setStarted] = useState(false);
 
   useEffect(() => {
-    if (REDUCED_MOTION) return;
+    if (prefersReducedMotion()) return;
     const initialWait = startDelay > 0 ? startDelay : 2000;
     const timeout = setTimeout(() => {
       setStarted(true);
@@ -47,7 +45,7 @@ function TypewriterRole({
   }, [startDelay]);
 
   useEffect(() => {
-    if (!started || REDUCED_MOTION) return;
+    if (!started || prefersReducedMotion()) return;
     const currentRole = activeRoles[roleIndex % activeRoles.length] || "";
     const typingSpeed = isDeleting ? 35 : 75;
     const pauseTime = isDeleting ? 350 : 2200;
@@ -82,41 +80,6 @@ function TypewriterRole({
         aria-hidden="true"
       />
     </span>
-  );
-}
-
-/* Magnetic hover lift for the primary CTA buttons */
-function MagneticWrap({
-  children,
-  className,
-  strength = 0.25,
-}: {
-  children: ReactNode;
-  className?: string;
-  strength?: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const handleMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!ref.current || REDUCED_MOTION) return;
-      const rect = ref.current.getBoundingClientRect();
-      const x = (e.clientX - rect.left - rect.width / 2) * strength;
-      const y = (e.clientY - rect.top - rect.height / 2) * strength;
-      gsap.to(ref.current, { x, y, duration: 0.35, ease: "power2.out" });
-    },
-    [strength],
-  );
-
-  const handleLeave = useCallback(() => {
-    if (!ref.current) return;
-    gsap.to(ref.current, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.4)" });
-  }, []);
-
-  return (
-    <div ref={ref} className={className} onMouseMove={handleMove} onMouseLeave={handleLeave}>
-      {children}
-    </div>
   );
 }
 
@@ -159,8 +122,7 @@ export function Hero() {
 
   // Scroll-connected fade-out + background parallax for a cinematic exit.
   useEffect(() => {
-    if (!containerRef.current) return;
-    if (REDUCED_MOTION) return;
+    if (!containerRef.current || prefersReducedMotion()) return;
 
     const ctx = gsap.context(() => {
       gsap.to(".hero-anim-content", {
@@ -171,18 +133,20 @@ export function Hero() {
           trigger: containerRef.current,
           start: "top top",
           end: "bottom 28%",
-          scrub: 0.6,
+          scrub: 0.5,
+          invalidateOnRefresh: true,
         },
       });
 
       gsap.to(".hero-anim-grid", {
-        yPercent: 28,
+        yPercent: 24,
         ease: "none",
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
           end: "bottom top",
-          scrub: 0.6,
+          scrub: 0.5,
+          invalidateOnRefresh: true,
         },
       });
     }, containerRef);
@@ -271,7 +235,7 @@ export function Hero() {
                 href="#projects"
                 className="hero-anim-btn inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-medium text-primary-foreground shadow-soft transition-opacity hover:opacity-90 active:scale-[0.99] cursor-pointer whitespace-nowrap"
               >
-                <span>View my work</span>
+                <span>{hero.ctaPrimary || "View my work"}</span>
                 <ArrowRight className="size-3.5 sm:size-4 shrink-0" aria-hidden="true" />
               </a>
             </MagneticWrap>
@@ -287,7 +251,7 @@ export function Hero() {
                   className="size-3.5 sm:size-4 shrink-0 text-muted-foreground"
                   aria-hidden="true"
                 />
-                <span>View Resume</span>
+                <span>{hero.ctaSecondary || "View Resume"}</span>
               </a>
             </MagneticWrap>
           </div>
@@ -347,11 +311,7 @@ export function Hero() {
               }
               name={info.name || "Gopal Maddheshiya"}
               badge1={hero.floatingBadge1 || "Java • DSA"}
-              badgeRole={
-                hero.floatingBadge2 && hero.floatingBadge2 !== "Full-Stack"
-                  ? hero.floatingBadge2
-                  : "Full-Stack Developer"
-              }
+              badgeRole={hero.floatingBadge2 || info.role || "Full-Stack Developer"}
             />
           </div>
         </div>

@@ -42,6 +42,15 @@ const NAV_ICONS: Record<string, typeof User> = {
 export function Navbar() {
   const { data } = usePortfolio();
   const info = data.personalInfo;
+  const derivedInitials = (info.name || "GM")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || "")
+    .join("");
+  const monogram = info.monogram?.trim() || derivedInitials || "GM";
+  const availabilityStatus = data.heroData?.availabilityStatus?.trim() || "Open to Work";
+  const universityShort = info.universityShort?.trim() || "SRMU · CSE '28";
 
   const { theme, toggleTheme, mounted } = useTheme();
   const active = useActiveSection(SECTION_IDS);
@@ -91,7 +100,7 @@ export function Navbar() {
               className="nav-anim-item group flex items-center gap-2 sm:gap-3 font-display text-sm sm:text-[0.9375rem] font-bold tracking-tight shrink-0 pl-0.5"
             >
               <span className="flex size-8 sm:size-9 shrink-0 items-center justify-center rounded-full bg-primary font-mono text-xs font-bold text-primary-foreground shadow-soft transition-transform duration-200 group-hover:scale-105">
-                GM
+                {monogram}
               </span>
               <div className="flex items-center gap-2 min-w-0">
                 <span className="truncate max-w-[170px] min-[360px]:max-w-none text-foreground font-semibold group-hover:text-primary transition-colors">
@@ -189,7 +198,7 @@ export function Navbar() {
               <div className="flex items-center justify-between gap-3 border-b border-border/70 px-3.5 sm:px-4 py-2.5 sm:py-3 bg-surface/50">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <span className="flex size-8 sm:size-9 shrink-0 items-center justify-center rounded-full bg-primary font-mono text-xs font-bold text-primary-foreground shadow-xs">
-                    GM
+                    {monogram}
                   </span>
                   <div className="flex flex-col min-w-0">
                     <span className="font-display text-xs sm:text-sm font-bold text-foreground leading-tight truncate">
@@ -201,12 +210,12 @@ export function Navbar() {
                   </div>
                 </div>
 
-                <div className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-1 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold whitespace-nowrap">
+                <div className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/25 px-2.5 py-1 text-[10px] font-mono text-primary font-semibold whitespace-nowrap">
                   <span className="relative flex size-1.5 shrink-0">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex size-1.5 rounded-full bg-emerald-400" />
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+                    <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
                   </span>
-                  <span>Open to Work</span>
+                  <span>{availabilityStatus}</span>
                 </div>
               </div>
 
@@ -290,7 +299,7 @@ export function Navbar() {
                   </div>
 
                   <span className="font-mono text-[9px] sm:text-[10px] text-muted-foreground shrink-0">
-                    SRMU · CSE '28
+                    {universityShort}
                   </span>
                 </div>
 

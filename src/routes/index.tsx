@@ -10,7 +10,6 @@ import { FAQ } from "@/components/portfolio/FAQ";
 import { Footer } from "@/components/portfolio/Footer";
 import { Hero } from "@/components/portfolio/Hero";
 import { Highlights } from "@/components/portfolio/Highlights";
-import { Journey } from "@/components/portfolio/Journey";
 import { Navbar } from "@/components/portfolio/Navbar";
 import { Profiles } from "@/components/portfolio/Profiles";
 import { Projects } from "@/components/portfolio/Projects";
@@ -114,7 +113,6 @@ function Index() {
           <Skills />
           <Projects />
           <DSA />
-          <Journey />
           <Profiles />
           <Certifications />
           <AcademicGallery />

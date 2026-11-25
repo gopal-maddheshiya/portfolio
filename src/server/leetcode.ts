@@ -597,7 +597,7 @@ export async function fetchLeetCodeStats(
   username = "gopal-maddheshiya",
 ): Promise<LeetCodeStatsResponse> {
   const now = Date.now();
-  if (cachedStats && now - lastFetchTime < CACHE_TTL_MS) {
+  if (cachedStats && cachedStats.username === username && now - lastFetchTime < CACHE_TTL_MS) {
     return cachedStats;
   }
 
@@ -607,8 +607,9 @@ export async function fetchLeetCodeStats(
     cachedStats = result;
     lastFetchTime = now;
     return result;
-  } catch (faisalErr: any) {
-    console.log(`[LeetCode] FaisalShohag proxy unavailable (${faisalErr?.message || "error"}), trying Alfa proxy...`);
+  } catch (faisalErr: unknown) {
+    const msg = faisalErr instanceof Error ? faisalErr.message : "error";
+    console.log(`[LeetCode] FaisalShohag proxy unavailable (${msg}), trying Alfa proxy...`);
   }
 
   // 2. Try Alfa LeetCode proxy
@@ -617,8 +618,9 @@ export async function fetchLeetCodeStats(
     cachedStats = result;
     lastFetchTime = now;
     return result;
-  } catch (alfaErr: any) {
-    console.log(`[LeetCode] Alfa proxy unavailable (${alfaErr?.message || "error"}), trying GraphQL...`);
+  } catch (alfaErr: unknown) {
+    const msg = alfaErr instanceof Error ? alfaErr.message : "error";
+    console.log(`[LeetCode] Alfa proxy unavailable (${msg}), trying GraphQL...`);
   }
 
   // 3. Try official LeetCode GraphQL
@@ -627,18 +629,20 @@ export async function fetchLeetCodeStats(
     cachedStats = result;
     lastFetchTime = now;
     return result;
-  } catch (graphqlErr: any) {
-    console.log(`[LeetCode] LeetCode GraphQL unavailable (${graphqlErr?.message || "error"}).`);
+  } catch (graphqlErr: unknown) {
+    const msg = graphqlErr instanceof Error ? graphqlErr.message : "error";
+    console.log(`[LeetCode] LeetCode GraphQL unavailable (${msg}).`);
   }
 
-  // 4. Return cached stats if available (even if expired)
-  if (cachedStats) {
+  // 4. Return cached stats if available for matching user
+  if (cachedStats && cachedStats.username === username) {
     return cachedStats;
   }
 
   // 5. Ultimate fallback
   return {
     ...FALLBACK_STATS,
+    username,
     updatedAt: new Date().toISOString(),
   };
 }

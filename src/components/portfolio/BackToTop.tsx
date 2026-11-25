@@ -56,7 +56,7 @@ export function BackToTop() {
       }
     };
 
-    // Attach to Lenis ticker if available for 100% frame-perfect sync
+    // Attach to Lenis scroll events immediately or upon lenis:ready (zero polling interval)
     let lenisAttached = false;
     const attachLenis = () => {
       if (window.__lenis && !lenisAttached) {
@@ -67,13 +67,13 @@ export function BackToTop() {
       return false;
     };
 
+    const onLenisReady = () => {
+      attachLenis();
+      updateProgress();
+    };
+
     if (!attachLenis()) {
-      const interval = setInterval(() => {
-        if (attachLenis()) {
-          clearInterval(interval);
-        }
-      }, 100);
-      setTimeout(() => clearInterval(interval), 3000);
+      window.addEventListener("lenis:ready", onLenisReady, { once: true });
     }
 
     // Always keep window scroll and resize as standard listener/fallback
@@ -82,6 +82,7 @@ export function BackToTop() {
     updateProgress();
 
     return () => {
+      window.removeEventListener("lenis:ready", onLenisReady);
       window.removeEventListener("scroll", updateProgress);
       window.removeEventListener("resize", updateProgress);
       if (window.__lenis && lenisAttached) {
@@ -147,7 +148,7 @@ export function BackToTop() {
             strokeDasharray={CIRCUMFERENCE}
             strokeDashoffset={CIRCUMFERENCE}
             strokeLinecap="round"
-            className="text-primary will-change-[stroke-dashoffset]"
+            className="text-primary"
           />
         </svg>
 

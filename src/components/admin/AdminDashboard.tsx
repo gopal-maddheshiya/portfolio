@@ -13,6 +13,7 @@ import {
   Sparkles,
   Mail,
   Camera,
+  HelpCircle,
   Settings,
   Menu,
   X,
@@ -29,7 +30,8 @@ import { SkillsTab } from "@/components/admin/tabs/SkillsTab";
 import { DsaTab } from "@/components/admin/tabs/DsaTab";
 import { CertificationsTab } from "@/components/admin/tabs/CertificationsTab";
 import { GalleryTab } from "@/components/admin/tabs/GalleryTab";
-import { JourneyTab } from "@/components/admin/tabs/JourneyTab";
+import { HighlightsTab } from "@/components/admin/tabs/HighlightsTab";
+import { FaqTab } from "@/components/admin/tabs/FaqTab";
 import { ContactTab } from "@/components/admin/tabs/ContactTab";
 import { SettingsTab } from "@/components/admin/tabs/SettingsTab";
 
@@ -46,7 +48,8 @@ export type TabType =
   | "dsa"
   | "certifications"
   | "gallery"
-  | "journey"
+  | "highlights"
+  | "faq"
   | "contact"
   | "settings";
 
@@ -56,7 +59,8 @@ interface NavGroup {
     id: TabType;
     label: string;
     icon: ComponentType<{ className?: string }>;
-    count?: number;
+    count?: number | undefined;
+    sectionHash?: string | undefined;
     description: string;
   }>;
 }
@@ -90,6 +94,17 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [saveData]);
 
+  // Warn before unloading browser tab while edits are pending
+  useEffect(() => {
+    if (!isDirty) return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
   // Close mobile drawer on resize to desktop
   useEffect(() => {
     const handleResize = () => {
@@ -107,15 +122,17 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
       items: [
         {
           id: "hero",
-          label: "Hero & Profile",
+          label: "Hero & Identity",
           icon: User,
-          description: "Hero headline, typewriter roles, photo & links",
+          sectionHash: "#top",
+          description: "Hero headline, typewriter roles, monogram, photo & links",
         },
         {
           id: "about",
           label: "About & Education",
           icon: BookOpen,
-          description: "Bio story, snapshot stats & university timeline",
+          sectionHash: "#about",
+          description: "Bio story, Core Pillars, snapshot stats & university",
         },
       ],
     },
@@ -124,23 +141,26 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
       items: [
         {
           id: "projects",
-          label: "Projects Manager",
+          label: "Projects & Case Studies",
           icon: Briefcase,
           count: data.projects?.length,
-          description: "Projects, tech stacks, live links & screenshots",
+          sectionHash: "#projects",
+          description: "Projects, Case Study architecture/impact, tech & links",
         },
         {
           id: "skills",
-          label: "Skills & Tech Stack",
+          label: "Skills & Core Stack",
           icon: Layers,
           count: data.skillGroups?.length,
-          description: "Categorized skill chips and primary highlights",
+          sectionHash: "#skills",
+          description: "Core Stack pinned showcase cards & category skill tabs",
         },
         {
           id: "dsa",
           label: "DSA & Coding Profiles",
           icon: Code2,
-          description: "Problem metrics, difficulty, topics & handles",
+          sectionHash: "#dsa",
+          description: "Problem metrics, difficulty, topics & coding platforms",
         },
       ],
     },
@@ -152,6 +172,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
           label: "Certifications",
           icon: Award,
           count: data.certifications?.length,
+          sectionHash: "#certifications",
           description: "Verified certificates, contest wins & PDF files",
         },
         {
@@ -159,13 +180,24 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
           label: "Academic Gallery",
           icon: Camera,
           count: (data.academicGallery || []).length,
+          sectionHash: "#gallery",
           description: "Hackathon photos, demo videos & context notes",
         },
         {
-          id: "journey",
-          label: "Highlights & Journey",
+          id: "highlights",
+          label: "Top Highlights",
           icon: Sparkles,
-          description: "Top badges below hero & learning milestones",
+          count: (data.highlights || []).length,
+          sectionHash: "#main",
+          description: "Credential & focus marquee strip below Hero",
+        },
+        {
+          id: "faq",
+          label: "FAQ & Knowledge Base",
+          icon: HelpCircle,
+          count: (data.faqs || []).length,
+          sectionHash: "#faq",
+          description: "Interactive Q&As & Schema.org FAQPage structured data",
         },
       ],
     },
@@ -174,9 +206,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
       items: [
         {
           id: "contact",
-          label: "Contact & Resume CTA",
+          label: "Contact, Resume & Footer",
           icon: Mail,
-          description: "Contact section details & resume banner",
+          sectionHash: "#contact",
+          description: "Contact availability, Resume CTA & Footer tagline",
         },
         {
           id: "settings",
@@ -241,10 +274,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
               </div>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="relative flex size-2 shrink-0">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/70 opacity-75" />
+                  <span className="relative inline-flex size-2 rounded-full bg-primary" />
                 </span>
-                <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 truncate">
+                <span className="text-[11px] font-medium text-primary truncate">
                   Cloud Live Sync
                 </span>
               </div>
@@ -289,7 +322,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
               {userEmail}
             </span>
           </div>
-          <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[9px] font-bold uppercase tracking-wider border border-emerald-500/20 shrink-0">
+          <span className="px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-bold uppercase tracking-wider border border-primary/20 shrink-0">
             Admin
           </span>
         </div>
@@ -398,9 +431,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                 </div>
                 <div>
                   <span className="font-display font-bold text-sm block">Portfolio Studio</span>
-                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
-                    Cloud Live Sync
-                  </span>
+                  <span className="text-[10px] text-primary font-medium">Cloud Live Sync</span>
                 </div>
               </div>
               <button
@@ -460,7 +491,13 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                           <span>{item.label}</span>
                         </div>
                         {item.count !== undefined && (
-                          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-secondary text-muted-foreground">
+                          <span
+                            className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                              isActive
+                                ? "bg-white/25 text-white"
+                                : "bg-secondary text-muted-foreground"
+                            }`}
+                          >
                             {item.count}
                           </span>
                         )}
@@ -471,11 +508,27 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
               ))}
             </nav>
 
-            <div className="p-3 border-t border-border space-y-1">
+            <div className="p-3 border-t border-border space-y-1.5">
+              <a
+                href={`/${currentTabItem.sectionHash || ""}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => {
+                  if (isDirty) saveData();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <ExternalLink className="size-4 text-primary" />
+                  <span>Preview Live Site</span>
+                </div>
+                <span className="text-[10px] font-mono text-muted-foreground">↗</span>
+              </a>
               <button
                 type="button"
                 onClick={onSignOut}
-                className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-destructive hover:bg-destructive/10"
+                className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-destructive hover:bg-destructive/10 cursor-pointer"
               >
                 <LogOut className="size-4" />
                 <span>Sign Out</span>
@@ -519,7 +572,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
             </div>
 
             {/* Right: Quick Action Buttons */}
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               {/* Sync Status Badge */}
               <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-border/80 bg-card/60 shadow-2xs">
                 {isSaving ? (
@@ -531,19 +584,19 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                   <>
                     <span className="size-2 rounded-full bg-amber-400" />
                     <span className="text-amber-500 font-mono text-[11px]">
-                      Unsaved edits (Auto-saving)
+                      Unsaved (Auto-saving)
                     </span>
                   </>
                 ) : (
                   <>
-                    <span className="size-2 rounded-full bg-emerald-500" />
-                    <span className="text-emerald-500 font-mono text-[11px]">Saved live</span>
+                    <span className="size-2 rounded-full bg-primary" />
+                    <span className="text-primary font-mono text-[11px]">Saved live</span>
                   </>
                 )}
               </div>
 
               <a
-                href="/"
+                href={`/${currentTabItem.sectionHash || ""}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => {
@@ -551,18 +604,28 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     saveData();
                   }
                 }}
-                title="Preview portfolio live"
-                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-card hover:bg-secondary px-3 py-1.5 text-xs font-semibold text-foreground transition-all shadow-2xs cursor-pointer"
+                title={
+                  currentTabItem.sectionHash
+                    ? `Preview ${currentTabItem.label} on live site`
+                    : "Preview portfolio live"
+                }
+                aria-label="Preview live site"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border-strong bg-card hover:bg-secondary px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-foreground transition-all shadow-2xs cursor-pointer"
               >
                 <ExternalLink className="size-3.5 text-primary" />
-                <span>Preview</span>
+                <span className="hidden sm:inline">Preview</span>
               </a>
 
               <button
                 type="button"
-                onClick={() => resetToDefaults()}
+                onClick={() => {
+                  if (confirm("Reset portfolio fields back to default profile values?")) {
+                    resetToDefaults();
+                  }
+                }}
                 title="Reset to local profile defaults"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card hover:bg-secondary px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                aria-label="Reset to defaults"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card hover:bg-secondary px-2.5 sm:px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
                 <RotateCcw className="size-3.5" />
                 <span className="hidden sm:inline">Reset</span>
@@ -573,14 +636,17 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                 onClick={() => saveData()}
                 disabled={isSaving}
                 title="Save live changes (Shortcut: Ctrl+S)"
-                className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/95 hover:from-primary/95 hover:to-primary px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold text-primary-foreground shadow-md shadow-primary/25 transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/95 hover:from-primary/95 hover:to-primary px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold text-primary-foreground shadow-md shadow-primary/25 transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
               >
                 {isSaving ? (
                   <span className="size-3.5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
                 ) : (
                   <Save className="size-3.5" />
                 )}
-                <span>{isSaving ? "Saving..." : "Save Live"}</span>
+                <span>
+                  {isSaving ? "Saving..." : "Save"}
+                  <span className="hidden sm:inline"> Live</span>
+                </span>
                 <kbd className="hidden lg:inline-flex items-center ml-0.5 px-1.5 py-0.5 rounded bg-black/20 text-[10px] font-mono font-medium text-primary-foreground/90 border border-white/15">
                   Ctrl+S
                 </kbd>
@@ -602,7 +668,8 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
             <CertificationsTab data={data} updateData={updateData} />
           )}
           {activeTab === "gallery" && <GalleryTab data={data} updateData={updateData} />}
-          {activeTab === "journey" && <JourneyTab data={data} updateData={updateData} />}
+          {activeTab === "highlights" && <HighlightsTab data={data} updateData={updateData} />}
+          {activeTab === "faq" && <FaqTab data={data} updateData={updateData} />}
           {activeTab === "contact" && <ContactTab data={data} updateData={updateData} />}
           {activeTab === "settings" && (
             <SettingsTab data={data} updateData={updateData} resetToDefaults={resetToDefaults} />

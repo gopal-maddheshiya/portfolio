@@ -24,6 +24,11 @@ export function generateSeoSchema(
         info.github,
         info.linkedin,
         info.leetcode,
+        info.medium,
+        info.substack,
+        info.reddit,
+        info.facebook,
+        info.instagram,
         ...dynamicCodingUrls,
         "https://www.geeksforgeeks.org/profile/gopalmaddheshiya",
         "https://www.codechef.com/users/gopal_code_96",
@@ -88,7 +93,10 @@ export function generateSeoSchema(
     },
   }));
 
-  const faqEntities = FAQS.map((faq) => ({
+  const activeFaqs =
+    portfolioData?.faqs && portfolioData.faqs.length > 0 ? portfolioData.faqs : FAQS;
+
+  const faqEntities = activeFaqs.map((faq) => ({
     "@type": "Question",
     name: faq.question,
     acceptedAnswer: {

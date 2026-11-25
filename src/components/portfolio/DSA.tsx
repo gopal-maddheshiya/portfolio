@@ -13,7 +13,8 @@ import {
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import { DSA_INFO, PERSONAL_INFO } from "@/data/profile";
+import { prefersReducedMotion } from "@/components/common/MagneticWrap";
+import { DEFAULT_SECTION_HEADERS, DSA_INFO, PERSONAL_INFO } from "@/data/profile";
 import { usePortfolio } from "@/context/PortfolioContext";
 import { useLeetCodeStats } from "@/hooks/useLeetCodeStats";
 import { Reveal } from "./Reveal";
@@ -49,7 +50,7 @@ export function DSA() {
     recentSubmissions,
     isFetching,
     refetch,
-  } = useLeetCodeStats();
+  } = useLeetCodeStats(info.leetcodeUsername);
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -67,125 +68,106 @@ export function DSA() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const [animatedValues, setAnimatedValues] = useState({
-    total,
-    easy,
-    medium,
-    hard,
-    progress: 1,
-  });
   const hasTriggeredRef = useRef(false);
   const gaugeCardRef = useRef<HTMLDivElement>(null);
   const donutSvgRef = useRef<SVGSVGElement>(null);
+  const easyArcRef = useRef<SVGPathElement>(null);
+  const medArcRef = useRef<SVGPathElement>(null);
+  const hardArcRef = useRef<SVGPathElement>(null);
+  const totalCountRef = useRef<HTMLSpanElement>(null);
+  const easyCountRef = useRef<HTMLSpanElement>(null);
+  const medCountRef = useRef<HTMLSpanElement>(null);
+  const hardCountRef = useRef<HTMLSpanElement>(null);
+  const easyBarRef = useRef<HTMLDivElement>(null);
+  const medBarRef = useRef<HTMLDivElement>(null);
+  const hardBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // If initial scroll entrance animation already completed, update with live synchronized metrics
-    if (hasTriggeredRef.current) {
-      setAnimatedValues((prev) => ({
-        ...prev,
-        total,
-        easy,
-        medium,
-        hard,
-        progress: 1,
-      }));
-      return;
-    }
+    const radius = 46;
+    const totalArc = (260 / 360) * 2 * Math.PI * radius;
+    const totalSafe = Math.max(total, 1);
+    const easyTarget = (easy / totalSafe) * totalArc;
+    const medTarget = (medium / totalSafe) * totalArc;
+    const hardTarget = (hard / totalSafe) * totalArc;
+    const easyPctTarget = Math.min(100, (easy / Math.max(totalEasy, 1)) * 100);
+    const medPctTarget = Math.min(100, (medium / Math.max(totalMedium, 1)) * 100);
+    const hardPctTarget = Math.min(100, (hard / Math.max(totalHard, 1)) * 100);
 
-    if (
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
+    // Direct DOM mutator: updates counters, SVG arcs & progress bars at 120fps without re-rendering 365 heatmap cells
+    const applyGaugeProgress = (progress: number) => {
+      const filled = progress * totalArc;
+      const eLen = Math.min(filled, easyTarget);
+      const mLen = Math.max(0, Math.min(filled - easyTarget, medTarget));
+      const hLen = Math.max(0, Math.min(filled - easyTarget - medTarget, hardTarget));
+
+      easyArcRef.current?.setAttribute("stroke-dasharray", `${eLen} ${totalArc}`);
+      medArcRef.current?.setAttribute("stroke-dasharray", `${mLen} ${totalArc}`);
+      hardArcRef.current?.setAttribute("stroke-dasharray", `${hLen} ${totalArc}`);
+
+      if (totalCountRef.current)
+        totalCountRef.current.textContent = String(Math.round(total * progress));
+      if (easyCountRef.current)
+        easyCountRef.current.textContent = String(Math.round(easy * progress));
+      if (medCountRef.current)
+        medCountRef.current.textContent = String(Math.round(medium * progress));
+      if (hardCountRef.current)
+        hardCountRef.current.textContent = String(Math.round(hard * progress));
+
+      if (easyBarRef.current) easyBarRef.current.style.width = `${easyPctTarget * progress}%`;
+      if (medBarRef.current) medBarRef.current.style.width = `${medPctTarget * progress}%`;
+      if (hardBarRef.current) hardBarRef.current.style.width = `${hardPctTarget * progress}%`;
+    };
+
+    if (hasTriggeredRef.current || prefersReducedMotion()) {
       hasTriggeredRef.current = true;
-      setAnimatedValues({
-        total,
-        easy,
-        medium,
-        hard,
-        progress: 1,
-      });
+      applyGaugeProgress(1);
       return;
     }
 
-    // Start with 0 for counter and stroke sweep
-    setAnimatedValues({
-      total: 0,
-      easy: 0,
-      medium: 0,
-      hard: 0,
-      progress: 0,
-    });
+    applyGaugeProgress(0);
 
     const triggerEl = gaugeCardRef.current || sectionRef.current;
     if (!triggerEl) return;
 
-    const obj = { total: 0, easy: 0, medium: 0, hard: 0, progress: 0 };
-
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: triggerEl,
-        start: "top 82%",
-        once: true,
-      },
-      onComplete: () => {
-        hasTriggeredRef.current = true;
-        setAnimatedValues({
-          total,
-          easy,
-          medium,
-          hard,
-          progress: 1,
-        });
-      },
-    });
-
-    // Spin and settle the horseshoe donut from -40deg to 0deg with smooth scaling
-    if (donutSvgRef.current) {
-      tl.fromTo(
-        donutSvgRef.current,
-        {
-          rotate: -40,
-          scale: 0.94,
-          transformOrigin: "50% 50%",
+    const tweenState = { progress: 0 };
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: triggerEl,
+          start: "top 84%",
+          once: true,
         },
+        onComplete: () => {
+          hasTriggeredRef.current = true;
+          applyGaugeProgress(1);
+        },
+      });
+
+      if (donutSvgRef.current) {
+        tl.fromTo(
+          donutSvgRef.current,
+          { rotate: -40, scale: 0.94, transformOrigin: "50% 50%" },
+          { rotate: 0, scale: 1, duration: 1.25, ease: "power3.out", clearProps: "transform" },
+          0,
+        );
+      }
+
+      tl.to(
+        tweenState,
         {
-          rotate: 0,
-          scale: 1,
-          duration: 1.4,
-          ease: "power3.out",
+          progress: 1,
+          duration: 1.25,
+          ease: "power2.out",
+          onUpdate: () => applyGaugeProgress(tweenState.progress),
         },
         0,
       );
-    }
-
-    // Simultaneously sweep the arc progress from 0% to 100% and count up the numbers
-    tl.to(
-      obj,
-      {
-        total,
-        easy,
-        medium,
-        hard,
-        progress: 1,
-        duration: 1.4,
-        ease: "power2.out",
-        onUpdate: () => {
-          setAnimatedValues({
-            total: Math.round(obj.total),
-            easy: Math.round(obj.easy),
-            medium: Math.round(obj.medium),
-            hard: Math.round(obj.hard),
-            progress: obj.progress,
-          });
-        },
-      },
-      0,
-    );
+    }, gaugeCardRef);
 
     return () => {
-      tl.kill();
+      ctx.revert();
     };
-  }, [total, easy, medium, hard]);
+  }, [total, easy, medium, hard, totalEasy, totalMedium, totalHard]);
 
   // Dynamic stats calculation based on selected period
   const periodStats = useMemo(() => {
@@ -343,27 +325,22 @@ export function DSA() {
   const medTargetLen = medRatio * totalArcLength;
   const hardTargetLen = hardRatio * totalArcLength;
 
-  const p = animatedValues.progress;
-  const filledTotal = p * totalArcLength;
-
-  // Sequential continuous sweep: Easy fills first, then Med sweeps from where Easy ends, then Hard completes
-  const currentEasyLen = Math.min(filledTotal, easyTargetLen);
-  const currentMedLen = Math.max(0, Math.min(filledTotal - easyTargetLen, medTargetLen));
-  const currentHardLen = Math.max(
-    0,
-    Math.min(filledTotal - easyTargetLen - medTargetLen, hardTargetLen),
-  );
-
   // Arc path: starts at 140° (bottom-left) and sweeps around to 40° (bottom-right)
   const arcPath = "M 24.77 89.57 A 46 46 0 1 1 95.23 89.57";
+
+  const dsaHeader = {
+    eyebrow: data?.sectionHeaders?.dsa?.eyebrow || DEFAULT_SECTION_HEADERS.dsa.eyebrow,
+    title: data?.sectionHeaders?.dsa?.title || DEFAULT_SECTION_HEADERS.dsa.title,
+    description: data?.sectionHeaders?.dsa?.description || DEFAULT_SECTION_HEADERS.dsa.description,
+  };
 
   return (
     <Section id="dsa" tone="surface">
       <div ref={sectionRef}>
         <SectionHeading
-          eyebrow="DSA &amp; Problem Solving"
-          title="Live LeetCode &amp; Problem Solving"
-          description="Real-time synchronized coding metrics, problem difficulty distribution, badges, and 1-year practice activity directly from LeetCode."
+          eyebrow={dsaHeader.eyebrow}
+          title={dsaHeader.title}
+          description={dsaHeader.description}
         />
 
         <div className="mt-8 sm:mt-10 space-y-4 sm:space-y-5">
@@ -432,32 +409,35 @@ export function DSA() {
 
                       {/* Easy Arc (Cyan / Teal #00b8a3) */}
                       <path
+                        ref={easyArcRef}
                         d={arcPath}
                         fill="none"
                         stroke="#00b8a3"
                         strokeWidth="6"
-                        strokeDasharray={`${currentEasyLen} ${totalArcLength}`}
+                        strokeDasharray={`${easyTargetLen} ${totalArcLength}`}
                         strokeDashoffset="0"
                         strokeLinecap="round"
                       />
 
                       {/* Medium Arc (Amber / Yellow #ffc01e) */}
                       <path
+                        ref={medArcRef}
                         d={arcPath}
                         fill="none"
                         stroke="#ffc01e"
                         strokeWidth="6"
-                        strokeDasharray={`${currentMedLen} ${totalArcLength}`}
+                        strokeDasharray={`${medTargetLen} ${totalArcLength}`}
                         strokeDashoffset={`-${easyTargetLen}`}
                       />
 
                       {/* Hard Arc (Red / Rose #ef4444) */}
                       <path
+                        ref={hardArcRef}
                         d={arcPath}
                         fill="none"
                         stroke="#ef4444"
                         strokeWidth="6"
-                        strokeDasharray={`${currentHardLen} ${totalArcLength}`}
+                        strokeDasharray={`${hardTargetLen} ${totalArcLength}`}
                         strokeDashoffset={`-${easyTargetLen + medTargetLen}`}
                         strokeLinecap={hard > 0 ? "round" : undefined}
                       />
@@ -469,8 +449,11 @@ export function DSA() {
                     {/* Inner Text Center */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center pt-2">
                       <div className="flex items-baseline justify-center">
-                        <span className="font-display text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
-                          {animatedValues.total}
+                        <span
+                          ref={totalCountRef}
+                          className="font-display text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight"
+                        >
+                          {total}
                         </span>
                         <span className="text-xs text-muted-foreground font-mono ml-0.5">
                           /{formatNumber(totalQuestions)}
@@ -489,7 +472,7 @@ export function DSA() {
                       )}
 
                       <span className="text-[10px] text-muted-foreground font-mono mt-1 px-2 py-0.5 rounded-full bg-secondary border border-border">
-                        Java Solutions
+                        {dsa.language || "Java"} Solutions
                       </span>
                     </div>
                   </div>
@@ -502,8 +485,11 @@ export function DSA() {
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-[#00b8a3] font-mono">Easy</span>
                       <div className="flex items-baseline gap-1">
-                        <span className="font-display text-sm sm:text-base font-bold text-foreground">
-                          {animatedValues.easy}
+                        <span
+                          ref={easyCountRef}
+                          className="font-display text-sm sm:text-base font-bold text-foreground"
+                        >
+                          {easy}
                         </span>
                         <span className="text-[10px] text-muted-foreground font-mono">
                           /{formatNumber(totalEasy)}
@@ -515,9 +501,10 @@ export function DSA() {
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-secondary dark:bg-muted overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-[#00b8a3] transition-all duration-500"
+                        ref={easyBarRef}
+                        className="h-full rounded-full bg-[#00b8a3]"
                         style={{
-                          width: `${Math.min(100, (easy / Math.max(totalEasy, 1)) * 100 * animatedValues.progress)}%`,
+                          width: `${Math.min(100, (easy / Math.max(totalEasy, 1)) * 100)}%`,
                         }}
                       />
                     </div>
@@ -528,8 +515,11 @@ export function DSA() {
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-[#ffc01e] font-mono">Med.</span>
                       <div className="flex items-baseline gap-1">
-                        <span className="font-display text-sm sm:text-base font-bold text-foreground">
-                          {animatedValues.medium}
+                        <span
+                          ref={medCountRef}
+                          className="font-display text-sm sm:text-base font-bold text-foreground"
+                        >
+                          {medium}
                         </span>
                         <span className="text-[10px] text-muted-foreground font-mono">
                           /{formatNumber(totalMedium)}
@@ -541,9 +531,10 @@ export function DSA() {
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-secondary dark:bg-muted overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-[#ffc01e] transition-all duration-500"
+                        ref={medBarRef}
+                        className="h-full rounded-full bg-[#ffc01e]"
                         style={{
-                          width: `${Math.min(100, (medium / Math.max(totalMedium, 1)) * 100 * animatedValues.progress)}%`,
+                          width: `${Math.min(100, (medium / Math.max(totalMedium, 1)) * 100)}%`,
                         }}
                       />
                     </div>
@@ -554,8 +545,11 @@ export function DSA() {
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-[#ef4444] font-mono">Hard</span>
                       <div className="flex items-baseline gap-1">
-                        <span className="font-display text-sm sm:text-base font-bold text-foreground">
-                          {animatedValues.hard}
+                        <span
+                          ref={hardCountRef}
+                          className="font-display text-sm sm:text-base font-bold text-foreground"
+                        >
+                          {hard}
                         </span>
                         <span className="text-[10px] text-muted-foreground font-mono">
                           /{formatNumber(totalHard)}
@@ -567,9 +561,10 @@ export function DSA() {
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-secondary dark:bg-muted overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-[#ef4444] transition-all duration-500"
+                        ref={hardBarRef}
+                        className="h-full rounded-full bg-[#ef4444]"
                         style={{
-                          width: `${Math.min(100, (hard / Math.max(totalHard, 1)) * 100 * animatedValues.progress)}%`,
+                          width: `${Math.min(100, (hard / Math.max(totalHard, 1)) * 100)}%`,
                         }}
                       />
                     </div>
@@ -657,7 +652,7 @@ export function DSA() {
                 <div className="rounded-lg bg-surface/80 dark:bg-secondary/30 border border-border/80 p-2">
                   <p className="text-[10px] font-mono text-muted-foreground">Primary Lang</p>
                   <p className="text-xs font-bold font-mono text-amber-600 dark:text-amber-400 mt-0.5">
-                    Java 100%
+                    {dsa.language || "Java"} 100%
                   </p>
                 </div>
               </div>

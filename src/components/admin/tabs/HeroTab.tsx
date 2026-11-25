@@ -109,7 +109,7 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
 
           <div className="sm:col-span-2">
             <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-              Bio / Site Description
+              Bio / Site Description (Shown in Hero &amp; SEO Share Meta)
             </label>
             <textarea
               rows={3}
@@ -118,6 +118,61 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
                 updateData({ personalInfo: { ...info, siteDescription: e.target.value } })
               }
               className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm leading-relaxed text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs min-h-[85px]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              Navbar Brand Monogram
+            </label>
+            <input
+              type="text"
+              maxLength={4}
+              placeholder="GM"
+              value={info.monogram || ""}
+              onChange={(e) => updateData({ personalInfo: { ...info, monogram: e.target.value } })}
+              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-mono font-bold text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              University Short Tag (Mobile Nav &amp; CGPA Label)
+            </label>
+            <input
+              type="text"
+              placeholder="SRMU · CSE '28"
+              value={info.universityShort || ""}
+              onChange={(e) =>
+                updateData({ personalInfo: { ...info, universityShort: e.target.value } })
+              }
+              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-mono text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              Primary CTA Button Label
+            </label>
+            <input
+              type="text"
+              placeholder="View my work"
+              value={hero.ctaPrimary || ""}
+              onChange={(e) => updateData({ heroData: { ...hero, ctaPrimary: e.target.value } })}
+              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              Secondary CTA Button Label
+            </label>
+            <input
+              type="text"
+              placeholder="View Resume"
+              value={hero.ctaSecondary || ""}
+              onChange={(e) => updateData({ heroData: { ...hero, ctaSecondary: e.target.value } })}
+              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none transition-all shadow-2xs"
             />
           </div>
 
@@ -142,7 +197,7 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
             </label>
             <input
               type="text"
-              placeholder="Full-Stack"
+              placeholder="Full-Stack Developer"
               value={hero.floatingBadge2 || ""}
               onChange={(e) =>
                 updateData({ heroData: { ...hero, floatingBadge2: e.target.value } })
@@ -153,11 +208,11 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-              Status Badge Text
+              Availability Badge (Navbar &amp; Status)
             </label>
             <input
               type="text"
-              placeholder="Online"
+              placeholder="Open to Work"
               value={hero.availabilityStatus || ""}
               onChange={(e) =>
                 updateData({ heroData: { ...hero, availabilityStatus: e.target.value } })
@@ -218,24 +273,46 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
       </div>
 
       {/* 2. Profile Photo Upload */}
-      <ImageUploader
-        label="Hero Profile Photo"
-        value={info.profilePhoto || ""}
-        onChange={(url) => {
-          const updated = {
-            ...data,
-            personalInfo: { ...info, profilePhoto: url },
-          };
-          updateData(updated);
-          if (saveData) {
-            saveData(updated);
-          }
-        }}
-        folder="profile"
-        aspectRatio="portrait"
-        aspectRatioLabel="Recommended: 4:5 Portrait or 1:1 Square (800 × 1000 px)"
-        helpText="Upload your portrait photo. It will automatically be rendered as the cutout portrait in front of the orange shape and cosmic orbital rings."
-      />
+      <div className="space-y-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="text-xs font-mono text-muted-foreground">
+            Using an older uploaded photo? Reset cleanly to built-in studio cutout
+            (gopal-cutout.webp).
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              const updated = {
+                ...data,
+                personalInfo: { ...info, profilePhoto: "" },
+              };
+              updateData(updated);
+              if (saveData) saveData(updated);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 hover:bg-primary/20 px-3 py-1.5 text-xs font-semibold text-primary transition-colors cursor-pointer"
+          >
+            Use Built-in Studio Cutout
+          </button>
+        </div>
+        <ImageUploader
+          label="Hero Profile Photo"
+          value={info.profilePhoto || ""}
+          onChange={(url) => {
+            const updated = {
+              ...data,
+              personalInfo: { ...info, profilePhoto: url },
+            };
+            updateData(updated);
+            if (saveData) {
+              saveData(updated);
+            }
+          }}
+          folder="profile"
+          aspectRatio="portrait"
+          aspectRatioLabel="Recommended: 4:5 Portrait or 1:1 Square (800 × 1000 px)"
+          helpText="Leave empty or click 'Use Built-in Studio Cutout' to show your bundled studio cutout (gopal-cutout.webp), or upload a new photo."
+        />
+      </div>
 
       {/* 3. Universal Single Source Resume PDF */}
       <FileUploader
@@ -331,6 +408,64 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
               }
               className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none font-mono"
             />
+          </div>
+
+          <div className="sm:col-span-2 pt-3 mt-1 border-t border-border/70">
+            <p className="text-xs font-semibold text-foreground mb-1">
+              Footer Community &amp; Writing Links
+            </p>
+            <p className="text-[11px] text-muted-foreground mb-3">
+              Rendered cleanly as icon buttons in the portfolio footer (clear any field to hide its
+              icon).
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {(
+                [
+                  {
+                    key: "medium",
+                    label: "Medium URL",
+                    placeholder: "https://medium.com/@gopal-maddheshiya",
+                  },
+                  {
+                    key: "substack",
+                    label: "Substack URL",
+                    placeholder: "https://substack.com/@gopalmaddheshiya",
+                  },
+                  {
+                    key: "reddit",
+                    label: "Reddit URL",
+                    placeholder: "https://www.reddit.com/user/gopal_96/",
+                  },
+                  {
+                    key: "facebook",
+                    label: "Facebook URL",
+                    placeholder: "https://www.facebook.com/gopalmaddheshiya63/",
+                  },
+                  {
+                    key: "instagram",
+                    label: "Instagram URL",
+                    placeholder: "https://www.instagram.com/gopalmaddheshiya63/",
+                  },
+                ] as const
+              ).map((field) => (
+                <div key={field.key}>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    {field.label}
+                  </label>
+                  <input
+                    type="text"
+                    placeholder={field.placeholder}
+                    value={info[field.key] ?? ""}
+                    onChange={(e) =>
+                      updateData({
+                        personalInfo: { ...info, [field.key]: e.target.value },
+                      })
+                    }
+                    className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none font-mono"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

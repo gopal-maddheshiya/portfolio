@@ -256,10 +256,12 @@ async function fetchFromClientFallback(
   };
 }
 
-async function fetchLeetCode(): Promise<LeetCodeStatsResponse> {
+async function fetchLeetCode(username = "gopal-maddheshiya"): Promise<LeetCodeStatsResponse> {
   // 1. Try local server endpoint /api/leetcode
   try {
-    const res = await fetch("/api/leetcode", { signal: AbortSignal.timeout(6000) });
+    const res = await fetch(`/api/leetcode?username=${encodeURIComponent(username)}`, {
+      signal: AbortSignal.timeout(6000),
+    });
     if (res.ok) {
       const data = (await res.json()) as LeetCodeStatsResponse;
       if (data && data.success) {
@@ -272,20 +274,25 @@ async function fetchLeetCode(): Promise<LeetCodeStatsResponse> {
 
   // 2. Direct browser fallback via public CORS API
   try {
-    const fallbackData = await fetchFromClientFallback("gopal-maddheshiya");
+    const fallbackData = await fetchFromClientFallback(username);
     return fallbackData;
   } catch (clientErr) {
     console.warn("Client-side LeetCode fallback failed:", clientErr);
   }
 
   // 3. Fallback to default verified metrics
-  return DEFAULT_LEETCODE;
+  return {
+    ...DEFAULT_LEETCODE,
+    username,
+  };
 }
 
-export function useLeetCodeStats() {
+export function useLeetCodeStats(username?: string) {
+  const targetUsername = (username || "gopal-maddheshiya").trim() || "gopal-maddheshiya";
+
   const { data, isLoading, isFetching, isError, refetch } = useQuery<LeetCodeStatsResponse>({
-    queryKey: ["leetcode-stats", "gopal-maddheshiya"],
-    queryFn: fetchLeetCode,
+    queryKey: ["leetcode-stats", targetUsername],
+    queryFn: () => fetchLeetCode(targetUsername),
     placeholderData: DEFAULT_LEETCODE,
     staleTime: 60 * 1000, // 1 minute fresh time
     refetchInterval: 5 * 60 * 1000, // Auto background refresh every 5 minutes
@@ -296,6 +303,7 @@ export function useLeetCodeStats() {
 
   return {
     stats,
+    username: stats.username || targetUsername,
     isLoading,
     isFetching,
     isError,

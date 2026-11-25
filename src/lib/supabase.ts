@@ -1,17 +1,18 @@
 import { createClient } from "@supabase/supabase-js";
 import { compressImageToWebP, type CompressionResult } from "@/lib/image-compress";
+import { FAQS, type FAQItem } from "@/data/faq";
 import {
   ABOUT_DATA,
   ACADEMIC_GALLERY,
   CERTIFICATIONS,
   CODING_PROFILES,
   CONTACT_DATA,
+  DEFAULT_SECTION_HEADERS,
   DSA_INFO,
   EDUCATION,
   FOCUS_AREAS,
   HERO_DATA,
   HIGHLIGHTS,
-  JOURNEY,
   PERSONAL_INFO,
   PROJECTS,
   RESUME_CTA_DATA,
@@ -22,13 +23,14 @@ import {
   type CodingProfile,
   type ContactData,
   type DsaInfo,
+  type EditableSectionKey,
   type EducationItem,
   type HeroData,
   type HighlightItem,
-  type JourneyMilestone,
   type PersonalInfo,
   type Project,
   type ResumeCTAData,
+  type SectionHeadersMap,
   type SkillGroup,
 } from "@/data/profile";
 
@@ -53,16 +55,18 @@ export interface PortfolioData {
   highlights: HighlightItem[];
   focusAreas: string[];
   skillGroups: SkillGroup[];
+  featuredSkills?: string[] | undefined;
   projects: Project[];
   dsaInfo: DsaInfo;
   codingProfiles: CodingProfile[];
-  journey: JourneyMilestone[];
   education: EducationItem[];
   certifications: Certification[];
   academicGallery: AcademicMediaItem[];
+  faqs: FAQItem[];
   resumeCTA: ResumeCTAData;
   contactData: ContactData;
-  updatedAt?: string;
+  sectionHeaders?: SectionHeadersMap | undefined;
+  updatedAt?: string | undefined;
 }
 
 export const DEFAULT_PORTFOLIO_DATA: PortfolioData = {
@@ -72,15 +76,17 @@ export const DEFAULT_PORTFOLIO_DATA: PortfolioData = {
   highlights: HIGHLIGHTS,
   focusAreas: FOCUS_AREAS,
   skillGroups: SKILL_GROUPS,
+  featuredSkills: [],
   projects: PROJECTS,
   dsaInfo: DSA_INFO,
   codingProfiles: CODING_PROFILES,
-  journey: JOURNEY,
   education: EDUCATION,
   certifications: CERTIFICATIONS,
   academicGallery: ACADEMIC_GALLERY,
+  faqs: FAQS,
   resumeCTA: RESUME_CTA_DATA,
   contactData: CONTACT_DATA,
+  sectionHeaders: DEFAULT_SECTION_HEADERS,
 };
 
 export const TABLE_NAME = "portfolio_data";
@@ -157,10 +163,50 @@ export function parsePortfolioContent(rawContent: unknown, updatedAt?: string): 
       ...DEFAULT_PORTFOLIO_DATA.contactData,
       ...pickObject<Partial<PortfolioData["contactData"]>>("contactData"),
     },
+    featuredSkills: pickArray<string>("featuredSkills", []),
+    sectionHeaders: (() => {
+      const rawHeaders = pickObject<Record<string, unknown>>("sectionHeaders");
+      const merged: SectionHeadersMap = {};
+      (Object.keys(DEFAULT_SECTION_HEADERS) as EditableSectionKey[]).forEach((key) => {
+        const custom = rawHeaders[key];
+        const customObj =
+          custom !== null && typeof custom === "object" && !Array.isArray(custom)
+            ? (custom as Record<string, unknown>)
+            : {};
+        merged[key] = {
+          eyebrow:
+            typeof customObj["eyebrow"] === "string"
+              ? customObj["eyebrow"]
+              : DEFAULT_SECTION_HEADERS[key].eyebrow,
+          title:
+            typeof customObj["title"] === "string"
+              ? customObj["title"]
+              : DEFAULT_SECTION_HEADERS[key].title,
+          description:
+            typeof customObj["description"] === "string"
+              ? customObj["description"]
+              : DEFAULT_SECTION_HEADERS[key].description,
+        };
+      });
+      return merged;
+    })(),
     projects: pickArray<PortfolioData["projects"][number]>(
       "projects",
       DEFAULT_PORTFOLIO_DATA.projects,
-    ),
+    ).map((proj) => {
+      const matchingDefault = DEFAULT_PORTFOLIO_DATA.projects.find(
+        (d) => d.title.toLowerCase() === proj.title?.toLowerCase(),
+      );
+      if (!matchingDefault) return proj;
+      return {
+        ...proj,
+        role: proj.role !== undefined ? proj.role : matchingDefault.role,
+        architecture:
+          proj.architecture !== undefined ? proj.architecture : matchingDefault.architecture,
+        challenges: proj.challenges !== undefined ? proj.challenges : matchingDefault.challenges,
+        impact: proj.impact !== undefined ? proj.impact : matchingDefault.impact,
+      };
+    }),
     highlights: pickArray<PortfolioData["highlights"][number]>(
       "highlights",
       DEFAULT_PORTFOLIO_DATA.highlights,
@@ -176,8 +222,16 @@ export function parsePortfolioContent(rawContent: unknown, updatedAt?: string): 
     codingProfiles: pickArray<PortfolioData["codingProfiles"][number]>(
       "codingProfiles",
       DEFAULT_PORTFOLIO_DATA.codingProfiles,
-    ),
-    journey: pickArray<PortfolioData["journey"][number]>("journey", DEFAULT_PORTFOLIO_DATA.journey),
+    ).map((prof) => {
+      const matchingDefault = DEFAULT_PORTFOLIO_DATA.codingProfiles.find(
+        (d) => d.name.toLowerCase() === prof.name?.toLowerCase(),
+      );
+      if (!matchingDefault) return prof;
+      return {
+        ...prof,
+        highlight: prof.highlight !== undefined ? prof.highlight : matchingDefault.highlight,
+      };
+    }),
     education: pickArray<PortfolioData["education"][number]>(
       "education",
       DEFAULT_PORTFOLIO_DATA.education,
@@ -185,46 +239,86 @@ export function parsePortfolioContent(rawContent: unknown, updatedAt?: string): 
     certifications: pickArray<PortfolioData["certifications"][number]>(
       "certifications",
       DEFAULT_PORTFOLIO_DATA.certifications,
-    ),
+    ).map((cert) => {
+      const matchingDefault = DEFAULT_PORTFOLIO_DATA.certifications.find(
+        (d) => d.title.toLowerCase() === cert.title?.toLowerCase(),
+      );
+      if (!matchingDefault) return cert;
+      return {
+        ...cert,
+        category: cert.category !== undefined ? cert.category : matchingDefault.category,
+        featured: cert.featured !== undefined ? cert.featured : matchingDefault.featured,
+      };
+    }),
     academicGallery: pickArray<PortfolioData["academicGallery"][number]>(
       "academicGallery",
       DEFAULT_PORTFOLIO_DATA.academicGallery,
-    ),
+    ).map((item) => {
+      const matchingDefault = DEFAULT_PORTFOLIO_DATA.academicGallery.find(
+        (d) => d.id === item.id || d.title.toLowerCase() === item.title?.toLowerCase(),
+      );
+      if (!matchingDefault) return item;
+      return {
+        ...item,
+        featured: item.featured !== undefined ? item.featured : matchingDefault.featured,
+      };
+    }),
+    faqs: pickArray<FAQItem>("faqs", DEFAULT_PORTFOLIO_DATA.faqs),
     ...(resolvedUpdatedAt ? { updatedAt: resolvedUpdatedAt } : {}),
   };
 }
 
-const LOCAL_STORAGE_KEY = "gopal_portfolio_content_v1";
+const LEGACY_STORAGE_KEY = "gopal_portfolio_content_v1";
+const ADMIN_DRAFT_STORAGE_KEY = "gopal_portfolio_admin_draft_v1";
 
-/**
- * Retrieve portfolio data cached in browser localStorage.
- */
-export function getLocalStoredPortfolioData(): PortfolioData | null {
+/** Remove deprecated full-cache key so stale localStorage never overrides live data on `/`. */
+export function clearLegacyPublicCache(): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+  } catch {
+    // ignore storage errors
+  }
+}
+
+/** Retrieve an unsaved or offline Admin draft stored in browser localStorage. */
+export function getAdminDraftPortfolioData(): PortfolioData | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+    const raw = window.localStorage.getItem(ADMIN_DRAFT_STORAGE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    const parsedData = parsePortfolioContent(
-      parsed,
-      typeof parsed["updatedAt"] === "string" ? parsed["updatedAt"] : undefined,
+    const parsed = JSON.parse(raw) as { dirty?: boolean; updatedAt?: string; data?: unknown };
+    if (!parsed || !parsed.dirty || !parsed.data) return null;
+    return parsePortfolioContent(
+      parsed.data,
+      typeof parsed.updatedAt === "string" ? parsed.updatedAt : undefined,
     );
-    return parsedData;
   } catch (e) {
-    console.warn("Failed to read portfolio data from localStorage:", e);
+    console.warn("Failed to read Admin draft from localStorage:", e);
     return null;
   }
 }
 
-/**
- * Persist portfolio data synchronously to browser localStorage.
- */
-export function setLocalStoredPortfolioData(data: PortfolioData): void {
+/** Persist pending Admin edits locally so reloads inside /admin never lose unsaved work. */
+export function setAdminDraftPortfolioData(data: PortfolioData): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+    window.localStorage.setItem(
+      ADMIN_DRAFT_STORAGE_KEY,
+      JSON.stringify({ dirty: true, updatedAt: new Date().toISOString(), data }),
+    );
   } catch (e) {
-    console.warn("Failed to write portfolio data to localStorage:", e);
+    console.warn("Failed to write Admin draft to localStorage:", e);
+  }
+}
+
+/** Clear pending Admin draft once changes are saved live or reset. */
+export function clearAdminDraftPortfolioData(): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(ADMIN_DRAFT_STORAGE_KEY);
+  } catch {
+    // ignore storage errors
   }
 }
 
@@ -232,29 +326,25 @@ let cachedPortfolioData: PortfolioData | null = null;
 let lastPortfolioFetchTime = 0;
 const PORTFOLIO_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes in-memory cache
 
-function invalidatePortfolioCache() {
+export function invalidatePortfolioCache(): void {
   cachedPortfolioData = null;
   lastPortfolioFetchTime = 0;
 }
 
 /**
- * Fetch portfolio data from Supabase or localStorage fallback.
- * Guarantees that newer local edits are never overwritten by stale database records.
+ * Fetch portfolio data from Supabase (authoritative live source) with safe fallbacks.
+ * Only hydrates unsaved Admin drafts when active inside `/admin`.
  */
 export async function fetchPortfolioData(forceFresh = false): Promise<PortfolioData> {
   const now = Date.now();
-  const localData = getLocalStoredPortfolioData();
+  const isBrowser = typeof window !== "undefined";
+  if (isBrowser) clearLegacyPublicCache();
+
+  const isAdminRoute = isBrowser && window.location.pathname.startsWith("/admin");
+  const draftData = isAdminRoute ? getAdminDraftPortfolioData() : null;
 
   if (!forceFresh && cachedPortfolioData && now - lastPortfolioFetchTime < PORTFOLIO_CACHE_TTL_MS) {
-    // If local storage has an even newer version, prefer local storage
-    if (localData?.updatedAt && cachedPortfolioData.updatedAt) {
-      if (
-        new Date(localData.updatedAt).getTime() > new Date(cachedPortfolioData.updatedAt).getTime()
-      ) {
-        cachedPortfolioData = localData;
-      }
-    }
-    return cachedPortfolioData;
+    return draftData || cachedPortfolioData;
   }
 
   try {
@@ -265,48 +355,34 @@ export async function fetchPortfolioData(forceFresh = false): Promise<PortfolioD
       .maybeSingle();
 
     if (error) {
-      console.warn("Supabase fetch warning (using local/fallback cache):", error.message);
-      const fallback = localData || cachedPortfolioData || DEFAULT_PORTFOLIO_DATA;
+      console.warn("Supabase fetch warning (using fallback cache):", error.message);
+      const fallback = draftData || cachedPortfolioData || DEFAULT_PORTFOLIO_DATA;
       cachedPortfolioData = fallback;
       return fallback;
     }
 
     if (data && data.content) {
       const remoteParsed = parsePortfolioContent(data.content, data.updated_at);
-
-      // Conflict resolution: If local storage has a newer timestamp than Supabase,
-      // preserve local edits and don't let stale remote data overwrite them!
-      if (localData?.updatedAt && remoteParsed.updatedAt) {
-        const localTime = new Date(localData.updatedAt).getTime();
-        const remoteTime = new Date(remoteParsed.updatedAt).getTime();
-        if (localTime > remoteTime) {
-          console.log(
-            "⚡ [Storage] LocalStorage has newer edits than remote DB. Preserving local edits.",
-          );
-          cachedPortfolioData = localData;
-          lastPortfolioFetchTime = now;
-          return localData;
-        }
-      }
-
-      // Remote is up to date, sync to local storage & memory cache
-      setLocalStoredPortfolioData(remoteParsed);
       cachedPortfolioData = remoteParsed;
       lastPortfolioFetchTime = now;
+
+      if (draftData) {
+        return draftData;
+      }
       return remoteParsed;
     }
   } catch (err) {
-    console.warn("Network / Supabase error (using local fallback):", err);
+    console.warn("Network / Supabase error (using fallback):", err);
   }
 
-  const fallback = localData || cachedPortfolioData || DEFAULT_PORTFOLIO_DATA;
+  const fallback = draftData || cachedPortfolioData || DEFAULT_PORTFOLIO_DATA;
   cachedPortfolioData = fallback;
   return fallback;
 }
 
 /**
- * Save / Upsert portfolio data to both LocalStorage and Supabase.
- * Guarantees zero data loss even if network or session issues occur.
+ * Save / Upsert portfolio data directly to Supabase.
+ * Clears Admin draft on success so public routes never serve stale localStorage overrides.
  */
 export async function savePortfolioData(
   content: PortfolioData,
@@ -314,13 +390,10 @@ export async function savePortfolioData(
   const updatedAt = new Date().toISOString();
   const dataToPersist: PortfolioData = { ...content, updatedAt };
 
-  // 1. Immediately persist to localStorage & in-memory cache for instant survival across reloads
-  setLocalStoredPortfolioData(dataToPersist);
   cachedPortfolioData = dataToPersist;
   lastPortfolioFetchTime = Date.now();
 
   try {
-    // 2. Refresh session if needed for Supabase RLS
     try {
       const { data: sessData } = await supabase.auth.getSession();
       if (!sessData?.session) {
@@ -330,7 +403,6 @@ export async function savePortfolioData(
       // Continue to try upsert
     }
 
-    // 3. Upsert to Supabase database table
     const { error } = await supabase.from(TABLE_NAME).upsert(
       {
         id: RECORD_ID,
@@ -341,14 +413,18 @@ export async function savePortfolioData(
     );
 
     if (error) {
-      console.warn("Supabase upsert warning (saved to localStorage):", error.message);
+      console.warn("Supabase upsert warning (kept in Admin draft):", error.message);
+      setAdminDraftPortfolioData(dataToPersist);
       return { success: false, error: error.message, savedLocally: true };
     }
 
-    return { success: true, savedLocally: true };
+    clearAdminDraftPortfolioData();
+    clearLegacyPublicCache();
+    return { success: true, savedLocally: false };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Failed to save to cloud";
-    console.warn("Supabase save exception (saved to localStorage):", msg);
+    console.warn("Supabase save exception (kept in Admin draft):", msg);
+    setAdminDraftPortfolioData(dataToPersist);
     return { success: false, error: msg, savedLocally: true };
   }
 }

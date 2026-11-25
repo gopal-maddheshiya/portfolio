@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowUp, Bot, Loader2, Maximize2, Minimize2, RotateCcw, Sparkles, X } from "lucide-react";
 import { gsap } from "gsap";
 
+import { prefersReducedMotion } from "@/components/common/MagneticWrap";
 import { PERSONAL_INFO } from "@/data/profile";
 import { usePortfolio } from "@/context/PortfolioContext";
 import { cn } from "@/lib/utils";
@@ -101,7 +102,7 @@ export function GopalAIAssistant() {
       updateVisibility(true);
     };
 
-    // Attach to Lenis if available for 100% sync
+    // Attach to Lenis immediately or upon lenis:ready (zero polling interval)
     let lenisAttached = false;
     const attachLenis = () => {
       if (window.__lenis && !lenisAttached) {
@@ -113,15 +114,13 @@ export function GopalAIAssistant() {
     };
 
     if (!attachLenis()) {
-      const interval = setInterval(() => {
-        if (attachLenis()) clearInterval(interval);
-      }, 100);
-      setTimeout(() => clearInterval(interval), 3000);
+      window.addEventListener("lenis:ready", attachLenis, { once: true });
     }
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("scrollend", handleScrollEnd, { passive: true });
     return () => {
+      window.removeEventListener("lenis:ready", attachLenis);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("scrollend", handleScrollEnd);
       if (window.__lenis && lenisAttached) {
@@ -167,22 +166,18 @@ export function GopalAIAssistant() {
 
   // Page Load Entrance: Assistant button slides in from the right to its resting position
   useEffect(() => {
-    if (launcherRef.current) {
+    const launcher = launcherRef.current;
+    if (!launcher || prefersReducedMotion()) return;
+
+    const ctx = gsap.context(() => {
       gsap.fromTo(
-        launcherRef.current,
-        {
-          x: 180,
-          opacity: 0,
-        },
-        {
-          x: 0,
-          opacity: 1,
-          duration: 1.1,
-          ease: "power3.out",
-          delay: 0.35,
-        },
+        launcher,
+        { x: 180, opacity: 0 },
+        { x: 0, opacity: 1, duration: 1.0, ease: "power3.out", delay: 0.35, clearProps: "x" },
       );
-    }
+    }, launcherRef);
+
+    return () => ctx.revert();
   }, []);
 
   const handleSendMessageRef = useRef<(text?: string) => Promise<void>>(async () => {});
@@ -203,36 +198,39 @@ export function GopalAIAssistant() {
     return () => window.removeEventListener("open-gopal-ai-assistant", handleOpenEvent);
   }, []);
 
-  // Animate Chat Window Open with GSAP
+  // Animate Chat Window Open with GSAP (respects reduced motion + cleans up cleanly)
   useEffect(() => {
-    if (isOpen && modalRef.current) {
+    const modal = modalRef.current;
+    if (!isOpen || !modal || prefersReducedMotion()) return;
+
+    const ctx = gsap.context(() => {
       gsap.fromTo(
-        modalRef.current,
-        {
-          opacity: 0,
-          scale: 0.88,
-          y: 24,
-          transformOrigin: "bottom right",
-        },
+        modal,
+        { opacity: 0, scale: 0.9, y: 20, transformOrigin: "bottom right" },
         {
           opacity: 1,
           scale: 1,
           y: 0,
-          duration: 0.38,
-          ease: "back.out(1.25)",
+          duration: 0.34,
+          ease: "back.out(1.2)",
+          clearProps: "transform",
         },
       );
-    }
+    }, modalRef);
+
+    return () => ctx.revert();
   }, [isOpen]);
 
   const handleClose = () => {
-    if (modalRef.current) {
-      gsap.to(modalRef.current, {
+    const modal = modalRef.current;
+    if (modal && !prefersReducedMotion()) {
+      gsap.to(modal, {
         opacity: 0,
-        scale: 0.9,
-        y: 16,
-        duration: 0.22,
+        scale: 0.92,
+        y: 14,
+        duration: 0.2,
         ease: "power2.in",
+        overwrite: "auto",
         onComplete: () => {
           setIsOpen(false);
         },

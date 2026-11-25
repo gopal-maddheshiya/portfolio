@@ -31,33 +31,37 @@ export function Reveal({
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      node.classList.remove("reveal");
+      return;
+    }
 
-    const tween = gsap.fromTo(
-      node,
-      { opacity: 0, y: 24 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.65,
-        ease: "power3.out",
-        delay: delay / 1000,
-        clearProps: "all",
-        scrollTrigger: {
-          trigger: node,
-          start: "top 88%",
-          once: true,
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        node,
+        { opacity: 0, y: 16 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.52,
+          ease: "power3.out",
+          delay: delay / 1000,
+          clearProps: "all",
+          scrollTrigger: {
+            trigger: node,
+            start: "top 90%",
+            once: true,
+          },
+          onComplete: () => {
+            // Strip CSS initial-hidden hook once settled so clearProps leaves zero lingering GPU layers.
+            node.classList.remove("reveal");
+          },
         },
-        onComplete: () => {
-          // Strip the CSS hiding class so clearProps leaves a clean element.
-          node.classList.remove("reveal");
-        },
-      },
-    );
+      );
+    }, ref);
 
     return () => {
-      (tween.scrollTrigger as ScrollTrigger | undefined)?.kill();
-      tween.kill();
+      ctx.revert();
     };
   }, [delay]);
 

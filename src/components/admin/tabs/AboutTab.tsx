@@ -14,7 +14,7 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
   const about = data.aboutData;
   const education = data.education || [];
   const principles = about.principles || [];
-  const storyParagraphs = about.storyParagraphs || [];
+  const primaryBio = about.storyParagraphs?.[0] || "";
 
   // ─── Education Handlers ───
   const handleAddEducation = () => {
@@ -83,39 +83,17 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
     }
   };
 
-  // ─── Story Paragraph Handlers ───
-  const handleAddStoryParagraph = () => {
-    updateData({
-      aboutData: {
-        ...about,
-        storyParagraphs: [
-          ...storyParagraphs,
-          "New paragraph detailing your journey and technical evolution.",
-        ],
-      },
-    });
-  };
-
-  const handleDeleteStoryParagraph = (index: number) => {
-    updateData({
-      aboutData: {
-        ...about,
-        storyParagraphs: storyParagraphs.filter((_, i) => i !== index),
-      },
-    });
-  };
-
   return (
     <div className="space-y-6 max-w-4xl animate-in fade-in duration-200">
-      {/* 1. About Headings */}
+      {/* 1. About Headings & Narrative */}
       <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-5">
         <div className="border-b border-border pb-3">
           <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
             <BookOpen className="size-5 text-primary" />
-            <span>About Section Headings &amp; Intro</span>
+            <span>About Section Headings &amp; Narrative</span>
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Configure section intro, titles, and story card headline.
+            Configure section intro, availability pill, story headline, and editorial bio.
           </p>
         </div>
 
@@ -134,6 +112,21 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              Availability Badge (Top-Right of Story Card)
+            </label>
+            <input
+              type="text"
+              value={about.availabilityBadge || ""}
+              placeholder="Open to Internships"
+              onChange={(e) =>
+                updateData({ aboutData: { ...about, availabilityBadge: e.target.value } })
+              }
+              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
               Main Section Title
             </label>
             <input
@@ -141,18 +134,6 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
               value={about.title}
               onChange={(e) => updateData({ aboutData: { ...about, title: e.target.value } })}
               className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-semibold text-foreground focus:border-primary focus:outline-none"
-            />
-          </div>
-
-          <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-              Section Subtitle / Description
-            </label>
-            <textarea
-              rows={2}
-              value={about.description}
-              onChange={(e) => updateData({ aboutData: { ...about, description: e.target.value } })}
-              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none min-h-[65px]"
             />
           </div>
 
@@ -167,54 +148,23 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
               className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-semibold text-foreground focus:border-primary focus:outline-none"
             />
           </div>
-        </div>
 
-        {/* Narrative Paragraphs */}
-        <div className="space-y-3 pt-3 border-t border-border">
-          <div className="flex items-center justify-between">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Story Paragraphs ({storyParagraphs.length})
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              Editorial Bio Paragraph
             </label>
-            <button
-              type="button"
-              onClick={handleAddStoryParagraph}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline cursor-pointer"
-            >
-              <Plus className="size-3.5" />
-              <span>Add Paragraph</span>
-            </button>
+            <textarea
+              rows={3}
+              value={primaryBio}
+              onChange={(e) => {
+                const rest = (about.storyParagraphs || []).slice(1);
+                updateData({
+                  aboutData: { ...about, storyParagraphs: [e.target.value, ...rest] },
+                });
+              }}
+              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm leading-relaxed text-foreground focus:border-primary focus:outline-none min-h-[90px]"
+            />
           </div>
-
-          {storyParagraphs.map((paragraph, pIdx) => (
-            <div
-              key={pIdx}
-              className="relative rounded-xl border border-border bg-surface/50 p-3 space-y-2"
-            >
-              <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
-                <span>Paragraph #{pIdx + 1}</span>
-                {storyParagraphs.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteStoryParagraph(pIdx)}
-                    title="Delete paragraph"
-                    className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors cursor-pointer"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </button>
-                )}
-              </div>
-              <textarea
-                rows={3}
-                value={paragraph}
-                onChange={(e) => {
-                  const updated = [...storyParagraphs];
-                  updated[pIdx] = e.target.value;
-                  updateData({ aboutData: { ...about, storyParagraphs: updated } });
-                }}
-                className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2 text-sm leading-relaxed text-foreground focus:border-primary focus:outline-none min-h-[75px]"
-              />
-            </div>
-          ))}
         </div>
       </div>
 
@@ -223,14 +173,15 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
         <div className="border-b border-border pb-3">
           <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
             <Sparkles className="size-5 text-primary" />
-            <span>Profile Snapshot Cards (Right Column Grid)</span>
+            <span>Academic Snapshot Tiles (Bottom of Story Card)</span>
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Quick credential metrics shown on the right side of the About section.
+            Degree, CGPA, and Batch tiles shown in the 3-card strip (the 3rd LeetCode tile syncs
+            live automatically).
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
               Degree Title
@@ -257,6 +208,7 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
             <input
               type="text"
               value={about.snapshot?.cgpa || ""}
+              placeholder="CGPA 7.63"
               onChange={(e) =>
                 updateData({
                   aboutData: {
@@ -271,49 +223,12 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-              DSA Practice Focus
-            </label>
-            <input
-              type="text"
-              value={about.snapshot?.dsaPractice || ""}
-              onChange={(e) =>
-                updateData({
-                  aboutData: {
-                    ...about,
-                    snapshot: { ...(about.snapshot || {}), dsaPractice: e.target.value },
-                  },
-                })
-              }
-              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-              Core Tech Stack
-            </label>
-            <input
-              type="text"
-              value={about.snapshot?.stack || ""}
-              onChange={(e) =>
-                updateData({
-                  aboutData: {
-                    ...about,
-                    snapshot: { ...(about.snapshot || {}), stack: e.target.value },
-                  },
-                })
-              }
-              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
               Graduating Batch
             </label>
             <input
               type="text"
               value={about.snapshot?.batch || ""}
+              placeholder="2028 Batch"
               onChange={(e) =>
                 updateData({
                   aboutData: {
@@ -475,7 +390,8 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
               <span>Engineering Tenets &amp; Principles ({principles.length})</span>
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Core pillars shown in the About section Bio tab with custom icons and descriptions.
+              Core pillars shown in the About section Core Pillars tab with custom icons and
+              descriptions.
             </p>
           </div>
           <button
@@ -515,7 +431,7 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs font-semibold text-muted-foreground mb-1">
                     Pillar Title
@@ -544,7 +460,7 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
                   />
                 </div>
 
-                <div className="sm:col-span-3">
+                <div className="sm:col-span-2">
                   <label className="block text-xs font-semibold text-muted-foreground mb-1">
                     Description
                   </label>
@@ -565,38 +481,27 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
         </div>
       </div>
 
-      {/* 5. Coursework & Focus Areas using TagListInput */}
+      {/* 5. Academic Coursework using TagListInput */}
       <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-5">
         <div className="border-b border-border pb-3">
           <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
             <Layers className="size-5 text-primary" />
-            <span>Academic Coursework &amp; Focus Area Tags</span>
+            <span>Academic Coursework Tags</span>
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Manage subject chips and engineering focus areas easily without typing errors.
+            First 6 subjects render cleanly in the About section&apos;s Education tab.
           </p>
         </div>
 
-        <div className="space-y-5">
-          <TagListInput
-            label="Academic Coursework Subjects"
-            tags={about.coursework || []}
-            onChange={(newCoursework) =>
-              updateData({ aboutData: { ...about, coursework: newCoursework } })
-            }
-            placeholder="Add subject (e.g. Operating Systems) and press Enter..."
-            helpText="Displayed in the Education / Coursework tab on the About section."
-          />
-
-          <TagListInput
-            label="Engineering Focus Areas"
-            tags={data.focusAreas || []}
-            onChange={(newFocus) => updateData({ focusAreas: newFocus })}
-            placeholder="Add focus area (e.g. Microservices, REST APIs)..."
-            badgeColorClass="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-            helpText="Displayed in key highlight badges and profile filters."
-          />
-        </div>
+        <TagListInput
+          label="Academic Coursework Subjects"
+          tags={about.coursework || []}
+          onChange={(newCoursework) =>
+            updateData({ aboutData: { ...about, coursework: newCoursework } })
+          }
+          placeholder="Add subject (e.g. Operating Systems) and press Enter..."
+          helpText="Up to 6 subjects are shown cleanly in the About section Education tab."
+        />
       </div>
     </div>
   );

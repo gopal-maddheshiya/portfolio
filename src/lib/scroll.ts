@@ -1,6 +1,24 @@
 import type { MouseEvent } from "react";
 
 /** Smoothly scroll to a section id, delegating to Lenis when available. */
+let activeScrollLocks = 0;
+
+/** Temporarily pause Lenis wheel interception while a dialog or drawer is open. */
+export function pauseSmoothScroll() {
+  if (typeof window === "undefined") return;
+  activeScrollLocks += 1;
+  window.__lenis?.stop();
+}
+
+/** Resume Lenis smooth scrolling once all modals/drawers have closed. */
+export function resumeSmoothScroll() {
+  if (typeof window === "undefined") return;
+  activeScrollLocks = Math.max(0, activeScrollLocks - 1);
+  if (activeScrollLocks === 0) {
+    window.__lenis?.start();
+  }
+}
+
 export function scrollToId(id: string) {
   if (typeof window === "undefined") return;
   const target = document.getElementById(id);

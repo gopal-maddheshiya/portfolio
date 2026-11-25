@@ -66,18 +66,63 @@ export function ContactTab({ data, updateData }: ContactTabProps) {
             />
           </div>
 
-          <div className="sm:col-span-2">
+          <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-              Availability Status Note (Right Column Highlight)
+              Direct Contact Card Heading
             </label>
             <input
               type="text"
-              value={contact.availabilityNote || ""}
-              placeholder="Open to Summer 2026 SWE & Full-Stack Internships"
+              value={contact.directHeading || ""}
+              placeholder="Direct contact"
               onChange={(e) =>
-                updateData({ contactData: { ...contact, availabilityNote: e.target.value } })
+                updateData({ contactData: { ...contact, directHeading: e.target.value } })
               }
               className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              Availability Highlight Title
+            </label>
+            <input
+              type="text"
+              value={contact.availabilityTitle || ""}
+              placeholder="Open for Internship & Full-Time Roles"
+              onChange={(e) =>
+                updateData({ contactData: { ...contact, availabilityTitle: e.target.value } })
+              }
+              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              Availability Details Subtitle
+            </label>
+            <input
+              type="text"
+              value={contact.availabilitySubtitle || ""}
+              placeholder="B.Tech CSE at SRMU · Verified DSA & Full-Stack track record · Typical response within 24 hours."
+              onChange={(e) =>
+                updateData({ contactData: { ...contact, availabilitySubtitle: e.target.value } })
+              }
+              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              Footer Tagline (Shown Next to Copyright)
+            </label>
+            <input
+              type="text"
+              value={info.footerTagline || ""}
+              placeholder="Built with code and continuous learning."
+              onChange={(e) =>
+                updateData({ personalInfo: { ...info, footerTagline: e.target.value } })
+              }
+              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
             />
           </div>
         </div>
@@ -139,6 +184,32 @@ export function ContactTab({ data, updateData }: ContactTabProps) {
               onChange={(newTags) => updateData({ resumeCTA: { ...cta, tags: newTags } })}
               placeholder="Add tag (e.g. Single-Page PDF) and press Enter..."
               badgeColorClass="bg-secondary text-foreground border-border"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              Download Button Text
+            </label>
+            <input
+              type="text"
+              value={cta.buttonText || ""}
+              placeholder="Download Resume"
+              onChange={(e) => updateData({ resumeCTA: { ...cta, buttonText: e.target.value } })}
+              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-primary focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              Document Status Badge
+            </label>
+            <input
+              type="text"
+              value={cta.updatedLabel || ""}
+              placeholder="Updated 2026 · 1-Page PDF"
+              onChange={(e) => updateData({ resumeCTA: { ...cta, updatedLabel: e.target.value } })}
+              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs font-mono text-foreground focus:border-primary focus:outline-none"
             />
           </div>
 

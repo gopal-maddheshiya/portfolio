@@ -2,14 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
   Award,
+  BookOpen,
+  Briefcase,
+  CheckCircle2,
   Code2,
+  Cpu,
   Database,
+  Globe,
   GraduationCap,
+  Layers,
   Sparkles,
+  Star,
+  Terminal,
   Trophy,
+  Zap,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
+import { prefersReducedMotion } from "@/components/common/MagneticWrap";
 import { usePortfolio } from "@/context/PortfolioContext";
 import { handleAnchorClick } from "@/lib/scroll";
 
@@ -20,6 +30,16 @@ const ICONS_MAP: Record<string, LucideIcon> = {
   db: Database,
   award: Award,
   sparkles: Sparkles,
+  cpu: Cpu,
+  zap: Zap,
+  terminal: Terminal,
+  codechef: Code2,
+  globe: Globe,
+  layers: Layers,
+  book: BookOpen,
+  briefcase: Briefcase,
+  star: Star,
+  check: CheckCircle2,
 };
 
 export function Highlights() {
@@ -35,28 +55,43 @@ export function Highlights() {
   // Position and physics refs for 60fps RAF loop
   const posRef = useRef(0);
   const scrollVelocityRef = useRef(0);
+  const currentBaseSpeedRef = useRef(-0.7);
   const lastScrollYRef = useRef(0);
   const directionRef = useRef(-1); // default moves left
+  const isInViewRef = useRef(true);
 
   // Dragging refs
   const dragStartXRef = useRef(0);
   const dragStartPosRef = useRef(0);
   const hasDraggedRef = useRef(false);
 
+  // Pause RAF when marquee leaves viewport to save battery & GPU frames
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry) isInViewRef.current = entry.isIntersecting;
+      },
+      { rootMargin: "120px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     // Track scroll velocity and direction
     let scrollTimeout: NodeJS.Timeout;
 
     const onScroll = () => {
-      const currentScrollY = window.scrollY;
+      const currentScrollY = window.__lenis ? window.__lenis.scroll : window.scrollY;
       const delta = currentScrollY - lastScrollYRef.current;
       lastScrollYRef.current = currentScrollY;
 
       if (Math.abs(delta) > 0.5) {
-        // Scrolling down -> moves one way, scrolling up -> moves the other way
         directionRef.current = delta > 0 ? -1 : 1;
-        // Boost speed based on scroll velocity
-        scrollVelocityRef.current = Math.min(Math.abs(delta) * 0.18, 4) * directionRef.current;
+        scrollVelocityRef.current = Math.min(Math.abs(delta) * 0.16, 3.6) * directionRef.current;
       }
 
       clearTimeout(scrollTimeout);
@@ -73,19 +108,26 @@ export function Highlights() {
   }, []);
 
   useEffect(() => {
+    if (prefersReducedMotion()) return;
     let animId: number;
+    let lastTime = performance.now();
 
-    const animate = () => {
+    const animate = (now: number) => {
+      // Normalized frame delta (1.0 at 60Hz, 0.5 at 120Hz) capped for tab-switch safety
+      const dt = Math.min(Math.max((now - lastTime) / 16.6667, 0.1), 2.5);
+      lastTime = now;
+
       const track = trackRef.current;
-      if (track && !isDragging) {
-        // Base constant speed when not hovering (0.7px per frame)
-        const baseSpeed = isHovered ? 0.2 : 0.7;
-        const currentSpeed = baseSpeed * directionRef.current + scrollVelocityRef.current;
+      if (track && !isDragging && isInViewRef.current && !document.hidden) {
+        const targetBaseSpeed = (isHovered ? 0.18 : 0.7) * directionRef.current;
+        const smoothFactor = 1 - Math.exp(-0.12 * dt);
+        currentBaseSpeedRef.current +=
+          (targetBaseSpeed - currentBaseSpeedRef.current) * smoothFactor;
 
-        // Friction to decay scroll velocity back to base speed
-        scrollVelocityRef.current *= 0.94;
+        scrollVelocityRef.current *= Math.pow(0.94, dt);
+        if (Math.abs(scrollVelocityRef.current) < 0.01) scrollVelocityRef.current = 0;
 
-        posRef.current += currentSpeed;
+        posRef.current += (currentBaseSpeedRef.current + scrollVelocityRef.current) * dt;
 
         // Loop seamlessly once half the width is traversed
         const halfWidth = track.scrollWidth / 2;

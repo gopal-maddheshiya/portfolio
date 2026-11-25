@@ -329,7 +329,7 @@ export function Contact() {
                   </>
                 ) : cooldown > 0 ? (
                   <>
-                    <CheckCircle2 className="size-4 shrink-0 text-emerald-500" aria-hidden="true" />
+                    <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden="true" />
                     <span>Sent! Wait ({cooldown}s)</span>
                   </>
                 ) : (
@@ -353,7 +353,9 @@ export function Contact() {
           className="rounded-xl border border-border bg-card p-4 sm:p-6 md:p-8 flex flex-col justify-between"
         >
           <div>
-            <h3 className="font-display text-base sm:text-lg font-semibold">Direct contact</h3>
+            <h3 className="font-display text-base sm:text-lg font-semibold">
+              {contact.directHeading || "Direct contact"}
+            </h3>
 
             <ul className="mt-4 sm:mt-5 space-y-3.5 sm:space-y-4 text-xs sm:text-sm">
               {/* Email */}
@@ -393,14 +395,14 @@ export function Contact() {
             {/* Trust & Credibility Signals */}
             <div className="mt-5 rounded-lg border border-border/80 bg-surface/60 p-3 sm:p-3.5 space-y-1.5">
               <div className="flex items-center gap-2">
-                <span className="flex size-2 rounded-full bg-emerald-500" aria-hidden="true" />
+                <span className="flex size-2 rounded-full bg-primary" aria-hidden="true" />
                 <span className="font-mono text-xs font-semibold text-foreground">
-                  Open for Internship & Full-Time Roles
+                  {contact.availabilityTitle || "Open for Internship & Full-Time Roles"}
                 </span>
               </div>
               <p className="text-[11px] sm:text-xs text-muted-foreground leading-normal">
-                B.Tech CSE at SRMU · Verified DSA & Full-Stack track record · Typical response
-                within 24 hours.
+                {contact.availabilitySubtitle ||
+                  "B.Tech CSE at SRMU · Verified DSA & Full-Stack track record · Typical response within 24 hours."}
               </p>
             </div>
           </div>

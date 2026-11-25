@@ -210,9 +210,13 @@
 
   .reveal {
     opacity: 0;
-    transform: translateY(24px);
-    will-change: transform, opacity;
+    transform: translateY(16px);
     backface-visibility: hidden;
+  }
+
+  [data-paused="true"],
+  [data-paused="true"] * {
+    animation-play-state: paused !important;
   }
 
   /* ── Hardware-Accelerated First-Paint Entrances (Zero-FOUC, Zero-Double-Load) ── */
@@ -332,12 +336,12 @@
 
   .hero-title-entrance {
     animation: hero-line-reveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
-    will-change: transform, opacity, filter;
+    will-change: transform, opacity;
   }
 
   .hero-role-entrance {
     animation: hero-line-reveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
-    will-change: transform, opacity, filter;
+    will-change: transform, opacity;
   }
 
   .hero-bio-entrance {
@@ -521,13 +525,11 @@
   @keyframes cutout-pulse-glow {
     0%,
     100% {
-      opacity: 0.85;
-      filter: drop-shadow(0 0 6px rgba(249, 115, 22, 0.45));
+      opacity: 0.82;
     }
 
     50% {
       opacity: 1;
-      filter: drop-shadow(0 0 14px rgba(6, 182, 212, 0.7));
     }
   }
 
@@ -584,6 +586,293 @@
       transparent 100%
     );
     animation: skeleton-shimmer 1.8s infinite;
+  }
+
+  /* ── Hardware-Accelerated Technical Stack Motion & Interactive Controls ── */
+  .skills-edge-mask {
+    -webkit-mask-image: linear-gradient(to right, black 0%, black 90%, transparent 100%);
+    mask-image: linear-gradient(to right, black 0%, black 90%, transparent 100%);
+  }
+
+  @media (min-width: 768px) {
+    .skills-edge-mask {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+  }
+
+  /* Conic aurora border shimmer on skill card hover/active */
+  .skill-card-aurora {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .skill-card-aurora::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1.5px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from var(--aurora-angle),
+      var(--color-primary),
+      transparent 30%,
+      var(--color-accent) 52%,
+      transparent 80%,
+      var(--color-primary)
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms ease-out;
+    z-index: 2;
+  }
+
+  .skill-card-aurora:hover::before,
+  .skill-card-aurora:focus-visible::before,
+  .skill-card-aurora[data-active="true"]::before {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .skill-card-aurora:hover::before,
+    .skill-card-aurora[data-active="true"]::before {
+      animation: aurora-spin 3.8s linear infinite;
+    }
+  }
+
+  /* Anchor-positioned animated tab underline (WCAG 1.4.1 non-color active indicator) */
+  .skills-tablist {
+    position: relative;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .skills-tablist::-webkit-scrollbar {
+    display: none;
+  }
+
+  @supports (position-anchor: --skills-active-tab) {
+    .skills-tablist::before {
+      content: "";
+      position: absolute;
+      position-anchor: --skills-active-tab;
+      inset-block-start: calc(anchor(self-end) - 2px);
+      inset-inline-start: calc(anchor(self-start) + 0.65rem);
+      inset-inline-end: calc(anchor(self-end) + 0.65rem);
+      border-block-end: 2px solid var(--color-primary);
+      border-radius: 9999px;
+      pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .skills-tablist::before {
+        transition: inset 220ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+    }
+
+    .skills-tab-item[aria-selected="true"] {
+      anchor-name: --skills-active-tab;
+    }
+  }
+
+  @supports not (position-anchor: --skills-active-tab) {
+    .skills-tab-item[aria-selected="true"] {
+      border-block-end: 2px solid var(--color-primary);
+    }
+  }
+
+  /* Scoped anchor underline for About dossier tabs */
+  .about-tablist {
+    position: relative;
+  }
+
+  @supports (position-anchor: --about-active-tab) {
+    .about-tablist::before {
+      content: "";
+      position: absolute;
+      position-anchor: --about-active-tab;
+      inset-block-start: calc(anchor(self-end) - 2px);
+      inset-inline-start: calc(anchor(self-start) + 0.5rem);
+      inset-inline-end: calc(anchor(self-end) + 0.5rem);
+      border-block-end: 2px solid var(--color-primary);
+      border-radius: 9999px;
+      pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .about-tablist::before {
+        transition: inset 220ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+    }
+
+    .about-tab-item[aria-selected="true"] {
+      anchor-name: --about-active-tab;
+    }
+  }
+
+  @supports not (position-anchor: --about-active-tab) {
+    .about-tab-item[aria-selected="true"] {
+      border-block-end: 2px solid var(--color-primary);
+    }
+  }
+
+  /* Scoped anchor underline for Projects category tabs */
+  .projects-tablist {
+    position: relative;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .projects-tablist::-webkit-scrollbar {
+    display: none;
+  }
+
+  @supports (position-anchor: --projects-active-tab) {
+    .projects-tablist::before {
+      content: "";
+      position: absolute;
+      position-anchor: --projects-active-tab;
+      inset-block-start: calc(anchor(self-end) - 2px);
+      inset-inline-start: calc(anchor(self-start) + 0.55rem);
+      inset-inline-end: calc(anchor(self-end) + 0.55rem);
+      border-block-end: 2px solid var(--color-primary);
+      border-radius: 9999px;
+      pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .projects-tablist::before {
+        transition: inset 220ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+    }
+
+    .projects-tab-item[aria-selected="true"] {
+      anchor-name: --projects-active-tab;
+    }
+  }
+
+  @supports not (position-anchor: --projects-active-tab) {
+    .projects-tab-item[aria-selected="true"] {
+      border-block-end: 2px solid var(--color-primary);
+    }
+  }
+
+  /* Native top-layer modal dialogs (bottom sheet on mobile, centered modal on desktop) */
+  dialog.project-case-dialog,
+  dialog.portfolio-modal-dialog {
+    opacity: 0;
+    margin: auto;
+    transition-property: opacity, transform, display, overlay;
+    transition-duration: 0.24s;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    transition-behavior: allow-discrete;
+  }
+
+  @media (max-width: 639px) {
+    dialog.project-case-dialog,
+    dialog.portfolio-modal-dialog {
+      inset: auto 0 0 0;
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    dialog.project-case-dialog,
+    dialog.portfolio-modal-dialog {
+      transform: translateY(20px) scale(0.98);
+    }
+
+    @media (min-width: 640px) {
+      dialog.project-case-dialog,
+      dialog.portfolio-modal-dialog {
+        transform: scale(0.96);
+      }
+    }
+  }
+
+  dialog.project-case-dialog[open],
+  dialog.portfolio-modal-dialog[open] {
+    opacity: 1;
+    overscroll-behavior: contain;
+
+    @starting-style {
+      opacity: 0;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      transform: translateY(0) scale(1);
+
+      @starting-style {
+        transform: translateY(20px) scale(0.98);
+      }
+    }
+  }
+
+  @media (min-width: 640px) {
+    @media (prefers-reduced-motion: no-preference) {
+      dialog.project-case-dialog[open],
+      dialog.portfolio-modal-dialog[open] {
+        transform: scale(1);
+
+        @starting-style {
+          transform: scale(0.96);
+        }
+      }
+    }
+  }
+
+  dialog.project-case-dialog::backdrop,
+  dialog.portfolio-modal-dialog::backdrop {
+    overflow: hidden;
+    overscroll-behavior: contain;
+    background-color: oklch(0 0 0 / 0);
+    backdrop-filter: blur(0px);
+    transition-property: background-color, backdrop-filter, display, overlay;
+    transition-duration: 0.24s;
+    transition-timing-function: ease-out;
+    transition-behavior: allow-discrete;
+  }
+
+  dialog.project-case-dialog[open]::backdrop,
+  dialog.portfolio-modal-dialog[open]::backdrop {
+    background-color: oklch(0.1 0.005 75 / 0.65);
+    backdrop-filter: blur(4px);
+
+    @starting-style {
+      background-color: oklch(0 0 0 / 0);
+      backdrop-filter: blur(0px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    dialog.project-case-dialog,
+    dialog.project-case-dialog::backdrop,
+    dialog.portfolio-modal-dialog,
+    dialog.portfolio-modal-dialog::backdrop {
+      transition-duration: 0.1s;
+    }
+  }
+
+  /* Native mobile scroll-snap gallery carousel: isolates horizontal overscroll without blocking page Y scroll */
+  .gallery-snap-track {
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y;
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gallery-snap-track {
+      scroll-behavior: auto;
+    }
   }
 }
 

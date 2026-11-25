@@ -1,6 +1,7 @@
 import { useRef, type ChangeEvent } from "react";
-import { Download, Upload, RotateCcw, ShieldCheck, Share2 } from "lucide-react";
-import type { PortfolioData } from "@/lib/supabase";
+import { Download, Upload, RotateCcw, ShieldCheck, Share2, Sparkles } from "lucide-react";
+import { HERO_DATA } from "@/data/profile";
+import { parsePortfolioContent, type PortfolioData } from "@/lib/supabase";
 import { ImageUploader } from "@/components/admin/ui/ImageUploader";
 import { toast } from "sonner";
 
@@ -21,8 +22,12 @@ export function SettingsTab({ data, updateData, resetToDefaults }: SettingsTabPr
         "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
       const downloadAnchor = document.createElement("a");
       const dateStr = new Date().toISOString().split("T")[0];
+      const safeName = (info.name || "portfolio")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "_");
       downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `gopal_portfolio_backup_${dateStr}.json`);
+      downloadAnchor.setAttribute("download", `${safeName}_backup_${dateStr}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
@@ -44,12 +49,12 @@ export function SettingsTab({ data, updateData, resetToDefaults }: SettingsTabPr
         const text = event.target?.result as string;
         const parsed = JSON.parse(text) as PortfolioData;
 
-        // Basic verification
+        // Basic verification & normalize through parsePortfolioContent so older backups hydrate cleanly
         if (!parsed.personalInfo || !parsed.projects) {
           throw new Error("Invalid portfolio backup file structure.");
         }
 
-        updateData(parsed);
+        updateData(parsePortfolioContent(parsed));
         toast.success("Portfolio data loaded from backup! Click 'Save Live' to publish.");
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "Invalid JSON file";
@@ -94,7 +99,7 @@ export function SettingsTab({ data, updateData, resetToDefaults }: SettingsTabPr
 
           <div className="sm:col-span-2">
             <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-              Global Meta Description
+              Global Meta &amp; Hero Intro Description
             </label>
             <textarea
               rows={2}
@@ -125,7 +130,7 @@ export function SettingsTab({ data, updateData, resetToDefaults }: SettingsTabPr
       <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-5">
         <div className="border-b border-border pb-3">
           <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
-            <ShieldCheck className="size-5 text-emerald-500" />
+            <ShieldCheck className="size-5 text-primary" />
             <span>Data Safeguards, Backup &amp; Restore</span>
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -178,6 +183,41 @@ export function SettingsTab({ data, updateData, resetToDefaults }: SettingsTabPr
           </div>
 
           {/* Reset to Factory Defaults Card */}
+          <div className="sm:col-span-2 rounded-xl border border-primary/25 bg-primary/5 p-5 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-primary font-semibold text-sm">
+                <Sparkles className="size-4" />
+                <span>Sync Latest Layout Defaults (Keep My Uploads &amp; Content)</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  updateData((prev) => ({
+                    ...prev,
+                    personalInfo: { ...prev.personalInfo, profilePhoto: "" },
+                    featuredSkills: [],
+                    heroData: {
+                      ...prev.heroData,
+                      availabilityStatus: HERO_DATA.availabilityStatus,
+                      typewriterRoles: HERO_DATA.typewriterRoles,
+                    },
+                  }));
+                  toast.success(
+                    "Synced studio cutout portrait, 8-card Core Stack, and Open to Work status! Click 'Save Live' to publish.",
+                  );
+                }}
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary/35 bg-primary/15 text-primary hover:bg-primary hover:text-primary-foreground px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer shrink-0"
+              >
+                <span>Sync Layout Defaults</span>
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Updates Hero portrait to the latest studio cutout (`gopal-cutout.webp`), restores all
+              8 symmetric Core Stack cards, and refreshes availability/roles — without touching your
+              Projects, Certificates, Gallery photos/videos, Resume PDF, or About text.
+            </p>
+          </div>
+
           <div className="sm:col-span-2 rounded-xl border border-destructive/20 bg-destructive/5 p-5 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-destructive font-semibold text-sm">
@@ -201,9 +241,9 @@ export function SettingsTab({ data, updateData, resetToDefaults }: SettingsTabPr
               </button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Reverts all sections (hero, about, projects, skills, DSA, gallery, journey, contact)
-              to the default code constants. Remember to click "Save Live" if you want to publish
-              the reset state.
+              Reverts all sections (hero, about, projects, skills, DSA, gallery, contact) to the
+              default code constants. Remember to click "Save Live" if you want to publish the reset
+              state.
             </p>
           </div>
         </div>
