@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import { Upload, ExternalLink, FileText, X } from "lucide-react";
 import { toast } from "sonner";
 import { uploadPortfolioFile } from "@/lib/supabase";
@@ -24,6 +24,7 @@ export function FileUploader({
   placeholder = "File URL (/resume.pdf or Cloud Storage URL)",
   helpText,
 }: FileUploaderProps) {
+  const fieldId = useId();
   const [isUploading, setIsUploading] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,7 +53,10 @@ export function FileUploader({
   return (
     <div className="rounded-2xl border-2 border-border/80 bg-surface/50 p-4 sm:p-5 space-y-3.5 shadow-2xs">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-border/60 pb-2.5">
-        <label className="block text-xs sm:text-sm font-bold text-foreground flex items-center gap-1.5">
+        <label
+          htmlFor={`${fieldId}-url`}
+          className="block text-xs sm:text-sm font-bold text-foreground flex items-center gap-1.5"
+        >
           <FileText className="size-4 text-primary" />
           <span>{label}</span>
         </label>
@@ -66,6 +70,8 @@ export function FileUploader({
       <div className="flex flex-col sm:flex-row gap-2.5 items-start sm:items-center">
         <div className="relative flex-1 w-full">
           <input
+            id={`${fieldId}-url`}
+            name={`${fieldId}-url`}
             type="text"
             value={value || ""}
             onChange={(e) => onChange(e.target.value)}
@@ -84,10 +90,15 @@ export function FileUploader({
           )}
         </div>
 
-        <label className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary hover:bg-primary/90 px-3.5 py-2 text-xs font-semibold text-primary-foreground cursor-pointer transition-all shrink-0 shadow-xs active:scale-[0.98]">
+        <label
+          htmlFor={`${fieldId}-file`}
+          className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary hover:bg-primary/90 px-3.5 py-2 text-xs font-semibold text-primary-foreground cursor-pointer transition-all shrink-0 shadow-xs active:scale-[0.98]"
+        >
           <Upload className="size-3.5" />
           <span>{isUploading ? "Uploading..." : "Upload File"}</span>
           <input
+            id={`${fieldId}-file`}
+            name={`${fieldId}-file`}
             type="file"
             accept={accept}
             className="hidden"

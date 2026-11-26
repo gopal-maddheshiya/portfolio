@@ -18,6 +18,7 @@ export interface PersonalInfo {
   leetcode: string;
   leetcodeUsername: string;
   linkedin: string;
+  twitter?: string | undefined;
   medium?: string | undefined;
   substack?: string | undefined;
   reddit?: string | undefined;
@@ -47,6 +48,7 @@ export const PERSONAL_INFO: PersonalInfo = {
   leetcode: "https://leetcode.com/u/gopal-maddheshiya/",
   leetcodeUsername: "gopal-maddheshiya",
   linkedin: "https://www.linkedin.com/in/gopal-maddheshiya",
+  twitter: "https://x.com/itsGopalM",
   medium: "https://medium.com/@gopal-maddheshiya",
   substack: "https://substack.com/@gopalmaddheshiya",
   reddit: "https://www.reddit.com/user/gopal_96/",
@@ -192,7 +194,7 @@ export const CONTACT_DATA: ContactData = {
   title: "Let's connect & build something impactful.",
   description:
     "Have an internship opportunity, a project to collaborate on, or just want to discuss algorithms and full-stack development? Reach out via form or WhatsApp!",
-  availabilityNote: "Open to Summer 2026 SWE & Full-Stack Internships",
+  availabilityNote: "Open to Winter 2026 / Summer 2027 SWE & Full-Stack Internships",
   availabilityTitle: "Open for Internship & Full-Time Roles",
   availabilitySubtitle:
     "B.Tech CSE at SRMU · Verified DSA & Full-Stack track record · Typical response within 24 hours.",
@@ -371,7 +373,7 @@ export const PROJECTS: Project[] = [
       "Customer order tracking & admin dashboard",
     ],
     image: tradingCompanyImage,
-    githubUrl: "https://github.com/gopal-maddheshiya/trading-company",
+    githubUrl: "https://github.com/gopal-maddheshiya/online-shopping-store",
     liveUrl: "https://arun-gopal-traders.vercel.app/",
     featured: true,
   },
@@ -532,8 +534,8 @@ export interface DsaInfo {
 }
 
 export const DSA_INFO: DsaInfo = {
-  problemsSolved: "54+",
-  totalSolvedCount: 54,
+  problemsSolved: "66+",
+  totalSolvedCount: 66,
   language: "Java",
   repoName: "dsa-with-java",
   repoUrl: "https://github.com/gopal-maddheshiya/dsa-with-java",
@@ -713,7 +715,7 @@ export const ACADEMIC_GALLERY: AcademicMediaItem[] = [
     url: "https://rnchpivzlmjlvctjqitr.supabase.co/storage/v1/object/public/portfolio-media/gallery/1789319737441-IMG_20260907_124651536.jpg",
     date: "2026",
     type: "image",
-    title: "Smart India Hackathon (SIH) 2026 — KishanSarthi",
+    title: "Smart India Hackathon (SIH) 2026 — KisanSarthi",
     caption:
       "Participated in Smart India Hackathon (SIH) 2026 with project 'KisanSarthi', focused on solving core agricultural and farmer workflow challenges. Contributed to problem statement research, technical architecture, and pitch presentation.",
     category: "Smart India Hackathon",
@@ -725,7 +727,7 @@ export const ACADEMIC_GALLERY: AcademicMediaItem[] = [
     url: "https://rnchpivzlmjlvctjqitr.supabase.co/storage/v1/object/public/portfolio-media/gallery/1789435597469-17047.png",
     date: "2026",
     type: "image",
-    title: "Project Pitch & Technical Walkthrough — KishanSarthi",
+    title: "Project Pitch & Technical Walkthrough — KisanSarthi",
     caption:
       "Delivering a technical walkthrough and pitch for project 'KisanSarthi', explaining the problem of agricultural inefficiencies and outlining our multi-pronged solution strategy involving AI and modern stack.",
     category: "Smart India Hackathon",
@@ -783,10 +785,10 @@ export const DEFAULT_SECTION_HEADERS: Record<
       "Production full-stack builds, AI-driven workflows, and REST APIs — inspect code or open any Case Study.",
   },
   dsa: {
-    eyebrow: "DSA & Problem Solving",
-    title: "Live LeetCode & Problem Solving",
+    eyebrow: "DSA & Engineering Activity",
+    title: "Live LeetCode & GitHub Consistency",
     description:
-      "Real-time synchronized coding metrics, problem difficulty distribution, badges, and 1-year practice activity directly from LeetCode.",
+      "Real-time problem solving metrics, coding streaks, open-source commits, and 1-year contribution heatmaps synced from LeetCode and GitHub.",
   },
   profiles: {
     eyebrow: "Coding Profiles",
@@ -806,7 +808,7 @@ export const DEFAULT_SECTION_HEADERS: Record<
       "A visual showcase of university milestones, hackathon participations, campus workshops, and technical demonstrations.",
   },
   faq: {
-    eyebrow: "KNOWLEDGE BASE & AEO",
+    eyebrow: "Frequently Asked",
     title: "Frequently Asked Questions & Verified Facts",
     description:
       "Clear, structured facts about Gopal Maddheshiya's background, B.Tech CSE at SRMU, Java & Full-Stack skills, SIH hackathon projects, and internship availability for visitors and AI answer engines.",

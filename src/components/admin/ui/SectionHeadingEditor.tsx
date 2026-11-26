@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { ChevronDown, ChevronUp, RotateCcw, Type } from "lucide-react";
 import { DEFAULT_SECTION_HEADERS, type EditableSectionKey } from "@/data/profile";
 import type { PortfolioData } from "@/lib/supabase";
@@ -17,6 +17,7 @@ export function SectionHeadingEditor({
   data,
   updateData,
 }: SectionHeadingEditorProps) {
+  const baseId = useId();
   const [expanded, setExpanded] = useState(false);
   const defaults = DEFAULT_SECTION_HEADERS[sectionKey];
   const current = data.sectionHeaders?.[sectionKey] || {};
@@ -80,10 +81,15 @@ export function SectionHeadingEditor({
         <div className="border-t border-border/80 bg-surface/35 p-5 space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              <label
+                htmlFor={`${baseId}-eyebrow`}
+                className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+              >
                 Section Eyebrow
               </label>
               <input
+                id={`${baseId}-eyebrow`}
+                name={`${sectionKey}-eyebrow`}
                 type="text"
                 value={eyebrowValue}
                 onChange={(e) => updateField("eyebrow", e.target.value)}
@@ -92,10 +98,15 @@ export function SectionHeadingEditor({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              <label
+                htmlFor={`${baseId}-title`}
+                className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+              >
                 Section Title
               </label>
               <input
+                id={`${baseId}-title`}
+                name={`${sectionKey}-title`}
                 type="text"
                 value={titleValue}
                 onChange={(e) => updateField("title", e.target.value)}
@@ -105,7 +116,10 @@ export function SectionHeadingEditor({
 
             <div className="sm:col-span-2">
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <label
+                  htmlFor={`${baseId}-description`}
+                  className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                >
                   Section Subtitle / Description
                 </label>
                 <button
@@ -118,6 +132,8 @@ export function SectionHeadingEditor({
                 </button>
               </div>
               <textarea
+                id={`${baseId}-description`}
+                name={`${sectionKey}-description`}
                 rows={2}
                 value={descriptionValue}
                 onChange={(e) => updateField("description", e.target.value)}

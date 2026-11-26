@@ -191,10 +191,15 @@ export function CertificationsTab({ data, updateData }: CertificationsTabProps) 
               {isExpanded ? (
                 <div className="border-t border-border/80 p-5 sm:p-6 grid gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-2">
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    <label
+                      htmlFor={`cert-title-${idx}`}
+                      className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                    >
                       Certificate / Award Title
                     </label>
                     <input
+                      id={`cert-title-${idx}`}
+                      name={`cert-title-${idx}`}
                       type="text"
                       value={cert.title}
                       onChange={(e) => {
@@ -207,10 +212,15 @@ export function CertificationsTab({ data, updateData }: CertificationsTabProps) 
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    <label
+                      htmlFor={`cert-org-${idx}`}
+                      className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                    >
                       Issuing Organization
                     </label>
                     <input
+                      id={`cert-org-${idx}`}
+                      name={`cert-org-${idx}`}
                       type="text"
                       value={cert.org}
                       onChange={(e) => {
@@ -223,10 +233,15 @@ export function CertificationsTab({ data, updateData }: CertificationsTabProps) 
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    <label
+                      htmlFor={`cert-period-${idx}`}
+                      className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                    >
                       Period / Date
                     </label>
                     <input
+                      id={`cert-period-${idx}`}
+                      name={`cert-period-${idx}`}
                       type="text"
                       value={cert.period}
                       onChange={(e) => {
@@ -239,10 +254,15 @@ export function CertificationsTab({ data, updateData }: CertificationsTabProps) 
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    <label
+                      htmlFor={`cert-category-${idx}`}
+                      className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                    >
                       Category Tag (Used for Live Filter Pills)
                     </label>
                     <input
+                      id={`cert-category-${idx}`}
+                      name={`cert-category-${idx}`}
                       type="text"
                       value={cert.category || ""}
                       placeholder="e.g. Contest Win, Coursework, Hackathon"
@@ -272,10 +292,15 @@ export function CertificationsTab({ data, updateData }: CertificationsTabProps) 
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    <label
+                      htmlFor={`cert-detail-${idx}`}
+                      className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                    >
                       Description / Impact
                     </label>
                     <textarea
+                      id={`cert-detail-${idx}`}
+                      name={`cert-detail-${idx}`}
                       rows={2}
                       value={cert.detail}
                       onChange={(e) => {

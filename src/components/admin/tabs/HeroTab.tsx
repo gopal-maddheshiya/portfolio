@@ -31,10 +31,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-full-name"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Full Name
             </label>
             <input
+              id="hero-full-name"
+              name="hero-full-name"
               type="text"
               value={info.name}
               onChange={(e) => updateData({ personalInfo: { ...info, name: e.target.value } })}
@@ -43,10 +48,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-primary-role"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Primary Role / Title
             </label>
             <input
+              id="hero-primary-role"
+              name="hero-primary-role"
               type="text"
               value={info.role}
               onChange={(e) => updateData({ personalInfo: { ...info, role: e.target.value } })}
@@ -55,10 +65,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-greeting-badge"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Greeting Pill Badge
             </label>
             <input
+              id="hero-greeting-badge"
+              name="hero-greeting-badge"
               type="text"
               placeholder="Hi, I'm Gopal Maddheshiya"
               value={hero.greetingBadge || ""}
@@ -68,10 +83,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-headline-prefix"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Headline Prefix
             </label>
             <input
+              id="hero-headline-prefix"
+              name="hero-headline-prefix"
               type="text"
               placeholder="Building software as a"
               value={hero.headlinePrefix || ""}
@@ -96,10 +116,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-subtitle"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Hero Subtitle
             </label>
             <textarea
+              id="hero-subtitle"
+              name="hero-subtitle"
               rows={2}
               value={info.subtitle}
               onChange={(e) => updateData({ personalInfo: { ...info, subtitle: e.target.value } })}
@@ -108,10 +133,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-site-description"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Bio / Site Description (Shown in Hero &amp; SEO Share Meta)
             </label>
             <textarea
+              id="hero-site-description"
+              name="hero-site-description"
               rows={3}
               value={info.siteDescription}
               onChange={(e) =>
@@ -122,10 +152,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-monogram"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Navbar Brand Monogram
             </label>
             <input
+              id="hero-monogram"
+              name="hero-monogram"
               type="text"
               maxLength={4}
               placeholder="GM"
@@ -136,10 +171,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-university-short"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               University Short Tag (Mobile Nav &amp; CGPA Label)
             </label>
             <input
+              id="hero-university-short"
+              name="hero-university-short"
               type="text"
               placeholder="SRMU · CSE '28"
               value={info.universityShort || ""}
@@ -151,10 +191,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-cta-primary"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Primary CTA Button Label
             </label>
             <input
+              id="hero-cta-primary"
+              name="hero-cta-primary"
               type="text"
               placeholder="View my work"
               value={hero.ctaPrimary || ""}
@@ -164,10 +209,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-cta-secondary"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Secondary CTA Button Label
             </label>
             <input
+              id="hero-cta-secondary"
+              name="hero-cta-secondary"
               type="text"
               placeholder="View Resume"
               value={hero.ctaSecondary || ""}
@@ -177,10 +227,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-floating-badge-1"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Top-Left Floating Chip
             </label>
             <input
+              id="hero-floating-badge-1"
+              name="hero-floating-badge-1"
               type="text"
               placeholder="Java • DSA"
               value={hero.floatingBadge1 || ""}
@@ -192,10 +247,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-floating-badge-2"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Bottom-Right Floating Chip
             </label>
             <input
+              id="hero-floating-badge-2"
+              name="hero-floating-badge-2"
               type="text"
               placeholder="Full-Stack Developer"
               value={hero.floatingBadge2 || ""}
@@ -207,10 +267,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-availability-status"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Availability Badge (Navbar &amp; Status)
             </label>
             <input
+              id="hero-availability-status"
+              name="hero-availability-status"
               type="text"
               placeholder="Open to Work"
               value={hero.availabilityStatus || ""}
@@ -222,10 +287,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-location"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Location
             </label>
             <input
+              id="hero-location"
+              name="hero-location"
               type="text"
               value={info.location}
               onChange={(e) => updateData({ personalInfo: { ...info, location: e.target.value } })}
@@ -234,10 +304,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-email"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Email Address
             </label>
             <input
+              id="hero-email"
+              name="hero-email"
               type="email"
               value={info.email}
               onChange={(e) => updateData({ personalInfo: { ...info, email: e.target.value } })}
@@ -246,10 +321,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-phone"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Phone Number
             </label>
             <input
+              id="hero-phone"
+              name="hero-phone"
               type="text"
               value={info.phone}
               onChange={(e) => updateData({ personalInfo: { ...info, phone: e.target.value } })}
@@ -258,10 +338,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-whatsapp"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               WhatsApp (Digits with Country Code)
             </label>
             <input
+              id="hero-whatsapp"
+              name="hero-whatsapp"
               type="text"
               placeholder="916388354988"
               value={info.whatsapp || ""}
@@ -347,10 +432,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-github-url"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               GitHub URL
             </label>
             <input
+              id="hero-github-url"
+              name="hero-github-url"
               type="text"
               value={info.github}
               onChange={(e) => updateData({ personalInfo: { ...info, github: e.target.value } })}
@@ -359,10 +449,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-github-username"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               GitHub Username
             </label>
             <input
+              id="hero-github-username"
+              name="hero-github-username"
               type="text"
               value={info.githubUsername || ""}
               onChange={(e) =>
@@ -373,10 +468,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-linkedin-url"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               LinkedIn URL
             </label>
             <input
+              id="hero-linkedin-url"
+              name="hero-linkedin-url"
               type="text"
               value={info.linkedin}
               onChange={(e) => updateData({ personalInfo: { ...info, linkedin: e.target.value } })}
@@ -385,10 +485,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-leetcode-url"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               LeetCode Profile URL
             </label>
             <input
+              id="hero-leetcode-url"
+              name="hero-leetcode-url"
               type="text"
               value={info.leetcode}
               onChange={(e) => updateData({ personalInfo: { ...info, leetcode: e.target.value } })}
@@ -397,10 +502,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="hero-leetcode-username"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               LeetCode Username Handle
             </label>
             <input
+              id="hero-leetcode-username"
+              name="hero-leetcode-username"
               type="text"
               value={info.leetcodeUsername || ""}
               onChange={(e) =>
@@ -421,6 +531,11 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
             <div className="grid gap-4 sm:grid-cols-2">
               {(
                 [
+                  {
+                    key: "twitter",
+                    label: "X (Twitter) URL",
+                    placeholder: "https://x.com/itsGopalM",
+                  },
                   {
                     key: "medium",
                     label: "Medium URL",
@@ -449,10 +564,15 @@ export function HeroTab({ data, updateData, saveData }: HeroTabProps) {
                 ] as const
               ).map((field) => (
                 <div key={field.key}>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label
+                    htmlFor={`hero-social-${field.key}`}
+                    className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                  >
                     {field.label}
                   </label>
                   <input
+                    id={`hero-social-${field.key}`}
+                    name={`hero-social-${field.key}`}
                     type="text"
                     placeholder={field.placeholder}
                     value={info[field.key] ?? ""}

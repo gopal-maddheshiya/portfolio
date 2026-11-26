@@ -3,7 +3,8 @@ import { ArrowRight, Code2, FileText, Github, Linkedin, MapPin } from "lucide-re
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import { MagneticWrap, prefersReducedMotion } from "@/components/common/MagneticWrap";
+import { MagneticWrap } from "@/components/common/MagneticWrap";
+import { prefersReducedMotion } from "@/lib/motion";
 import { CutoutPortrait } from "@/components/portfolio/CutoutPortrait";
 import { usePortfolio } from "@/context/PortfolioContext";
 import { handleAnchorClick } from "@/lib/scroll";
@@ -73,7 +74,7 @@ function TypewriterRole({
   }, [started, currentText, isDeleting, roleIndex, activeRoles]);
 
   return (
-    <span className="text-primary inline-flex items-baseline whitespace-nowrap">
+    <span className="text-primary inline sm:inline-flex sm:items-baseline whitespace-normal sm:whitespace-nowrap">
       <span>{currentText}</span>
       <span
         className="inline-block w-[3px] h-[0.85em] ml-1 bg-primary align-middle animate-pulse"
@@ -194,11 +195,10 @@ export function Hero() {
           </div>
 
           {/* Heading with masked line reveals + typewriter that starts after the reveal */}
-          <h1 className="hero-anim-title mt-4 sm:mt-6 text-2xl sm:text-3xl md:text-4xl lg:text-[3.1rem] font-bold leading-[1.22] tracking-tight text-foreground">
+          <h1 className="hero-anim-title mt-4 sm:mt-6 text-[21px] min-[375px]:text-2xl sm:text-3xl md:text-4xl lg:text-[3.1rem] font-bold leading-[1.22] tracking-tight text-foreground">
             {/* Semantic full heading for screen readers & search engines (WCAG 2.4.6 & SEO/AEO) */}
             <span className="sr-only">
-              {info.name} — {hero.headlinePrefix || "Building software as a"}{" "}
-              {(hero.typewriterRoles && hero.typewriterRoles[0]) || DEFAULT_TYPING_ROLES[0]}
+              {`${info.name} — ${hero.headlinePrefix || "Building software as a"} ${(hero.typewriterRoles && hero.typewriterRoles[0]) || DEFAULT_TYPING_ROLES[0]}`}
             </span>
 
             {/* Visual animated presentation */}

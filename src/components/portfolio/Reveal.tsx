@@ -36,8 +36,14 @@ export function Reveal({
       return;
     }
 
+    const viewH = window.innerHeight || 900;
+    if (node.getBoundingClientRect().top <= viewH * 0.96) {
+      node.classList.remove("reveal");
+      return;
+    }
+
     const ctx = gsap.context(() => {
-      gsap.fromTo(
+      const tween = gsap.fromTo(
         node,
         { opacity: 0, y: 16 },
         {
@@ -47,17 +53,26 @@ export function Reveal({
           ease: "power3.out",
           delay: delay / 1000,
           clearProps: "all",
-          scrollTrigger: {
-            trigger: node,
-            start: "top 90%",
-            once: true,
-          },
+          paused: true,
           onComplete: () => {
-            // Strip CSS initial-hidden hook once settled so clearProps leaves zero lingering GPU layers.
             node.classList.remove("reveal");
           },
         },
       );
+
+      ScrollTrigger.create({
+        trigger: node,
+        start: "top 92%",
+        once: true,
+        fastScrollEnd: true,
+        onEnter: () => tween.play(),
+        onEnterBack: () => {
+          tween.progress(1);
+        },
+        onLeave: () => {
+          tween.progress(1);
+        },
+      });
     }, ref);
 
     return () => {

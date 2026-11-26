@@ -80,7 +80,7 @@ export function About() {
   const dsaSolvedNumber =
     leetCodeTotal > 0
       ? leetCodeTotal
-      : (data.dsaInfo?.totalSolvedCount ?? DSA_INFO.totalSolvedCount ?? 54);
+      : (data.dsaInfo?.totalSolvedCount ?? DSA_INFO.totalSolvedCount ?? 66);
 
   // Extract exact numeric CGPA & graduation year cleanly (prevents stale 0.00 / 2024 states)
   const cleanCgpa = useMemo(() => {

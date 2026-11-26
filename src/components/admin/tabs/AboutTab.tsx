@@ -99,10 +99,15 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="about-eyebrow"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Eyebrow Tag
             </label>
             <input
+              id="about-eyebrow"
+              name="about-eyebrow"
               type="text"
               value={about.eyebrow}
               onChange={(e) => updateData({ aboutData: { ...about, eyebrow: e.target.value } })}
@@ -111,10 +116,15 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="about-availability-badge"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Availability Badge (Top-Right of Story Card)
             </label>
             <input
+              id="about-availability-badge"
+              name="about-availability-badge"
               type="text"
               value={about.availabilityBadge || ""}
               placeholder="Open to Internships"
@@ -126,10 +136,15 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="about-main-title"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Main Section Title
             </label>
             <input
+              id="about-main-title"
+              name="about-main-title"
               type="text"
               value={about.title}
               onChange={(e) => updateData({ aboutData: { ...about, title: e.target.value } })}
@@ -138,10 +153,15 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="about-story-title"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Story Card Headline
             </label>
             <input
+              id="about-story-title"
+              name="about-story-title"
               type="text"
               value={about.storyTitle}
               onChange={(e) => updateData({ aboutData: { ...about, storyTitle: e.target.value } })}
@@ -150,10 +170,15 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="about-bio"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Editorial Bio Paragraph
             </label>
             <textarea
+              id="about-bio"
+              name="about-bio"
               rows={3}
               value={primaryBio}
               onChange={(e) => {
@@ -183,10 +208,15 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="about-snapshot-degree"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Degree Title
             </label>
             <input
+              id="about-snapshot-degree"
+              name="about-snapshot-degree"
               type="text"
               value={about.snapshot?.degree || ""}
               onChange={(e) =>
@@ -202,10 +232,15 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="about-snapshot-cgpa"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               CGPA
             </label>
             <input
+              id="about-snapshot-cgpa"
+              name="about-snapshot-cgpa"
               type="text"
               value={about.snapshot?.cgpa || ""}
               placeholder="CGPA 7.63"
@@ -222,10 +257,15 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="about-snapshot-batch"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Graduating Batch
             </label>
             <input
+              id="about-snapshot-batch"
+              name="about-snapshot-batch"
               type="text"
               value={about.snapshot?.batch || ""}
               placeholder="2028 Batch"
@@ -242,10 +282,15 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="about-snapshot-university"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               University Name
             </label>
             <input
+              id="about-snapshot-university"
+              name="about-snapshot-university"
               type="text"
               value={about.snapshot?.university || ""}
               onChange={(e) =>
@@ -313,10 +358,15 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                  <label
+                    htmlFor={`about-edu-title-${idx}`}
+                    className="block text-xs font-semibold text-muted-foreground mb-1"
+                  >
                     Degree Title
                   </label>
                   <input
+                    id={`about-edu-title-${idx}`}
+                    name={`about-edu-title-${idx}`}
                     type="text"
                     value={edu.title}
                     onChange={(e) => {
@@ -329,10 +379,15 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                  <label
+                    htmlFor={`about-edu-org-${idx}`}
+                    className="block text-xs font-semibold text-muted-foreground mb-1"
+                  >
                     University / Institute
                   </label>
                   <input
+                    id={`about-edu-org-${idx}`}
+                    name={`about-edu-org-${idx}`}
                     type="text"
                     value={edu.org}
                     onChange={(e) => {
@@ -345,10 +400,15 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                  <label
+                    htmlFor={`about-edu-period-${idx}`}
+                    className="block text-xs font-semibold text-muted-foreground mb-1"
+                  >
                     Period (Years)
                   </label>
                   <input
+                    id={`about-edu-period-${idx}`}
+                    name={`about-edu-period-${idx}`}
                     type="text"
                     value={edu.period}
                     onChange={(e) => {
@@ -361,10 +421,15 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                  <label
+                    htmlFor={`about-edu-detail-${idx}`}
+                    className="block text-xs font-semibold text-muted-foreground mb-1"
+                  >
                     CGPA / Details
                   </label>
                   <input
+                    id={`about-edu-detail-${idx}`}
+                    name={`about-edu-detail-${idx}`}
                     type="text"
                     value={edu.detail}
                     onChange={(e) => {
@@ -433,10 +498,15 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                  <label
+                    htmlFor={`about-principle-title-${pIdx}`}
+                    className="block text-xs font-semibold text-muted-foreground mb-1"
+                  >
                     Pillar Title
                   </label>
                   <input
+                    id={`about-principle-title-${pIdx}`}
+                    name={`about-principle-title-${pIdx}`}
                     type="text"
                     value={principle.title}
                     onChange={(e) => {
@@ -461,10 +531,15 @@ export function AboutTab({ data, updateData }: AboutTabProps) {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                  <label
+                    htmlFor={`about-principle-description-${pIdx}`}
+                    className="block text-xs font-semibold text-muted-foreground mb-1"
+                  >
                     Description
                   </label>
                   <input
+                    id={`about-principle-description-${pIdx}`}
+                    name={`about-principle-description-${pIdx}`}
                     type="text"
                     value={principle.description}
                     onChange={(e) => {

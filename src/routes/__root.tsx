@@ -14,7 +14,11 @@ import { Toaster } from "sonner";
 
 import { PortfolioProvider } from "@/context/PortfolioContext";
 import { PERSONAL_INFO } from "@/data/profile";
-import { collectSameAsProfiles, extractGoogleVerificationToken } from "@/lib/seo-schema";
+import {
+  collectSameAsProfiles,
+  extractGoogleVerificationToken,
+  extractTwitterHandle,
+} from "@/lib/seo-schema";
 import { fetchPortfolioData } from "@/lib/supabase";
 import appCss from "../styles.css?url";
 
@@ -88,6 +92,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         PERSONAL_INFO.googleSiteVerification,
     );
     const sameAsLinks = collectSameAsProfiles(info, loaderData?.portfolioData);
+    const twitterHandle = extractTwitterHandle(info.twitter ?? PERSONAL_INFO.twitter);
 
     return {
       meta: [
@@ -102,7 +107,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         {
           name: "keywords",
           content:
-            "Gopal Maddheshiya, gopal-maddheshiya, gopalmaddheshiya63, gopal_96, Gopal Maddheshiya SRMU, Java Developer, Full-Stack Developer, MERN Stack, React Developer, Node.js, LeetCode, DSA, DSA Tracker, Arun Gopal Traders, SIH 2026, KisanSarthi, Software Engineering Intern",
+            "Gopal Maddheshiya, gopal-maddheshiya, gopalmaddheshiya63, gopal_96, itsGopalM, Gopal Maddheshiya SRMU, Shri Ramswaroop Memorial University, Java Developer, Full-Stack Developer, MERN Stack, React Developer, Node.js, LeetCode, DSA, DSA Tracker, Arun Gopal Traders, SIH 2026, KisanSarthi, Software Engineering Intern",
         },
         { name: "author", content: info.name },
         { name: "creator", content: info.name },
@@ -153,7 +158,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           content: info.siteDescription,
         },
         { name: "twitter:image", content: info.ogImage },
-        { name: "twitter:creator", content: "@gopal_code" },
+        { name: "twitter:site", content: twitterHandle },
+        { name: "twitter:creator", content: twitterHandle },
       ],
       links: [
         {

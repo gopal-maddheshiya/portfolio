@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import gopalCutout from "@/assets/gopal-cutout.webp";
-import defaultProfilePhoto from "@/assets/gopal-profile.jpg";
 
 interface CutoutPortraitProps {
   photoSrc?: string | undefined;
@@ -272,8 +271,6 @@ export function CutoutPortrait({
             onError={() => {
               if (currentPhoto !== gopalCutout) {
                 setCurrentPhoto(gopalCutout);
-              } else {
-                setCurrentPhoto(defaultProfilePhoto);
               }
             }}
             className="w-full h-auto object-contain object-bottom drop-shadow-[0_6px_14px_rgba(0,0,0,0.22)] transition-transform duration-500 hover:scale-[1.015] pointer-events-auto"
@@ -283,7 +280,7 @@ export function CutoutPortrait({
 
       {/* ── Layer 4A: Top-Left Floating Aurora Pill (Java • DSA) ── */}
       {badge1 && (
-        <div className="portrait-badge-left-entrance absolute top-5 sm:top-6 -left-5 sm:-left-3 z-30 pointer-events-auto select-none">
+        <div className="portrait-badge-left-entrance absolute top-5 sm:top-6 -left-1 min-[375px]:-left-3 z-30 pointer-events-auto select-none">
           <div className="transition-transform hover:scale-105 duration-300">
             <div className="aurora-badge-wrapper rounded-full shadow-md shadow-black/25">
               <div className="inline-flex items-center gap-2 rounded-full bg-card/95 dark:bg-[#0f1016]/95 px-3 py-1.5 sm:px-3.5 sm:py-1.5 backdrop-blur-md">

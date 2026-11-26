@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { compressImageToWebP, type CompressionResult } from "@/lib/image-compress";
+import type { CompressionResult } from "@/lib/image-compress";
 import { FAQS, type FAQItem } from "@/data/faq";
 import {
   ABOUT_DATA,
@@ -92,8 +92,13 @@ export const DEFAULT_PORTFOLIO_DATA: PortfolioData = {
 export const TABLE_NAME = "portfolio_data";
 export const RECORD_ID = "gopal_portfolio";
 
+const LEGACY_AVAILABILITY_NOTE = "Open to Summer 2026 SWE & Full-Stack Internships";
+const LEGACY_FAQ_EYEBROW = "KNOWLEDGE BASE & AEO";
+const LEGACY_DSA_TITLE = "Live LeetCode & Problem Solving";
+
 /**
  * Parses raw JSON content into safe PortfolioData with defaults.
+ * Migrates untouched legacy placeholder values cleanly while preserving custom edits.
  */
 export function parsePortfolioContent(rawContent: unknown, updatedAt?: string): PortfolioData {
   if (!rawContent || typeof rawContent !== "object") return DEFAULT_PORTFOLIO_DATA;
@@ -113,8 +118,23 @@ export function parsePortfolioContent(rawContent: unknown, updatedAt?: string): 
     updatedAt ?? (typeof c["updatedAt"] === "string" ? c["updatedAt"] : undefined);
 
   const aboutDataRaw = pickObject<Record<string, unknown>>("aboutData");
-  const dsaInfoRaw = pickObject<Record<string, unknown>>("dsaInfo");
+  const dsaInfoRaw = pickObject<Partial<PortfolioData["dsaInfo"]>>("dsaInfo");
   const personalInfoRaw = pickObject<Partial<PortfolioData["personalInfo"]>>("personalInfo");
+  const contactRaw = pickObject<Partial<PortfolioData["contactData"]>>("contactData");
+
+  const resolvedDsaProblemsSolved =
+    dsaInfoRaw.problemsSolved === "54+"
+      ? DEFAULT_PORTFOLIO_DATA.dsaInfo.problemsSolved
+      : dsaInfoRaw.problemsSolved;
+  const resolvedDsaTotalCount =
+    dsaInfoRaw.totalSolvedCount === 54
+      ? DEFAULT_PORTFOLIO_DATA.dsaInfo.totalSolvedCount
+      : dsaInfoRaw.totalSolvedCount;
+
+  const resolvedAvailabilityNote =
+    contactRaw.availabilityNote === LEGACY_AVAILABILITY_NOTE
+      ? DEFAULT_PORTFOLIO_DATA.contactData.availabilityNote
+      : contactRaw.availabilityNote;
 
   return {
     ...DEFAULT_PORTFOLIO_DATA,
@@ -145,7 +165,11 @@ export function parsePortfolioContent(rawContent: unknown, updatedAt?: string): 
     },
     dsaInfo: {
       ...DEFAULT_PORTFOLIO_DATA.dsaInfo,
-      ...pickObject<Partial<PortfolioData["dsaInfo"]>>("dsaInfo"),
+      ...dsaInfoRaw,
+      ...(resolvedDsaProblemsSolved !== undefined
+        ? { problemsSolved: resolvedDsaProblemsSolved }
+        : {}),
+      ...(resolvedDsaTotalCount !== undefined ? { totalSolvedCount: resolvedDsaTotalCount } : {}),
       difficulty: Array.isArray(dsaInfoRaw["difficulty"])
         ? (dsaInfoRaw["difficulty"] as PortfolioData["dsaInfo"]["difficulty"])
         : DEFAULT_PORTFOLIO_DATA.dsaInfo.difficulty,
@@ -165,7 +189,10 @@ export function parsePortfolioContent(rawContent: unknown, updatedAt?: string): 
     },
     contactData: {
       ...DEFAULT_PORTFOLIO_DATA.contactData,
-      ...pickObject<Partial<PortfolioData["contactData"]>>("contactData"),
+      ...contactRaw,
+      ...(resolvedAvailabilityNote !== undefined
+        ? { availabilityNote: resolvedAvailabilityNote }
+        : {}),
     },
     featuredSkills: pickArray<string>("featuredSkills", []),
     sectionHeaders: (() => {
@@ -177,18 +204,30 @@ export function parsePortfolioContent(rawContent: unknown, updatedAt?: string): 
           custom !== null && typeof custom === "object" && !Array.isArray(custom)
             ? (custom as Record<string, unknown>)
             : {};
+        const rawEyebrow =
+          typeof customObj["eyebrow"] === "string"
+            ? customObj["eyebrow"]
+            : DEFAULT_SECTION_HEADERS[key].eyebrow;
+        const rawTitle =
+          typeof customObj["title"] === "string"
+            ? customObj["title"]
+            : DEFAULT_SECTION_HEADERS[key].title;
         merged[key] = {
           eyebrow:
-            typeof customObj["eyebrow"] === "string"
-              ? customObj["eyebrow"]
-              : DEFAULT_SECTION_HEADERS[key].eyebrow,
+            key === "faq" && rawEyebrow === LEGACY_FAQ_EYEBROW
+              ? DEFAULT_SECTION_HEADERS.faq.eyebrow
+              : key === "dsa" && rawEyebrow === "DSA & Problem Solving"
+                ? DEFAULT_SECTION_HEADERS.dsa.eyebrow
+                : rawEyebrow,
           title:
-            typeof customObj["title"] === "string"
-              ? customObj["title"]
-              : DEFAULT_SECTION_HEADERS[key].title,
+            key === "dsa" && rawTitle === LEGACY_DSA_TITLE
+              ? DEFAULT_SECTION_HEADERS.dsa.title
+              : rawTitle,
           description:
             typeof customObj["description"] === "string"
-              ? customObj["description"]
+              ? key === "dsa" && rawTitle === LEGACY_DSA_TITLE
+                ? DEFAULT_SECTION_HEADERS.dsa.description
+                : customObj["description"]
               : DEFAULT_SECTION_HEADERS[key].description,
         };
       });
@@ -202,8 +241,13 @@ export function parsePortfolioContent(rawContent: unknown, updatedAt?: string): 
         (d) => d.title.toLowerCase() === proj.title?.toLowerCase(),
       );
       if (!matchingDefault) return proj;
+      const resolvedImage =
+        typeof proj.image === "string" && proj.image.startsWith("/assets/") && matchingDefault.image
+          ? matchingDefault.image
+          : proj.image;
       return {
         ...proj,
+        image: resolvedImage,
         role: proj.role !== undefined ? proj.role : matchingDefault.role,
         architecture:
           proj.architecture !== undefined ? proj.architecture : matchingDefault.architecture,
@@ -258,18 +302,64 @@ export function parsePortfolioContent(rawContent: unknown, updatedAt?: string): 
       "academicGallery",
       DEFAULT_PORTFOLIO_DATA.academicGallery,
     ).map((item) => {
+      const cleanedTitle = item.title?.replace(/KishanSarthi/g, "KisanSarthi") ?? "";
       const matchingDefault = DEFAULT_PORTFOLIO_DATA.academicGallery.find(
-        (d) => d.id === item.id || d.title.toLowerCase() === item.title?.toLowerCase(),
+        (d) => d.id === item.id || d.title.toLowerCase() === cleanedTitle.toLowerCase(),
       );
       if (!matchingDefault) return item;
       return {
         ...item,
+        title: cleanedTitle,
         featured: item.featured !== undefined ? item.featured : matchingDefault.featured,
       };
     }),
-    faqs: pickArray<FAQItem>("faqs", DEFAULT_PORTFOLIO_DATA.faqs),
+    faqs: pickArray<FAQItem>("faqs", DEFAULT_PORTFOLIO_DATA.faqs).map((faq) => {
+      let answer = faq.answer;
+      if (faq.id === "dsa-track-record") {
+        answer = answer.replace(/\b54\+ verified Java solutions/g, "66+ verified Java solutions");
+      }
+      if (faq.id === "internship-availability") {
+        answer = answer.replace(
+          /\bSummer 2026 Software Development Engineer/g,
+          "Winter 2026 / Summer 2027 Software Development Engineer",
+        );
+      }
+      return answer === faq.answer ? faq : { ...faq, answer };
+    }),
     ...(resolvedUpdatedAt ? { updatedAt: resolvedUpdatedAt } : {}),
   };
+}
+
+/**
+ * Syncs latest layout defaults (studio cutout portrait, 8-card Core Stack, SIH spotlight,
+ * current copy/asset migrations) while preserving user-uploaded media and custom copy.
+ */
+export function syncPortfolioLayoutDefaults(prev: PortfolioData): PortfolioData {
+  const normalized = parsePortfolioContent({
+    ...prev,
+    personalInfo: { ...prev.personalInfo, profilePhoto: "" },
+    featuredSkills: [],
+    heroData: {
+      ...prev.heroData,
+      availabilityStatus: HERO_DATA.availabilityStatus,
+      typewriterRoles: HERO_DATA.typewriterRoles,
+    },
+  });
+
+  const featuredIdx = normalized.academicGallery.findIndex((g) => g.featured);
+  if (featuredIdx > 0) {
+    const featuredItem = normalized.academicGallery[featuredIdx];
+    if (featuredItem) {
+      return {
+        ...normalized,
+        academicGallery: [
+          featuredItem,
+          ...normalized.academicGallery.filter((_, idx) => idx !== featuredIdx),
+        ],
+      };
+    }
+  }
+  return normalized;
 }
 
 const LEGACY_STORAGE_KEY = "gopal_portfolio_content_v1";
@@ -487,6 +577,7 @@ export async function uploadPortfolioImage(
 
   try {
     if (typeof window !== "undefined") {
+      const { compressImageToWebP } = await import("@/lib/image-compress");
       compressionResult = await compressImageToWebP(file, compressionOptions);
       fileToUpload = compressionResult.file;
     }

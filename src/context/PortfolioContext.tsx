@@ -21,6 +21,7 @@ interface PortfolioContextType {
   isLoading: boolean;
   isSaving: boolean;
   isDirty: boolean;
+  isAutoSavePaused: boolean;
   updateData: (updater: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData)) => void;
   saveData: (customData?: PortfolioData) => Promise<boolean>;
   resetToDefaults: () => void;
@@ -69,6 +70,7 @@ export function PortfolioProvider({
     }
     return false;
   });
+  const [isAutoSavePaused, setIsAutoSavePaused] = useState<boolean>(false);
 
   const lastFetchTimeRef = useRef<number>(Date.now());
   const isDirtyRef = useRef<boolean>(isDirty);
@@ -170,6 +172,7 @@ export function PortfolioProvider({
   const updateData = (
     updater: Partial<PortfolioData> | ((prev: PortfolioData) => PortfolioData),
   ) => {
+    setIsAutoSavePaused(false);
     isDirtyRef.current = true;
     setIsDirty(true);
     setData((prev) => {
@@ -189,6 +192,7 @@ export function PortfolioProvider({
 
       if (res.success) {
         clearAdminDraftPortfolioData();
+        setIsAutoSavePaused(false);
         isDirtyRef.current = false;
         setIsDirty(false);
         if (typeof window !== "undefined" && "BroadcastChannel" in window) {
@@ -225,6 +229,7 @@ export function PortfolioProvider({
     clearLegacyPublicCache();
     invalidatePortfolioCache();
     setData(DEFAULT_PORTFOLIO_DATA);
+    setIsAutoSavePaused(true);
     isDirtyRef.current = true;
     setIsDirty(true);
     toast.info("Reset to default profile values. Click 'Save Live' to publish to Supabase.");
@@ -237,6 +242,7 @@ export function PortfolioProvider({
         isLoading,
         isSaving,
         isDirty,
+        isAutoSavePaused,
         updateData,
         saveData,
         resetToDefaults,
@@ -257,6 +263,7 @@ export function usePortfolio() {
       isLoading: false,
       isSaving: false,
       isDirty: false,
+      isAutoSavePaused: false,
       updateData: () => {},
       saveData: async () => false,
       resetToDefaults: () => {},

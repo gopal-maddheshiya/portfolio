@@ -4,6 +4,7 @@ import {
   Eye,
   EyeOff,
   FolderGit2,
+  Github,
   Globe,
   Lock,
   Plus,
@@ -16,6 +17,7 @@ import { IconPicker } from "@/components/admin/ui/IconPicker";
 import { ReorderControls } from "@/components/admin/ui/ReorderControls";
 import { SectionHeadingEditor } from "@/components/admin/ui/SectionHeadingEditor";
 import { PERSONAL_INFO, type CodingProfile } from "@/data/profile";
+import { useGitHubStats } from "@/hooks/useGitHubStats";
 import { useLeetCodeStats } from "@/hooks/useLeetCodeStats";
 import type { PortfolioData } from "@/lib/supabase";
 
@@ -32,6 +34,18 @@ export function DsaTab({ data, updateData }: DsaTabProps) {
   const activeLeetCodeHandle = info.leetcodeUsername || PERSONAL_INFO.leetcodeUsername;
   const { total, easy, medium, hard, totalActiveDays, maxStreak, isLive, isFetching, refetch } =
     useLeetCodeStats(activeLeetCodeHandle);
+
+  const activeGitHubHandle = info.githubUsername || PERSONAL_INFO.githubUsername;
+  const {
+    totalContributions: ghTotalContributions,
+    publicRepos: ghPublicRepos,
+    totalStars: ghTotalStars,
+    activeDays: ghActiveDays,
+    maxStreak: ghMaxStreak,
+    isLive: isGhLive,
+    isFetching: isGhFetching,
+    refetch: refetchGh,
+  } = useGitHubStats(activeGitHubHandle);
 
   const handleAddProfile = () => {
     const newProfile: CodingProfile = {
@@ -130,10 +144,15 @@ export function DsaTab({ data, updateData }: DsaTabProps) {
         {/* Dynamic Handle & Profile Link */}
         <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-border/70">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="dsa-leetcode-username"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               LeetCode Username Handle (Live Sync Key)
             </label>
             <input
+              id="dsa-leetcode-username"
+              name="dsa-leetcode-username"
               type="text"
               value={info.leetcodeUsername || ""}
               placeholder="gopal-maddheshiya"
@@ -145,11 +164,16 @@ export function DsaTab({ data, updateData }: DsaTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="dsa-leetcode-url"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               LeetCode Profile URL
             </label>
             <div className="relative">
               <input
+                id="dsa-leetcode-url"
+                name="dsa-leetcode-url"
                 type="text"
                 value={info.leetcode || ""}
                 placeholder="https://leetcode.com/u/gopal-maddheshiya/"
@@ -161,6 +185,110 @@ export function DsaTab({ data, updateData }: DsaTabProps) {
               {info.leetcode ? (
                 <a
                   href={info.leetcode}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <ExternalLink className="size-3.5" />
+                </a>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 1B. Read-Only Live GitHub Sync Monitor + Handle Settings */}
+      <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-soft space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
+          <div>
+            <h2 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+              <Github className="size-5 text-emerald-500" />
+              <span>GitHub Live Sync Monitor</span>
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-mono text-emerald-600 dark:text-emerald-400">
+                <Lock className="size-2.5" aria-hidden="true" />
+                <span>{isGhLive ? "Live API Synced" : "Auto Synced"}</span>
+              </span>
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Contributions graph, active streaks, public repos, and language mix synchronize
+              automatically from GitHub.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => refetchGh()}
+            disabled={isGhFetching}
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-border-strong bg-surface hover:bg-secondary px-3.5 py-2 text-xs font-semibold text-foreground transition-colors disabled:opacity-50 cursor-pointer shrink-0"
+          >
+            <RefreshCw
+              className={`size-3.5 ${isGhFetching ? "animate-spin text-emerald-500" : ""}`}
+            />
+            <span>{isGhFetching ? "Syncing..." : "Refresh GitHub"}</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {[
+            { label: "Past Yr Contribs", value: ghTotalContributions, accent: "text-emerald-500" },
+            { label: "Public Repos", value: ghPublicRepos, accent: "text-foreground" },
+            { label: "Total Stars", value: ghTotalStars, accent: "text-amber-500" },
+            { label: "Max Streak", value: `${ghMaxStreak}d`, accent: "text-emerald-500" },
+            { label: "Active Days", value: `${ghActiveDays}d`, accent: "text-primary" },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className="rounded-xl border border-border/80 bg-surface/60 px-3 py-2.5 text-center"
+            >
+              <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                {stat.label}
+              </p>
+              <p className={`mt-1 font-display text-lg font-bold ${stat.accent}`}>{stat.value}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-border/70">
+          <div>
+            <label
+              htmlFor="dsa-github-username"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
+              GitHub Username Handle (Live Sync Key)
+            </label>
+            <input
+              id="dsa-github-username"
+              name="dsa-github-username"
+              type="text"
+              value={info.githubUsername || ""}
+              placeholder="gopal-maddheshiya"
+              onChange={(e) =>
+                updateData({ personalInfo: { ...info, githubUsername: e.target.value } })
+              }
+              className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none font-mono"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="dsa-github-url"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
+              GitHub Profile URL
+            </label>
+            <div className="relative">
+              <input
+                id="dsa-github-url"
+                name="dsa-github-url"
+                type="text"
+                value={info.github || ""}
+                placeholder="https://github.com/gopal-maddheshiya"
+                onChange={(e) => updateData({ personalInfo: { ...info, github: e.target.value } })}
+                className="w-full rounded-lg border border-border-strong bg-card px-3.5 py-2.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none font-mono"
+              />
+              {info.github ? (
+                <a
+                  href={info.github}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
@@ -187,10 +315,15 @@ export function DsaTab({ data, updateData }: DsaTabProps) {
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="dsa-primary-language"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Primary Language
             </label>
             <input
+              id="dsa-primary-language"
+              name="dsa-primary-language"
               type="text"
               value={dsa.language}
               onChange={(e) => updateData({ dsaInfo: { ...dsa, language: e.target.value } })}
@@ -199,10 +332,15 @@ export function DsaTab({ data, updateData }: DsaTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="dsa-repo-name"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               GitHub DSA Repo Name
             </label>
             <input
+              id="dsa-repo-name"
+              name="dsa-repo-name"
               type="text"
               value={dsa.repoName}
               onChange={(e) => updateData({ dsaInfo: { ...dsa, repoName: e.target.value } })}
@@ -211,11 +349,16 @@ export function DsaTab({ data, updateData }: DsaTabProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="dsa-repo-url"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               GitHub DSA Repo URL
             </label>
             <div className="relative">
               <input
+                id="dsa-repo-url"
+                name="dsa-repo-url"
                 type="text"
                 value={dsa.repoUrl}
                 onChange={(e) => updateData({ dsaInfo: { ...dsa, repoUrl: e.target.value } })}
@@ -330,10 +473,15 @@ export function DsaTab({ data, updateData }: DsaTabProps) {
 
                 <div className="grid gap-3 sm:grid-cols-3">
                   <div>
-                    <label className="block text-[11px] text-muted-foreground font-semibold mb-1">
+                    <label
+                      htmlFor={`dsa-profile-name-${idx}`}
+                      className="block text-[11px] text-muted-foreground font-semibold mb-1"
+                    >
                       Platform Name
                     </label>
                     <input
+                      id={`dsa-profile-name-${idx}`}
+                      name={`dsa-profile-name-${idx}`}
                       type="text"
                       value={prof.name}
                       onChange={(e) => {
@@ -346,10 +494,15 @@ export function DsaTab({ data, updateData }: DsaTabProps) {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] text-muted-foreground font-semibold mb-1">
+                    <label
+                      htmlFor={`dsa-profile-username-${idx}`}
+                      className="block text-[11px] text-muted-foreground font-semibold mb-1"
+                    >
                       Username / Handle
                     </label>
                     <input
+                      id={`dsa-profile-username-${idx}`}
+                      name={`dsa-profile-username-${idx}`}
                       type="text"
                       value={prof.username}
                       onChange={(e) => {
@@ -377,11 +530,16 @@ export function DsaTab({ data, updateData }: DsaTabProps) {
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="block text-[11px] text-muted-foreground font-semibold mb-1">
+                    <label
+                      htmlFor={`dsa-profile-url-${idx}`}
+                      className="block text-[11px] text-muted-foreground font-semibold mb-1"
+                    >
                       Profile URL
                     </label>
                     <div className="relative">
                       <input
+                        id={`dsa-profile-url-${idx}`}
+                        name={`dsa-profile-url-${idx}`}
                         type="text"
                         value={prof.url}
                         onChange={(e) => {
@@ -405,10 +563,15 @@ export function DsaTab({ data, updateData }: DsaTabProps) {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] text-muted-foreground font-semibold mb-1">
+                    <label
+                      htmlFor={`dsa-profile-highlight-${idx}`}
+                      className="block text-[11px] text-muted-foreground font-semibold mb-1"
+                    >
                       Highlight Stat / Badge (Optional)
                     </label>
                     <input
+                      id={`dsa-profile-highlight-${idx}`}
+                      name={`dsa-profile-highlight-${idx}`}
                       type="text"
                       value={prof.highlight || ""}
                       placeholder={
@@ -424,10 +587,15 @@ export function DsaTab({ data, updateData }: DsaTabProps) {
                   </div>
 
                   <div className="sm:col-span-3">
-                    <label className="block text-[11px] text-muted-foreground font-semibold mb-1">
+                    <label
+                      htmlFor={`dsa-profile-description-${idx}`}
+                      className="block text-[11px] text-muted-foreground font-semibold mb-1"
+                    >
                       Description / Subtitle
                     </label>
                     <input
+                      id={`dsa-profile-description-${idx}`}
+                      name={`dsa-profile-description-${idx}`}
                       type="text"
                       value={prof.description}
                       onChange={(e) => {

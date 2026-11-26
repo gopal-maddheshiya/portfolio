@@ -35,16 +35,34 @@ function AdminPage() {
   };
 
   useEffect(() => {
-    checkSession();
+    let isMounted = true;
+
+    const verifySession = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!isMounted) return;
+        setSession(data.session);
+      } catch (err) {
+        console.error("Session check error:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    void verifySession();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      if (!isMounted) return;
+      setSession(nextSession);
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleSignOut = async () => {

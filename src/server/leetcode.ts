@@ -1,211 +1,14 @@
-export type LeetCodeBadge = {
-  id?: string;
-  name: string;
-  displayName: string;
-  icon: string;
-  creationDate?: string;
-};
+import {
+  computeCalendarStreakMetrics,
+  FALLBACK_LEETCODE_STATS,
+  fetchFromAlfaLeetCode,
+  normalizeRecentSubmissions,
+  type LeetCodeBadge,
+  type LeetCodeStatsResponse,
+} from "@/lib/leetcode-shared";
 
-export type LeetCodeStatsResponse = {
-  success: boolean;
-  username: string;
-  totalSolved: number;
-  totalQuestions: number;
-  easySolved: number;
-  totalEasy: number;
-  mediumSolved: number;
-  totalMedium: number;
-  hardSolved: number;
-  totalHard: number;
-  ranking: number | null;
-  badges: LeetCodeBadge[];
-  totalActiveDays: number;
-  maxStreak: number;
-  currentStreak: number;
-  totalSubmissions: number;
-  submissionCalendar: Record<string, number>;
-  recentSubmissions: Array<{
-    title: string;
-    titleSlug: string;
-    lang: string;
-    timestamp: string;
-    difficulty?: "Easy" | "Medium" | "Hard";
-  }>;
-  isLive: boolean;
-  updatedAt: string;
-};
-
-// Known difficulty dictionary for popular & user-practiced LeetCode problems
-export const KNOWN_DIFFICULTIES: Record<string, "Easy" | "Medium" | "Hard"> = {
-  "running-sum-of-1d-array": "Easy",
-  "two-sum": "Easy",
-  "word-search": "Medium",
-  "valid-anagram": "Easy",
-  sqrtx: "Easy",
-  "smallest-divisible-digit-product-i": "Easy",
-  "valid-palindrome": "Easy",
-  "valid-sudoku": "Medium",
-  "valid-parentheses": "Easy",
-  "length-of-last-word": "Easy",
-  "reverse-linked-list": "Easy",
-  "merge-two-sorted-lists": "Easy",
-  "maximum-subarray": "Medium",
-  "climbing-stairs": "Easy",
-  "binary-search": "Easy",
-  "search-in-rotated-sorted-array": "Medium",
-  "3sum": "Medium",
-  "container-with-most-water": "Medium",
-  "trapping-rain-water": "Hard",
-  "median-of-two-sorted-arrays": "Hard",
-  "palindrome-number": "Easy",
-  "longest-common-prefix": "Easy",
-  "remove-duplicates-from-sorted-array": "Easy",
-  "remove-element": "Easy",
-  "search-insert-position": "Easy",
-  "plus-one": "Easy",
-  "add-binary": "Easy",
-  "merge-sorted-array": "Easy",
-  "binary-tree-inorder-traversal": "Easy",
-  "same-tree": "Easy",
-  "symmetric-tree": "Easy",
-  "maximum-depth-of-binary-tree": "Easy",
-};
-
-// Default fallback data matching Gopal's verified LeetCode profile
-const FALLBACK_STATS: LeetCodeStatsResponse = {
-  success: true,
-  username: "gopal-maddheshiya",
-  totalSolved: 57,
-  totalQuestions: 4060,
-  easySolved: 33,
-  totalEasy: 966,
-  mediumSolved: 22,
-  totalMedium: 2117,
-  hardSolved: 2,
-  totalHard: 977,
-  ranking: 2590814,
-  badges: [
-    {
-      id: "10507504",
-      name: "Annual Badge",
-      displayName: "50 Days Badge 2026",
-      icon: "https://assets.leetcode.com/static_assets/others/50_1080_1080.png",
-      creationDate: "2026-07-09",
-    },
-  ],
-  totalActiveDays: 70,
-  maxStreak: 61,
-  currentStreak: 61,
-  totalSubmissions: 93,
-  submissionCalendar: {
-    "1770508800": 1,
-    "1775347200": 1,
-    "1776988800": 1,
-    "1779580800": 1,
-    "1779667200": 2,
-    "1779753600": 2,
-    "1779840000": 1,
-    "1779926400": 1,
-    "1780012800": 1,
-    "1780099200": 1,
-    "1780185600": 1,
-    "1780272000": 1,
-    "1780358400": 1,
-    "1780444800": 1,
-    "1780531200": 1,
-    "1780617600": 1,
-    "1780704000": 1,
-    "1780790400": 3,
-    "1780876800": 2,
-    "1780963200": 2,
-    "1781049600": 1,
-    "1781136000": 1,
-    "1781222400": 1,
-    "1781308800": 1,
-    "1781395200": 3,
-    "1781481600": 2,
-    "1781568000": 1,
-    "1781654400": 2,
-    "1781740800": 1,
-    "1781827200": 1,
-    "1781913600": 1,
-    "1782000000": 2,
-    "1782086400": 1,
-    "1782172800": 1,
-    "1782259200": 3,
-    "1782345600": 1,
-    "1782432000": 1,
-    "1782518400": 1,
-    "1782604800": 1,
-    "1782691200": 2,
-    "1782777600": 1,
-    "1782864000": 1,
-    "1782950400": 1,
-    "1783036800": 1,
-    "1783123200": 1,
-    "1783209600": 1,
-    "1783296000": 1,
-    "1783382400": 1,
-    "1783468800": 1,
-    "1783555200": 2,
-    "1783641600": 1,
-    "1783728000": 1,
-    "1783814400": 1,
-    "1783900800": 1,
-    "1783987200": 1,
-    "1784073600": 1,
-    "1784160000": 1,
-    "1784246400": 1,
-    "1784332800": 1,
-    "1784419200": 1,
-    "1784505600": 2,
-    "1784592000": 1,
-    "1784678400": 3,
-    "1784764800": 1,
-    "1785196800": 1,
-    "1785974400": 1,
-    "1786752000": 1,
-    "1787529600": 1,
-    "1787616000": 3,
-    "1790329600": 1,
-  },
-  recentSubmissions: [
-    {
-      title: "Running Sum of 1d Array",
-      titleSlug: "running-sum-of-1d-array",
-      lang: "java",
-      timestamp: "1790329603",
-      difficulty: "Easy",
-    },
-    {
-      title: "Two Sum",
-      titleSlug: "two-sum",
-      lang: "java",
-      timestamp: "1787676180",
-      difficulty: "Easy",
-    },
-    {
-      title: "Word Search",
-      titleSlug: "word-search",
-      lang: "java",
-      timestamp: "1787675900",
-      difficulty: "Medium",
-    },
-    {
-      title: "Valid Anagram",
-      titleSlug: "valid-anagram",
-      lang: "java",
-      timestamp: "1787589730",
-      difficulty: "Easy",
-    },
-  ],
-  isLive: false,
-  updatedAt: new Date().toISOString(),
-};
-
-// In-memory cache for fast response and avoiding rate limits (15-minute TTL)
-let cachedStats: LeetCodeStatsResponse | null = null;
-let lastFetchTime = 0;
+// Per-username cache (15-minute TTL) so switching usernames never serves another profile's cached numbers
+const statsCache = new Map<string, { data: LeetCodeStatsResponse; fetchedAt: number }>();
 const CACHE_TTL_MS = 15 * 60 * 1000;
 
 /**
@@ -302,60 +105,42 @@ async function fetchFromLeetCodeGraphQL(username: string): Promise<LeetCodeStats
   const acSubmissions = matchedUser.submitStatsGlobal?.acSubmissionNum || [];
   const allQuestions = data?.data?.allQuestionsCount || [];
 
-  const total = acSubmissions.find((s) => s.difficulty === "All")?.count ?? 54;
-  const easy = acSubmissions.find((s) => s.difficulty === "Easy")?.count ?? 30;
-  const medium = acSubmissions.find((s) => s.difficulty === "Medium")?.count ?? 22;
-  const hard = acSubmissions.find((s) => s.difficulty === "Hard")?.count ?? 2;
-  const ranking = matchedUser.profile?.ranking ?? 2633618;
+  const total = acSubmissions.find((s) => s.difficulty === "All")?.count ?? 0;
+  const easy = acSubmissions.find((s) => s.difficulty === "Easy")?.count ?? 0;
+  const medium = acSubmissions.find((s) => s.difficulty === "Medium")?.count ?? 0;
+  const hard = acSubmissions.find((s) => s.difficulty === "Hard")?.count ?? 0;
+  const ranking = matchedUser.profile?.ranking ?? null;
 
-  const totalQ = allQuestions.find((q) => q.difficulty === "All")?.count ?? 4060;
-  const totalE = allQuestions.find((q) => q.difficulty === "Easy")?.count ?? 966;
-  const totalM = allQuestions.find((q) => q.difficulty === "Medium")?.count ?? 2117;
-  const totalH = allQuestions.find((q) => q.difficulty === "Hard")?.count ?? 977;
+  const totalQ =
+    allQuestions.find((q) => q.difficulty === "All")?.count ??
+    FALLBACK_LEETCODE_STATS.totalQuestions;
+  const totalE =
+    allQuestions.find((q) => q.difficulty === "Easy")?.count ?? FALLBACK_LEETCODE_STATS.totalEasy;
+  const totalM =
+    allQuestions.find((q) => q.difficulty === "Medium")?.count ??
+    FALLBACK_LEETCODE_STATS.totalMedium;
+  const totalH =
+    allQuestions.find((q) => q.difficulty === "Hard")?.count ?? FALLBACK_LEETCODE_STATS.totalHard;
 
-  const badges = matchedUser.badges?.length ? matchedUser.badges : FALLBACK_STATS.badges;
-
+  const badges = matchedUser.badges?.length ? matchedUser.badges : [];
   const calendarJson = matchedUser.userCalendar?.submissionCalendar;
-  let submissionCalendar: Record<string, number> = FALLBACK_STATS.submissionCalendar;
-  let totalSubmissions = 93;
+  let submissionCalendar: Record<string, number> = {};
+  let calendarMetrics = { activeDays: 0, maxStreak: 0, totalSubmissions: 0 };
 
   if (calendarJson) {
     try {
       submissionCalendar = JSON.parse(calendarJson) as Record<string, number>;
-      totalSubmissions = Object.values(submissionCalendar).reduce((a, b) => a + b, 0);
+      calendarMetrics = computeCalendarStreakMetrics(submissionCalendar);
     } catch {
-      submissionCalendar = FALLBACK_STATS.submissionCalendar;
+      submissionCalendar = {};
     }
   }
 
-  const totalActiveDays = matchedUser.userCalendar?.totalActiveDays ?? 70;
-  const streakVal = matchedUser.userCalendar?.streak ?? 61;
-  const maxStreak = Math.max(streakVal, 61);
-  const currentStreak = streakVal;
+  const totalActiveDays = matchedUser.userCalendar?.totalActiveDays ?? calendarMetrics.activeDays;
+  const streakVal = matchedUser.userCalendar?.streak ?? 0;
+  const maxStreak = Math.max(streakVal, calendarMetrics.maxStreak);
 
-  const rawRecent = data?.data?.recentAcSubmissionList || [];
-  const seenTitles = new Set<string>();
-  const uniqueRecent: Array<{
-    title: string;
-    titleSlug: string;
-    lang: string;
-    timestamp: string;
-    difficulty?: "Easy" | "Medium" | "Hard";
-  }> = [];
-
-  for (const sub of rawRecent) {
-    if (!seenTitles.has(sub.title)) {
-      seenTitles.add(sub.title);
-      uniqueRecent.push({
-        title: sub.title,
-        titleSlug: sub.titleSlug,
-        lang: "java",
-        timestamp: sub.timestamp,
-        difficulty: KNOWN_DIFFICULTIES[sub.titleSlug] || "Easy",
-      });
-    }
-    if (uniqueRecent.length >= 4) break;
-  }
+  const uniqueRecent = normalizeRecentSubmissions(data?.data?.recentAcSubmissionList || []);
 
   return {
     success: true,
@@ -372,143 +157,25 @@ async function fetchFromLeetCodeGraphQL(username: string): Promise<LeetCodeStats
     badges,
     totalActiveDays,
     maxStreak,
-    currentStreak,
-    totalSubmissions,
+    currentStreak: streakVal || maxStreak,
+    totalSubmissions: calendarMetrics.totalSubmissions,
     submissionCalendar,
-    recentSubmissions: uniqueRecent.length > 0 ? uniqueRecent : FALLBACK_STATS.recentSubmissions,
+    recentSubmissions: uniqueRecent,
     isLive: true,
     updatedAt: new Date().toISOString(),
   };
 }
 
 /**
- * Strategy 2: Fetch via high-availability Alfa LeetCode proxy
- */
-async function fetchFromAlfaLeetCode(username: string): Promise<LeetCodeStatsResponse> {
-  const [profileRes, badgesRes, calendarRes, subsRes] = await Promise.all([
-    fetch(`https://alfa-leetcode-api.onrender.com/userProfile/${username}`, {
-      signal: AbortSignal.timeout(6000),
-    }),
-    fetch(`https://alfa-leetcode-api.onrender.com/${username}/badges`, {
-      signal: AbortSignal.timeout(6000),
-    }).catch(() => null),
-    fetch(`https://alfa-leetcode-api.onrender.com/${username}/calendar`, {
-      signal: AbortSignal.timeout(6000),
-    }).catch(() => null),
-    fetch(`https://alfa-leetcode-api.onrender.com/${username}/acSubmission?limit=10`, {
-      signal: AbortSignal.timeout(6000),
-    }).catch(() => null),
-  ]);
-
-  if (!profileRes.ok) {
-    throw new Error(`Alfa API returned status ${profileRes.status}`);
-  }
-
-  const profile = (await profileRes.json()) as {
-    totalSolved?: number;
-    easySolved?: number;
-    mediumSolved?: number;
-    hardSolved?: number;
-    totalQuestions?: number;
-    totalEasy?: number;
-    totalMedium?: number;
-    totalHard?: number;
-    ranking?: number;
-  };
-
-  const badgesData =
-    badgesRes && badgesRes.ok ? ((await badgesRes.json()) as { badges?: LeetCodeBadge[] }) : null;
-  const calendarData =
-    calendarRes && calendarRes.ok
-      ? ((await calendarRes.json()) as {
-          totalActiveDays?: number;
-          streak?: number;
-          submissionCalendar?: string;
-        })
-      : null;
-  const subsData =
-    subsRes && subsRes.ok
-      ? ((await subsRes.json()) as {
-          submission?: Array<{
-            title: string;
-            titleSlug: string;
-            lang?: string;
-            timestamp: string | number;
-          }>;
-        })
-      : null;
-
-  let submissionCalendar = FALLBACK_STATS.submissionCalendar;
-  let totalSubmissions = 93;
-
-  if (calendarData?.submissionCalendar) {
-    try {
-      submissionCalendar = JSON.parse(calendarData.submissionCalendar) as Record<string, number>;
-      totalSubmissions = Object.values(submissionCalendar).reduce((a, b) => a + b, 0);
-    } catch {
-      submissionCalendar = FALLBACK_STATS.submissionCalendar;
-    }
-  }
-
-  const badges = badgesData?.badges?.length ? badgesData.badges : FALLBACK_STATS.badges;
-
-  const rawSubs = subsData?.submission || [];
-  const seenTitles = new Set<string>();
-  const uniqueRecent: Array<{
-    title: string;
-    titleSlug: string;
-    lang: string;
-    timestamp: string;
-    difficulty?: "Easy" | "Medium" | "Hard";
-  }> = [];
-
-  for (const s of rawSubs) {
-    if (!seenTitles.has(s.title)) {
-      seenTitles.add(s.title);
-      uniqueRecent.push({
-        title: s.title,
-        titleSlug: s.titleSlug,
-        lang: s.lang || "java",
-        timestamp: String(s.timestamp),
-        difficulty: KNOWN_DIFFICULTIES[s.titleSlug] || "Easy",
-      });
-    }
-    if (uniqueRecent.length >= 4) break;
-  }
-
-  const streakVal = calendarData?.streak ?? 61;
-
-  return {
-    success: true,
-    username,
-    totalSolved: profile.totalSolved ?? 54,
-    totalQuestions: profile.totalQuestions ?? 4060,
-    easySolved: profile.easySolved ?? 30,
-    totalEasy: profile.totalEasy ?? 966,
-    mediumSolved: profile.mediumSolved ?? 22,
-    totalMedium: profile.totalMedium ?? 2117,
-    hardSolved: profile.hardSolved ?? 2,
-    totalHard: profile.totalHard ?? 977,
-    ranking: profile.ranking ?? 2633618,
-    badges,
-    totalActiveDays: calendarData?.totalActiveDays ?? 70,
-    maxStreak: Math.max(streakVal, 61),
-    currentStreak: streakVal,
-    totalSubmissions,
-    submissionCalendar,
-    recentSubmissions: uniqueRecent.length > 0 ? uniqueRecent : FALLBACK_STATS.recentSubmissions,
-    isLive: true,
-    updatedAt: new Date().toISOString(),
-  };
-}
-
-/**
- * Strategy 3: Fetch via Faisal Shohag LeetCode Vercel proxy
+ * Strategy 2: Fetch via Faisal Shohag LeetCode Vercel proxy
  */
 async function fetchFromFaisalShohag(username: string): Promise<LeetCodeStatsResponse> {
-  const res = await fetch(`https://leetcode-api-faisalshohag.vercel.app/${username}`, {
-    signal: AbortSignal.timeout(6000),
-  });
+  const res = await fetch(
+    `https://leetcode-api-faisalshohag.vercel.app/${encodeURIComponent(username)}`,
+    {
+      signal: AbortSignal.timeout(6000),
+    },
+  );
 
   if (!res.ok) {
     throw new Error(`FaisalShohag API returned status ${res.status}`);
@@ -533,61 +200,36 @@ async function fetchFromFaisalShohag(username: string): Promise<LeetCodeStatsRes
     }>;
   };
 
-  const total = data.totalSolved ?? 54;
-  const easy = data.easySolved ?? 30;
-  const medium = data.mediumSolved ?? 22;
-  const hard = data.hardSolved ?? 2;
-
-  let submissionCalendar = FALLBACK_STATS.submissionCalendar;
-  let totalSubmissions = 93;
-  if (data.submissionCalendar && typeof data.submissionCalendar === "object") {
-    submissionCalendar = data.submissionCalendar;
-    totalSubmissions = Object.values(submissionCalendar).reduce((a, b) => a + b, 0);
+  if (typeof data.totalSolved !== "number") {
+    throw new Error("FaisalShohag API returned empty profile payload");
   }
 
-  const rawRecent = data.recentSubmissions || [];
-  const seen = new Set<string>();
-  const recent: Array<{
-    title: string;
-    titleSlug: string;
-    lang: string;
-    timestamp: string;
-    difficulty?: "Easy" | "Medium" | "Hard";
-  }> = [];
-
-  for (const s of rawRecent) {
-    if (!seen.has(s.title)) {
-      seen.add(s.title);
-      recent.push({
-        title: s.title,
-        titleSlug: s.titleSlug,
-        lang: s.lang || "java",
-        timestamp: String(s.timestamp),
-        difficulty: KNOWN_DIFFICULTIES[s.titleSlug] || "Easy",
-      });
-    }
-    if (recent.length >= 4) break;
-  }
+  const submissionCalendar =
+    data.submissionCalendar && typeof data.submissionCalendar === "object"
+      ? data.submissionCalendar
+      : {};
+  const calendarMetrics = computeCalendarStreakMetrics(submissionCalendar);
+  const recent = normalizeRecentSubmissions(data.recentSubmissions || []);
 
   return {
     success: true,
     username,
-    totalSolved: total,
-    totalQuestions: data.totalQuestions ?? 4060,
-    easySolved: easy,
-    totalEasy: data.totalEasy ?? 966,
-    mediumSolved: medium,
-    totalMedium: data.totalMedium ?? 2117,
-    hardSolved: hard,
-    totalHard: data.totalHard ?? 977,
-    ranking: data.ranking ?? 2633618,
-    badges: FALLBACK_STATS.badges,
-    totalActiveDays: FALLBACK_STATS.totalActiveDays,
-    maxStreak: 61,
-    currentStreak: 61,
-    totalSubmissions,
+    totalSolved: data.totalSolved,
+    totalQuestions: data.totalQuestions ?? FALLBACK_LEETCODE_STATS.totalQuestions,
+    easySolved: data.easySolved ?? 0,
+    totalEasy: data.totalEasy ?? FALLBACK_LEETCODE_STATS.totalEasy,
+    mediumSolved: data.mediumSolved ?? 0,
+    totalMedium: data.totalMedium ?? FALLBACK_LEETCODE_STATS.totalMedium,
+    hardSolved: data.hardSolved ?? 0,
+    totalHard: data.totalHard ?? FALLBACK_LEETCODE_STATS.totalHard,
+    ranking: data.ranking ?? null,
+    badges: FALLBACK_LEETCODE_STATS.badges,
+    totalActiveDays: calendarMetrics.activeDays,
+    maxStreak: calendarMetrics.maxStreak,
+    currentStreak: calendarMetrics.maxStreak,
+    totalSubmissions: calendarMetrics.totalSubmissions,
     submissionCalendar,
-    recentSubmissions: recent.length > 0 ? recent : FALLBACK_STATS.recentSubmissions,
+    recentSubmissions: recent,
     isLive: true,
     updatedAt: new Date().toISOString(),
   };
@@ -596,16 +238,17 @@ async function fetchFromFaisalShohag(username: string): Promise<LeetCodeStatsRes
 export async function fetchLeetCodeStats(
   username = "gopal-maddheshiya",
 ): Promise<LeetCodeStatsResponse> {
+  const normalizedUser = username.trim() || "gopal-maddheshiya";
   const now = Date.now();
-  if (cachedStats && cachedStats.username === username && now - lastFetchTime < CACHE_TTL_MS) {
-    return cachedStats;
+  const cached = statsCache.get(normalizedUser);
+  if (cached && now - cached.fetchedAt < CACHE_TTL_MS) {
+    return cached.data;
   }
 
-  // 1. Try FaisalShohag proxy (fastest and most reliable endpoint)
+  // 1. Try FaisalShohag proxy
   try {
-    const result = await fetchFromFaisalShohag(username);
-    cachedStats = result;
-    lastFetchTime = now;
+    const result = await fetchFromFaisalShohag(normalizedUser);
+    statsCache.set(normalizedUser, { data: result, fetchedAt: now });
     return result;
   } catch (faisalErr: unknown) {
     const msg = faisalErr instanceof Error ? faisalErr.message : "error";
@@ -614,9 +257,8 @@ export async function fetchLeetCodeStats(
 
   // 2. Try Alfa LeetCode proxy
   try {
-    const result = await fetchFromAlfaLeetCode(username);
-    cachedStats = result;
-    lastFetchTime = now;
+    const result = await fetchFromAlfaLeetCode(normalizedUser);
+    statsCache.set(normalizedUser, { data: result, fetchedAt: now });
     return result;
   } catch (alfaErr: unknown) {
     const msg = alfaErr instanceof Error ? alfaErr.message : "error";
@@ -625,24 +267,24 @@ export async function fetchLeetCodeStats(
 
   // 3. Try official LeetCode GraphQL
   try {
-    const result = await fetchFromLeetCodeGraphQL(username);
-    cachedStats = result;
-    lastFetchTime = now;
+    const result = await fetchFromLeetCodeGraphQL(normalizedUser);
+    statsCache.set(normalizedUser, { data: result, fetchedAt: now });
     return result;
   } catch (graphqlErr: unknown) {
     const msg = graphqlErr instanceof Error ? graphqlErr.message : "error";
     console.log(`[LeetCode] LeetCode GraphQL unavailable (${msg}).`);
   }
 
-  // 4. Return cached stats if available for matching user
-  if (cachedStats && cachedStats.username === username) {
-    return cachedStats;
+  // 4. Return stale cache for this username if available
+  if (cached) {
+    return { ...cached.data, isLive: false };
   }
 
-  // 5. Ultimate fallback
+  // 5. Offline resilience fallback
   return {
-    ...FALLBACK_STATS,
-    username,
+    ...FALLBACK_LEETCODE_STATS,
+    username: normalizedUser,
+    isLive: false,
     updatedAt: new Date().toISOString(),
   };
 }

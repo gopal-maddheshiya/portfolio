@@ -3,7 +3,7 @@ import { ExternalLink, FolderGit2, X } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import { canHoverFinePointer, prefersReducedMotion } from "@/components/common/MagneticWrap";
+import { canHoverFinePointer, prefersReducedMotion } from "@/lib/motion";
 import { usePortfolio } from "@/context/PortfolioContext";
 import {
   DEFAULT_SECTION_HEADERS,
@@ -441,7 +441,7 @@ export function Skills() {
   };
 
   return (
-    <Section id="skills" ref={sectionRef} tone="surface" className="py-12 sm:py-16">
+    <Section id="skills" ref={sectionRef} tone="surface" className="py-12 sm:py-16 lg:py-18">
       {/* ── Ultra-Clean Compact Header + Inline Tabs ── */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>

@@ -71,12 +71,12 @@ function CertificationPreviewDialog({
                   </>
                 ) : null}
               </div>
-              <h1
+              <h2
                 id="cert-preview-dialog-title"
                 className="mt-1 font-display text-base sm:text-xl font-bold tracking-tight text-foreground"
               >
                 {certification.title}
-              </h1>
+              </h2>
               <p className="text-xs font-mono text-primary mt-0.5">{certification.org}</p>
             </div>
 

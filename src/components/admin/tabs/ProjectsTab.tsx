@@ -139,7 +139,10 @@ export function ProjectsTab({ data, updateData }: ProjectsTabProps) {
           <div className="relative flex-1 sm:flex-initial">
             <Search className="size-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
+              id="projects-search"
+              name="projects-search"
               type="text"
+              aria-label="Search projects"
               placeholder="Search projects..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -268,10 +271,15 @@ export function ProjectsTab({ data, updateData }: ProjectsTabProps) {
                     {/* Form Grid */}
                     <div className="grid gap-5 sm:grid-cols-3">
                       <div className="sm:col-span-2">
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        <label
+                          htmlFor={`project-title-${originalIndex}`}
+                          className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                        >
                           Project Title
                         </label>
                         <input
+                          id={`project-title-${originalIndex}`}
+                          name={`project-title-${originalIndex}`}
                           type="text"
                           value={project.title}
                           onChange={(e) => {
@@ -284,10 +292,15 @@ export function ProjectsTab({ data, updateData }: ProjectsTabProps) {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        <label
+                          htmlFor={`project-year-${originalIndex}`}
+                          className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                        >
                           Year
                         </label>
                         <input
+                          id={`project-year-${originalIndex}`}
+                          name={`project-year-${originalIndex}`}
                           type="text"
                           value={project.year}
                           onChange={(e) => {
@@ -300,10 +313,15 @@ export function ProjectsTab({ data, updateData }: ProjectsTabProps) {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        <label
+                          htmlFor={`project-category-${originalIndex}`}
+                          className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                        >
                           Category Tag
                         </label>
                         <input
+                          id={`project-category-${originalIndex}`}
+                          name={`project-category-${originalIndex}`}
                           type="text"
                           value={project.category || ""}
                           placeholder="Full-Stack MERN, AI, Frontend"
@@ -337,10 +355,15 @@ export function ProjectsTab({ data, updateData }: ProjectsTabProps) {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        <label
+                          htmlFor={`project-role-${originalIndex}`}
+                          className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                        >
                           Your Role (Case Study)
                         </label>
                         <input
+                          id={`project-role-${originalIndex}`}
+                          name={`project-role-${originalIndex}`}
                           type="text"
                           value={project.role || ""}
                           placeholder="e.g. Lead Full-Stack Architect"
@@ -355,11 +378,16 @@ export function ProjectsTab({ data, updateData }: ProjectsTabProps) {
 
                       <div className="space-y-3">
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                          <label
+                            htmlFor={`project-github-${originalIndex}`}
+                            className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                          >
                             GitHub Repo URL
                           </label>
                           <div className="relative">
                             <input
+                              id={`project-github-${originalIndex}`}
+                              name={`project-github-${originalIndex}`}
                               type="text"
                               value={project.githubUrl}
                               onChange={(e) => {
@@ -384,11 +412,16 @@ export function ProjectsTab({ data, updateData }: ProjectsTabProps) {
                       </div>
 
                       <div className="sm:col-span-3">
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        <label
+                          htmlFor={`project-live-${originalIndex}`}
+                          className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                        >
                           Live Demo URL (Optional)
                         </label>
                         <div className="relative">
                           <input
+                            id={`project-live-${originalIndex}`}
+                            name={`project-live-${originalIndex}`}
                             type="text"
                             value={project.liveUrl || ""}
                             placeholder="https://..."
@@ -413,10 +446,15 @@ export function ProjectsTab({ data, updateData }: ProjectsTabProps) {
                       </div>
 
                       <div className="sm:col-span-3">
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        <label
+                          htmlFor={`project-summary-${originalIndex}`}
+                          className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                        >
                           Summary / Elevator Pitch
                         </label>
                         <textarea
+                          id={`project-summary-${originalIndex}`}
+                          name={`project-summary-${originalIndex}`}
                           rows={2}
                           value={project.summary}
                           onChange={(e) => {
@@ -436,10 +474,15 @@ export function ProjectsTab({ data, updateData }: ProjectsTabProps) {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                          <label
+                            htmlFor={`project-problem-${originalIndex}`}
+                            className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                          >
                             Problem &amp; Goal Statement
                           </label>
                           <textarea
+                            id={`project-problem-${originalIndex}`}
+                            name={`project-problem-${originalIndex}`}
                             rows={2}
                             value={project.problem || ""}
                             onChange={(e) => {
@@ -452,10 +495,15 @@ export function ProjectsTab({ data, updateData }: ProjectsTabProps) {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                          <label
+                            htmlFor={`project-architecture-${originalIndex}`}
+                            className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                          >
                             Architecture &amp; Technical Approach
                           </label>
                           <textarea
+                            id={`project-architecture-${originalIndex}`}
+                            name={`project-architecture-${originalIndex}`}
                             rows={2}
                             value={project.architecture || ""}
                             placeholder="Explain how frontend, APIs, database schema/RLS, caching, or AI pipeline connect..."
@@ -469,10 +517,15 @@ export function ProjectsTab({ data, updateData }: ProjectsTabProps) {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                          <label
+                            htmlFor={`project-challenges-${originalIndex}`}
+                            className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                          >
                             Key Engineering Challenge &amp; Solution
                           </label>
                           <textarea
+                            id={`project-challenges-${originalIndex}`}
+                            name={`project-challenges-${originalIndex}`}
                             rows={2}
                             value={project.challenges || ""}
                             placeholder="Describe one tricky technical bottleneck or trade-off and how you solved it..."
@@ -486,10 +539,15 @@ export function ProjectsTab({ data, updateData }: ProjectsTabProps) {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                          <label
+                            htmlFor={`project-impact-${originalIndex}`}
+                            className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                          >
                             Outcomes &amp; Impact Bullets (One point per line)
                           </label>
                           <textarea
+                            id={`project-impact-${originalIndex}`}
+                            name={`project-impact-${originalIndex}`}
                             rows={3}
                             value={(project.impact || []).join("\n")}
                             placeholder="Reduced billing errors&#10;Realtime sync across users"
@@ -524,10 +582,15 @@ export function ProjectsTab({ data, updateData }: ProjectsTabProps) {
 
                       {/* Key Features (One per line) */}
                       <div className="sm:col-span-3">
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                        <label
+                          htmlFor={`project-features-${originalIndex}`}
+                          className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                        >
                           Key Features List (One feature per line)
                         </label>
                         <textarea
+                          id={`project-features-${originalIndex}`}
+                          name={`project-features-${originalIndex}`}
                           rows={3}
                           value={(project.features || []).join("\n")}
                           onChange={(e) => {
@@ -565,6 +628,7 @@ export function ProjectsTab({ data, updateData }: ProjectsTabProps) {
                         <input
                           type="checkbox"
                           id={`featured-${originalIndex}`}
+                          name={`featured-${originalIndex}`}
                           checked={Boolean(project.featured)}
                           onChange={(e) => {
                             const updated = [...projects];

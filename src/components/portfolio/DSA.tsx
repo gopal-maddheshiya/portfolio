@@ -1,62 +1,44 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  ArrowUpRight,
-  Award,
   Check,
   CheckCircle2,
   ChevronDown,
+  Code2,
   ExternalLink,
+  FolderGit2,
   Github,
-  Info,
-  RefreshCw,
 } from "lucide-react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import { prefersReducedMotion } from "@/components/common/MagneticWrap";
-import { DEFAULT_SECTION_HEADERS, DSA_INFO, PERSONAL_INFO } from "@/data/profile";
 import { usePortfolio } from "@/context/PortfolioContext";
+import { DEFAULT_SECTION_HEADERS, DSA_INFO, PERSONAL_INFO } from "@/data/profile";
+import { useGitHubStats } from "@/hooks/useGitHubStats";
 import { useLeetCodeStats } from "@/hooks/useLeetCodeStats";
+import { ActivityHeatmapGrid } from "./dsa/ActivityHeatmap";
+import { GitHubSummaryCard } from "./dsa/GitHubSummaryCard";
+import { LeetCodeSummaryCard } from "./dsa/LeetCodeSummaryCard";
 import { Reveal } from "./Reveal";
 import { Section, SectionHeading } from "./Section";
 
-function formatNumber(num: number): string {
-  return new Intl.NumberFormat("en-US").format(num);
-}
+type ActivityViewMode = "both" | "github" | "leetcode";
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
+/** Compact, unified DSA Mastery + Live GitHub Contribution Activity showcase. */
 export function DSA() {
   const { data } = usePortfolio();
   const dsa = data?.dsaInfo || DSA_INFO;
   const info = data?.personalInfo || PERSONAL_INFO;
+  const leetCodeUser = info.leetcodeUsername || PERSONAL_INFO.leetcodeUsername;
+  const gitHubUser = info.githubUsername || PERSONAL_INFO.githubUsername;
 
-  const {
-    total,
-    totalQuestions,
-    easy,
-    totalEasy,
-    medium,
-    totalMedium,
-    hard,
-    totalHard,
-    badges,
-    totalActiveDays,
-    maxStreak,
-    totalSubmissions,
-    submissionCalendar,
-    recentSubmissions,
-    isFetching,
-    refetch,
-  } = useLeetCodeStats(info.leetcodeUsername);
-
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [selectedPeriod, setSelectedPeriod] = useState<"Current" | "2025" | "2024">("Current");
+  const [viewMode, setViewMode] = useState<ActivityViewMode>("both");
+  const [selectedPeriod, setSelectedPeriod] = useState<string>("Current");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [hoveredDay, setHoveredDay] = useState<{ date: string; count: number } | null>(null);
+  const [hoveredInfo, setHoveredInfo] = useState<string | null>(null);
+  const [isHeatmapMounted, setIsHeatmapMounted] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIsHeatmapMounted(true);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -68,132 +50,87 @@ export function DSA() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const hasTriggeredRef = useRef(false);
-  const gaugeCardRef = useRef<HTMLDivElement>(null);
-  const donutSvgRef = useRef<SVGSVGElement>(null);
-  const easyArcRef = useRef<SVGPathElement>(null);
-  const medArcRef = useRef<SVGPathElement>(null);
-  const hardArcRef = useRef<SVGPathElement>(null);
-  const totalCountRef = useRef<HTMLSpanElement>(null);
-  const easyCountRef = useRef<HTMLSpanElement>(null);
-  const medCountRef = useRef<HTMLSpanElement>(null);
-  const hardCountRef = useRef<HTMLSpanElement>(null);
-  const easyBarRef = useRef<HTMLDivElement>(null);
-  const medBarRef = useRef<HTMLDivElement>(null);
-  const hardBarRef = useRef<HTMLDivElement>(null);
+  const {
+    total,
+    totalQuestions,
+    easy,
+    totalEasy,
+    medium,
+    totalMedium,
+    hard,
+    totalHard,
+    badges,
+    totalActiveDays: lcActiveDays,
+    maxStreak: lcMaxStreak,
+    totalSubmissions: lcTotalSubmissions,
+    submissionCalendar: lcCalendar,
+    recentSubmissions,
+    isLive: isLcLive,
+    isFetching: isLcFetching,
+    refetch: refetchLc,
+  } = useLeetCodeStats(leetCodeUser);
 
-  useEffect(() => {
-    const radius = 46;
-    const totalArc = (260 / 360) * 2 * Math.PI * radius;
-    const totalSafe = Math.max(total, 1);
-    const easyTarget = (easy / totalSafe) * totalArc;
-    const medTarget = (medium / totalSafe) * totalArc;
-    const hardTarget = (hard / totalSafe) * totalArc;
-    const easyPctTarget = Math.min(100, (easy / Math.max(totalEasy, 1)) * 100);
-    const medPctTarget = Math.min(100, (medium / Math.max(totalMedium, 1)) * 100);
-    const hardPctTarget = Math.min(100, (hard / Math.max(totalHard, 1)) * 100);
+  const {
+    totalContributions: ghTotalContributions,
+    activeDays: ghActiveDays,
+    maxStreak: ghMaxStreak,
+    publicRepos: ghPublicRepos,
+    totalStars: ghTotalStars,
+    topLanguages: ghTopLanguages,
+    calendar: ghCalendar,
+    submissionCalendar: ghSubmissionCalendar,
+    recentRepos: ghRecentRepos,
+    isLive: isGhLive,
+    isFetching: isGhFetching,
+    refetch: refetchGh,
+  } = useGitHubStats(gitHubUser, selectedPeriod);
 
-    // Direct DOM mutator: updates counters, SVG arcs & progress bars at 120fps without re-rendering 365 heatmap cells
-    const applyGaugeProgress = (progress: number) => {
-      const filled = progress * totalArc;
-      const eLen = Math.min(filled, easyTarget);
-      const mLen = Math.max(0, Math.min(filled - easyTarget, medTarget));
-      const hLen = Math.max(0, Math.min(filled - easyTarget - medTarget, hardTarget));
-
-      easyArcRef.current?.setAttribute("stroke-dasharray", `${eLen} ${totalArc}`);
-      medArcRef.current?.setAttribute("stroke-dasharray", `${mLen} ${totalArc}`);
-      hardArcRef.current?.setAttribute("stroke-dasharray", `${hLen} ${totalArc}`);
-
-      if (totalCountRef.current)
-        totalCountRef.current.textContent = String(Math.round(total * progress));
-      if (easyCountRef.current)
-        easyCountRef.current.textContent = String(Math.round(easy * progress));
-      if (medCountRef.current)
-        medCountRef.current.textContent = String(Math.round(medium * progress));
-      if (hardCountRef.current)
-        hardCountRef.current.textContent = String(Math.round(hard * progress));
-
-      if (easyBarRef.current) easyBarRef.current.style.width = `${easyPctTarget * progress}%`;
-      if (medBarRef.current) medBarRef.current.style.width = `${medPctTarget * progress}%`;
-      if (hardBarRef.current) hardBarRef.current.style.width = `${hardPctTarget * progress}%`;
-    };
-
-    if (hasTriggeredRef.current || prefersReducedMotion()) {
-      hasTriggeredRef.current = true;
-      applyGaugeProgress(1);
-      return;
+  const availablePeriods = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const yearSet = new Set<number>();
+    for (let yr = currentYear; yr >= 2024; yr--) {
+      yearSet.add(yr);
     }
-
-    applyGaugeProgress(0);
-
-    const triggerEl = gaugeCardRef.current || sectionRef.current;
-    if (!triggerEl) return;
-
-    const tweenState = { progress: 0 };
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: triggerEl,
-          start: "top 84%",
-          once: true,
-        },
-        onComplete: () => {
-          hasTriggeredRef.current = true;
-          applyGaugeProgress(1);
-        },
-      });
-
-      if (donutSvgRef.current) {
-        tl.fromTo(
-          donutSvgRef.current,
-          { rotate: -40, scale: 0.94, transformOrigin: "50% 50%" },
-          { rotate: 0, scale: 1, duration: 1.25, ease: "power3.out", clearProps: "transform" },
-          0,
-        );
+    if (lcCalendar) {
+      for (const secStr of Object.keys(lcCalendar)) {
+        const ms = Number(secStr) * 1000;
+        if (Number.isFinite(ms)) {
+          const yr = new Date(ms).getUTCFullYear();
+          if (yr >= 2024 && yr <= currentYear + 1) yearSet.add(yr);
+        }
       }
+    }
+    return [
+      "Current",
+      ...Array.from(yearSet)
+        .sort((a, b) => b - a)
+        .map(String),
+    ];
+  }, [lcCalendar]);
 
-      tl.to(
-        tweenState,
-        {
-          progress: 1,
-          duration: 1.25,
-          ease: "power2.out",
-          onUpdate: () => applyGaugeProgress(tweenState.progress),
-        },
-        0,
-      );
-    }, gaugeCardRef);
-
-    return () => {
-      ctx.revert();
-    };
-  }, [total, easy, medium, hard, totalEasy, totalMedium, totalHard]);
-
-  // Dynamic stats calculation based on selected period
-  const periodStats = useMemo(() => {
+  const lcPeriodStats = useMemo(() => {
     if (selectedPeriod === "Current") {
       return {
-        submissions: totalSubmissions,
-        activeDays: totalActiveDays,
-        maxStreak: maxStreak,
-        title: `${totalSubmissions} submissions in the past one year`,
+        submissions: lcTotalSubmissions,
+        activeDays: lcActiveDays,
+        maxStreak: lcMaxStreak,
+        label: `${lcTotalSubmissions} submissions (${lcActiveDays} active days)`,
       };
     }
 
     const yearNum = parseInt(selectedPeriod, 10);
     const startSec = Math.floor(Date.UTC(yearNum, 0, 1) / 1000);
+    const isLeap = yearNum % 4 === 0 && (yearNum % 100 !== 0 || yearNum % 400 === 0);
+    const daysInYear = isLeap ? 366 : 365;
 
     let yearSubs = 0;
     let activeCount = 0;
     let currentRun = 0;
     let maxRun = 0;
 
-    if (submissionCalendar) {
-      const isLeap = yearNum % 4 === 0 && (yearNum % 100 !== 0 || yearNum % 400 === 0);
-      const daysInYear = isLeap ? 366 : 365;
+    if (lcCalendar) {
       for (let d = 0; d < daysInYear; d++) {
-        const daySec = startSec + d * 86400;
-        const count = submissionCalendar[String(daySec)] || 0;
+        const count = lcCalendar[String(startSec + d * 86400)] || 0;
         if (count > 0) {
           yearSubs += count;
           activeCount++;
@@ -205,13 +142,12 @@ export function DSA() {
       }
     }
 
-    // Authentic fallback for 2025 (college 1st year foundational coding)
     if (yearSubs === 0 && yearNum === 2025) {
       return {
         submissions: 16,
         activeDays: 12,
         maxStreak: 5,
-        title: "16 submissions in 2025",
+        label: "16 submissions in 2025 (12 active days)",
       };
     }
 
@@ -219,114 +155,23 @@ export function DSA() {
       submissions: yearSubs,
       activeDays: activeCount,
       maxStreak: maxRun,
-      title: `${yearSubs} submissions in ${selectedPeriod}`,
+      label: `${yearSubs} submissions in ${selectedPeriod} (${activeCount} active days)`,
     };
-  }, [selectedPeriod, totalSubmissions, totalActiveDays, maxStreak, submissionCalendar]);
+  }, [selectedPeriod, lcTotalSubmissions, lcActiveDays, lcMaxStreak, lcCalendar]);
 
-  // Generate authentic month-clustered calendar matching LeetCode
-  const monthsData = useMemo(() => {
-    const result: Array<{
-      year: number;
-      monthIndex: number;
-      label: string;
-      cols: Array<Array<{ date: string; count: number } | null>>;
-    }> = [];
-    const now = new Date();
-
-    const monthList: Array<{ year: number; monthIndex: number }> = [];
-
-    if (selectedPeriod === "Current") {
-      // 13 trailing months: e.g. Sep 2025 to Sep 2026 (matching LeetCode screenshot)
-      const curYear = now.getFullYear();
-      const curMonth = now.getMonth();
-      for (let i = 12; i >= 0; i--) {
-        let m = curMonth - i;
-        let y = curYear;
-        while (m < 0) {
-          m += 12;
-          y -= 1;
-        }
-        monthList.push({ year: y, monthIndex: m });
-      }
-    } else {
-      // Calendar year: 12 months (Jan to Dec)
-      const yr = parseInt(selectedPeriod, 10);
-      for (let m = 0; m < 12; m++) {
-        monthList.push({ year: yr, monthIndex: m });
-      }
+  const ghLevelsByIso = useMemo(() => {
+    const levels: Record<string, 0 | 1 | 2 | 3 | 4> = {};
+    for (const [iso, entry] of Object.entries(ghCalendar)) {
+      levels[iso] = entry.level;
     }
+    return levels;
+  }, [ghCalendar]);
 
-    for (const { year, monthIndex } of monthList) {
-      const firstDay = new Date(Date.UTC(year, monthIndex, 1)).getUTCDay(); // 0 = Sun, 6 = Sat
-      const totalDays = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
-      const numCols = Math.ceil((firstDay + totalDays) / 7);
-
-      const cols: Array<Array<{ date: string; count: number } | null>> = [];
-
-      for (let c = 0; c < numCols; c++) {
-        const col: Array<{ date: string; count: number } | null> = [];
-        for (let r = 0; r < 7; r++) {
-          const dayNum = c * 7 + r - firstDay + 1;
-          if (dayNum >= 1 && dayNum <= totalDays) {
-            const daySec = Math.floor(Date.UTC(year, monthIndex, dayNum) / 1000);
-            let count = (submissionCalendar && submissionCalendar[String(daySec)]) || 0;
-
-            // If viewing 2025 fallback data
-            if (count === 0 && selectedPeriod === "2025" && year === 2025) {
-              if (
-                monthIndex === 10 &&
-                (dayNum === 14 || dayNum === 15 || dayNum === 20 || dayNum === 21)
-              ) {
-                count = 1;
-              } else if (monthIndex === 11 && dayNum >= 10 && dayNum <= 14) {
-                count = dayNum % 2 === 0 ? 2 : 1;
-              }
-            }
-
-            const dateStr = new Date(Date.UTC(year, monthIndex, dayNum)).toLocaleDateString(
-              "en-US",
-              {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-                timeZone: "UTC",
-              },
-            );
-
-            col.push({ date: dateStr, count });
-          } else {
-            col.push(null);
-          }
-        }
-        cols.push(col);
-      }
-
-      const label = new Date(Date.UTC(year, monthIndex, 1)).toLocaleDateString("en-US", {
-        month: "short",
-        timeZone: "UTC",
-      });
-
-      result.push({ year, monthIndex, label, cols });
-    }
-
-    return result;
-  }, [selectedPeriod, submissionCalendar]);
-
-  // LeetCode Authentic Horseshoe Arc Math (260° sweep, radius 46)
-  const radius = 46;
-  const totalArcLength = (260 / 360) * 2 * Math.PI * radius; // ~208.7
-  const totalSolvedSafe = Math.max(total, 1);
-
-  const easyRatio = easy / totalSolvedSafe;
-  const medRatio = medium / totalSolvedSafe;
-  const hardRatio = hard / totalSolvedSafe;
-
-  const easyTargetLen = easyRatio * totalArcLength;
-  const medTargetLen = medRatio * totalArcLength;
-  const hardTargetLen = hardRatio * totalArcLength;
-
-  // Arc path: starts at 140° (bottom-left) and sweeps around to 40° (bottom-right)
-  const arcPath = "M 24.77 89.57 A 46 46 0 1 1 95.23 89.57";
+  const ghFormattedTotal = new Intl.NumberFormat("en-US").format(ghTotalContributions);
+  const ghLabel =
+    selectedPeriod === "Current"
+      ? `${ghFormattedTotal} contributions (${ghActiveDays} active days)`
+      : `${ghFormattedTotal} contributions in ${selectedPeriod} (${ghActiveDays} active days)`;
 
   const dsaHeader = {
     eyebrow: data?.sectionHeaders?.dsa?.eyebrow || DEFAULT_SECTION_HEADERS.dsa.eyebrow,
@@ -336,586 +181,317 @@ export function DSA() {
 
   return (
     <Section id="dsa" tone="surface">
-      <div ref={sectionRef}>
+      <div>
         <SectionHeading
           eyebrow={dsaHeader.eyebrow}
           title={dsaHeader.title}
           description={dsaHeader.description}
         />
 
-        <div className="mt-8 sm:mt-10 space-y-4 sm:space-y-5">
-          {/* Top 2 Cards: Solved Gauge (Left) + Badges (Right) */}
-          <div className="grid gap-4 sm:gap-5 md:grid-cols-12">
-            {/* Card 1: Solved Questions Gauge & Difficulties (7 Cols on desktop) */}
-            <Reveal className="md:col-span-7 rounded-2xl border border-border bg-card p-4 sm:p-5 text-card-foreground shadow-soft transition-all hover:border-border-strong relative overflow-hidden before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-primary/20 before:to-transparent">
-              <div className="flex items-center justify-between border-b border-border pb-2.5 mb-3.5">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-semibold text-[#00b8a3]">
-                    LeetCode Profile
-                  </span>
-                  <span className="text-muted-foreground/40">•</span>
-                  <span className="text-xs text-muted-foreground font-mono">
-                    @{info.leetcodeUsername || PERSONAL_INFO.leetcodeUsername}
-                  </span>
-                  {isFetching ? (
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-[10px] font-mono text-amber-500 font-medium animate-pulse">
-                      <span className="size-1.5 rounded-full bg-amber-500" />
-                      <span>Syncing</span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-medium">
-                      <span className="size-1.5 rounded-full bg-emerald-500" />
-                      <span>Live</span>
-                    </span>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => refetch()}
-                  disabled={isFetching}
-                  title="Click to refresh live LeetCode stats"
-                  aria-label="Refresh LeetCode stats"
-                  className="flex items-center justify-center size-6 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary border border-transparent hover:border-border transition-all disabled:opacity-50 cursor-pointer"
-                >
-                  <RefreshCw
-                    className={`size-3.5 transition-transform ${
-                      isFetching ? "animate-spin text-emerald-500" : ""
-                    }`}
-                  />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                {/* Left: Authentic LeetCode Horseshoe Gauge */}
-                <div
-                  ref={gaugeCardRef}
-                  className="sm:col-span-6 flex flex-col items-center justify-center"
-                >
-                  <div className="relative flex size-40 sm:size-44 items-center justify-center">
-                    <svg
-                      ref={donutSvgRef}
-                      className="size-full origin-center will-change-transform"
-                      viewBox="0 0 120 120"
-                    >
-                      {/* Background Horseshoe Track */}
-                      <path
-                        d={arcPath}
-                        fill="none"
-                        stroke="currentColor"
-                        className="text-muted-foreground/15 dark:text-white/10"
-                        strokeWidth="6"
-                        strokeLinecap="round"
-                      />
-
-                      {/* Easy Arc (Cyan / Teal #00b8a3) */}
-                      <path
-                        ref={easyArcRef}
-                        d={arcPath}
-                        fill="none"
-                        stroke="#00b8a3"
-                        strokeWidth="6"
-                        strokeDasharray={`${easyTargetLen} ${totalArcLength}`}
-                        strokeDashoffset="0"
-                        strokeLinecap="round"
-                      />
-
-                      {/* Medium Arc (Amber / Yellow #ffc01e) */}
-                      <path
-                        ref={medArcRef}
-                        d={arcPath}
-                        fill="none"
-                        stroke="#ffc01e"
-                        strokeWidth="6"
-                        strokeDasharray={`${medTargetLen} ${totalArcLength}`}
-                        strokeDashoffset={`-${easyTargetLen}`}
-                      />
-
-                      {/* Hard Arc (Red / Rose #ef4444) */}
-                      <path
-                        ref={hardArcRef}
-                        d={arcPath}
-                        fill="none"
-                        stroke="#ef4444"
-                        strokeWidth="6"
-                        strokeDasharray={`${hardTargetLen} ${totalArcLength}`}
-                        strokeDashoffset={`-${easyTargetLen + medTargetLen}`}
-                        strokeLinecap={hard > 0 ? "round" : undefined}
-                      />
-
-                      {/* Glowing dot indicator on track start */}
-                      <circle cx="24.77" cy="89.57" r="3" fill="#00b8a3" />
-                    </svg>
-
-                    {/* Inner Text Center */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center pt-2">
-                      <div className="flex items-baseline justify-center">
-                        <span
-                          ref={totalCountRef}
-                          className="font-display text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight"
-                        >
-                          {total}
-                        </span>
-                        <span className="text-xs text-muted-foreground font-mono ml-0.5">
-                          /{formatNumber(totalQuestions)}
-                        </span>
-                      </div>
-
-                      {isFetching ? (
-                        <span className="text-[11px] font-semibold text-amber-500 flex items-center justify-center gap-1 mt-0.5 animate-pulse">
-                          <span>Live Syncing...</span>
-                        </span>
-                      ) : (
-                        <span className="text-xs font-semibold text-[#00b8a3] flex items-center justify-center gap-1 mt-0.5">
-                          <CheckCircle2 className="size-3.5" />
-                          <span>Solved</span>
-                        </span>
-                      )}
-
-                      <span className="text-[10px] text-muted-foreground font-mono mt-1 px-2 py-0.5 rounded-full bg-secondary border border-border">
-                        {dsa.language || "Java"} Solutions
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right: Stacked Difficulty Cards (Easy, Med., Hard) */}
-                <div className="sm:col-span-6 flex flex-col gap-2.5">
-                  {/* Easy */}
-                  <div className="flex flex-col gap-1.5 rounded-xl bg-surface/80 dark:bg-secondary/30 border border-border/80 p-3 transition-colors hover:bg-surface dark:hover:bg-secondary/50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-[#00b8a3] font-mono">Easy</span>
-                      <div className="flex items-baseline gap-1">
-                        <span
-                          ref={easyCountRef}
-                          className="font-display text-sm sm:text-base font-bold text-foreground"
-                        >
-                          {easy}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground font-mono">
-                          /{formatNumber(totalEasy)}
-                        </span>
-                        <span className="text-[10px] font-mono text-[#00b8a3] ml-1 bg-[#00b8a3]/10 px-1.5 py-0.5 rounded border border-[#00b8a3]/20 font-medium">
-                          {((easy / Math.max(totalEasy, 1)) * 100).toFixed(1)}%
-                        </span>
-                      </div>
-                    </div>
-                    <div className="h-1.5 w-full rounded-full bg-secondary dark:bg-muted overflow-hidden">
-                      <div
-                        ref={easyBarRef}
-                        className="h-full rounded-full bg-[#00b8a3]"
-                        style={{
-                          width: `${Math.min(100, (easy / Math.max(totalEasy, 1)) * 100)}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Medium */}
-                  <div className="flex flex-col gap-1.5 rounded-xl bg-surface/80 dark:bg-secondary/30 border border-border/80 p-3 transition-colors hover:bg-surface dark:hover:bg-secondary/50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-[#ffc01e] font-mono">Med.</span>
-                      <div className="flex items-baseline gap-1">
-                        <span
-                          ref={medCountRef}
-                          className="font-display text-sm sm:text-base font-bold text-foreground"
-                        >
-                          {medium}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground font-mono">
-                          /{formatNumber(totalMedium)}
-                        </span>
-                        <span className="text-[10px] font-mono text-[#ffc01e] ml-1 bg-[#ffc01e]/10 px-1.5 py-0.5 rounded border border-[#ffc01e]/20 font-medium">
-                          {((medium / Math.max(totalMedium, 1)) * 100).toFixed(1)}%
-                        </span>
-                      </div>
-                    </div>
-                    <div className="h-1.5 w-full rounded-full bg-secondary dark:bg-muted overflow-hidden">
-                      <div
-                        ref={medBarRef}
-                        className="h-full rounded-full bg-[#ffc01e]"
-                        style={{
-                          width: `${Math.min(100, (medium / Math.max(totalMedium, 1)) * 100)}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Hard */}
-                  <div className="flex flex-col gap-1.5 rounded-xl bg-surface/80 dark:bg-secondary/30 border border-border/80 p-3 transition-colors hover:bg-surface dark:hover:bg-secondary/50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-[#ef4444] font-mono">Hard</span>
-                      <div className="flex items-baseline gap-1">
-                        <span
-                          ref={hardCountRef}
-                          className="font-display text-sm sm:text-base font-bold text-foreground"
-                        >
-                          {hard}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground font-mono">
-                          /{formatNumber(totalHard)}
-                        </span>
-                        <span className="text-[10px] font-mono text-[#ef4444] ml-1 bg-[#ef4444]/10 px-1.5 py-0.5 rounded border border-[#ef4444]/20 font-medium">
-                          {((hard / Math.max(totalHard, 1)) * 100).toFixed(1)}%
-                        </span>
-                      </div>
-                    </div>
-                    <div className="h-1.5 w-full rounded-full bg-secondary dark:bg-muted overflow-hidden">
-                      <div
-                        ref={hardBarRef}
-                        className="h-full rounded-full bg-[#ef4444]"
-                        style={{
-                          width: `${Math.min(100, (hard / Math.max(totalHard, 1)) * 100)}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
+        <div className="mt-7 sm:mt-8 space-y-4">
+          {/* Row 1: Compact Balanced 6+6 Summary Cards */}
+          <div className="grid gap-4 lg:grid-cols-12 items-stretch">
+            <Reveal className="lg:col-span-6 h-full">
+              <LeetCodeSummaryCard
+                username={leetCodeUser}
+                profileUrl={info.leetcode || PERSONAL_INFO.leetcode}
+                language={dsa.language || "Java"}
+                total={total}
+                totalQuestions={totalQuestions}
+                easy={easy}
+                totalEasy={totalEasy}
+                medium={medium}
+                totalMedium={totalMedium}
+                hard={hard}
+                totalHard={totalHard}
+                badges={badges}
+                maxStreak={lcMaxStreak}
+                totalActiveDays={lcActiveDays}
+                isLive={isLcLive}
+                isFetching={isLcFetching}
+                onRefresh={() => refetchLc()}
+              />
             </Reveal>
 
-            {/* Card 2: Badges Widget (5 Cols on desktop) */}
-            <Reveal
-              delay={40}
-              className="md:col-span-5 rounded-2xl border border-border bg-card p-4 sm:p-5 text-card-foreground shadow-soft flex flex-col justify-between transition-all hover:border-border-strong relative overflow-hidden before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-primary/20 before:to-transparent"
-            >
-              <div>
-                {/* Header */}
-                <div className="flex items-center justify-between border-b border-border pb-2.5 mb-3.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-foreground font-mono">
-                      Badges &amp; Milestones
-                    </span>
-                    <span className="rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
-                      {badges.length} Unlocked
-                    </span>
-                  </div>
-                  <a
-                    href={info.leetcode || PERSONAL_INFO.leetcode}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="View badges on LeetCode"
-                    className="text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <ArrowUpRight className="size-4" />
-                  </a>
-                </div>
-
-                {/* Badge Visual Graphic & Details */}
-                <div className="flex flex-col sm:flex-row items-center gap-4 py-2">
-                  {/* 3D Badge Graphic with Glow */}
-                  <div className="relative group shrink-0">
-                    <div className="absolute -inset-2 rounded-full bg-emerald-500/20 blur-lg transition-all duration-300 group-hover:bg-emerald-500/35 group-hover:scale-110" />
-                    {badges[0]?.icon ? (
-                      <img
-                        src={badges[0].icon}
-                        alt={badges[0].displayName || "LeetCode 50 Days Badge"}
-                        width={96}
-                        height={96}
-                        className="relative size-20 sm:size-22 object-contain drop-shadow-[0_4px_20px_rgba(0,184,163,0.3)] transition-transform duration-300 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="relative size-20 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500">
-                        <Award className="size-10" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Badge Info Text */}
-                  <div className="flex flex-col text-center sm:text-left">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-semibold">
-                      Consistency Award
-                    </span>
-                    <p className="font-display text-base sm:text-lg font-bold text-foreground mt-0.5 leading-snug">
-                      {badges[0]?.displayName || "50 Days Badge 2026"}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                      Awarded for 50+ active days of disciplined daily problem solving in 2026.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Highlights / Milestones Footer */}
-              <div className="pt-3 mt-2 border-t border-border grid grid-cols-3 gap-2 text-center">
-                <div className="rounded-lg bg-surface/80 dark:bg-secondary/30 border border-border/80 p-2">
-                  <p className="text-[10px] font-mono text-muted-foreground">Max Streak</p>
-                  <p className="text-xs font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-0.5">
-                    {maxStreak} Days
-                  </p>
-                </div>
-                <div className="rounded-lg bg-surface/80 dark:bg-secondary/30 border border-border/80 p-2">
-                  <p className="text-[10px] font-mono text-muted-foreground">Active Days</p>
-                  <p className="text-xs font-bold font-mono text-foreground mt-0.5">
-                    {totalActiveDays} Days
-                  </p>
-                </div>
-                <div className="rounded-lg bg-surface/80 dark:bg-secondary/30 border border-border/80 p-2">
-                  <p className="text-[10px] font-mono text-muted-foreground">Primary Lang</p>
-                  <p className="text-xs font-bold font-mono text-amber-600 dark:text-amber-400 mt-0.5">
-                    {dsa.language || "Java"} 100%
-                  </p>
-                </div>
-              </div>
+            <Reveal delay={40} className="lg:col-span-6 h-full">
+              <GitHubSummaryCard
+                username={gitHubUser}
+                profileUrl={info.github || PERSONAL_INFO.github}
+                totalContributions={ghTotalContributions}
+                publicRepos={ghPublicRepos}
+                totalStars={ghTotalStars}
+                maxStreak={ghMaxStreak}
+                activeDays={ghActiveDays}
+                topLanguages={ghTopLanguages}
+                recentRepos={ghRecentRepos}
+                isLive={isGhLive}
+                isFetching={isGhFetching}
+                onRefresh={() => refetchGh()}
+              />
             </Reveal>
           </div>
 
-          {/* Card 3: 1-Year Submissions Heatmap Calendar (Full Width) */}
-          <Reveal
-            delay={60}
-            className="rounded-2xl border border-border bg-card p-4 sm:p-5 text-card-foreground shadow-soft transition-all hover:border-border-strong relative overflow-hidden before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-primary/20 before:to-transparent"
-          >
-            {/* Header Row */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3 mb-4">
-              <div className="flex items-center gap-2 font-display text-sm sm:text-base font-bold text-foreground">
-                <span>{periodStats.title}</span>
-                <div className="group relative inline-flex items-center">
-                  <Info className="size-3.5 text-muted-foreground/60 hover:text-foreground transition-colors cursor-pointer" />
-                  <span className="pointer-events-none absolute left-0 bottom-full mb-1.5 hidden w-52 rounded-lg bg-popover border border-border p-2 text-[11px] font-mono font-normal text-popover-foreground shadow-lift group-hover:block z-30">
-                    Accepted LeetCode submissions for the selected period.
-                  </span>
+          {/* Row 2: Single Unified Activity Heatmap Card */}
+          <Reveal delay={60}>
+            <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 text-card-foreground shadow-soft transition-colors hover:border-border-strong space-y-4">
+              {/* Compact Unified Header Controls */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-border/70">
+                <div
+                  role="tablist"
+                  aria-label="Filter contribution heatmaps"
+                  className="inline-flex items-center rounded-lg border border-border bg-surface/60 p-0.5"
+                >
+                  {(
+                    [
+                      { id: "both" as const, label: "All Activity" },
+                      { id: "github" as const, label: "GitHub" },
+                      { id: "leetcode" as const, label: "LeetCode" },
+                    ] as const
+                  ).map((tab) => {
+                    const selected = viewMode === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={selected}
+                        onClick={() => setViewMode(tab.id)}
+                        className={`rounded-md px-2.5 py-1 text-xs font-mono transition-colors cursor-pointer whitespace-nowrap ${
+                          selected
+                            ? "bg-primary text-primary-foreground font-semibold shadow-2xs"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex items-center gap-3 ml-auto">
+                  {/* Single Shared Legend */}
+                  <div className="hidden sm:flex items-center gap-1 text-[10px] font-mono text-muted-foreground">
+                    <span>Less</span>
+                    <span className="size-2.5 rounded-[2px] bg-muted/70 dark:bg-white/[0.08] border border-border/35 dark:border-white/[0.04]" />
+                    <span className="size-2.5 rounded-[2px] bg-emerald-300 dark:bg-[#0e4429]" />
+                    <span className="size-2.5 rounded-[2px] bg-emerald-400 dark:bg-[#006d32]" />
+                    <span className="size-2.5 rounded-[2px] bg-emerald-500 dark:bg-[#26a641]" />
+                    <span className="size-2.5 rounded-[2px] bg-emerald-600 dark:bg-[#39d353]" />
+                    <span>More</span>
+                  </div>
+
+                  {/* Single Shared Year Dropdown */}
+                  <div className="relative" ref={dropdownRef}>
+                    <button
+                      type="button"
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      className="flex items-center gap-1.5 rounded-lg bg-secondary hover:bg-secondary/80 border border-border px-2.5 py-1 text-xs font-mono text-foreground transition-colors cursor-pointer"
+                      aria-haspopup="listbox"
+                      aria-expanded={isDropdownOpen}
+                      aria-label="Select contribution year"
+                    >
+                      <span>{selectedPeriod}</span>
+                      <ChevronDown
+                        className={`size-3.5 text-muted-foreground transition-transform duration-200 ${
+                          isDropdownOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {isDropdownOpen && (
+                      <div
+                        role="listbox"
+                        aria-label="Available years"
+                        className="absolute right-0 top-full mt-1.5 w-28 rounded-xl bg-card border border-border shadow-lift p-1 z-30 flex flex-col"
+                      >
+                        {availablePeriods.map((period) => (
+                          <button
+                            key={period}
+                            type="button"
+                            role="option"
+                            aria-selected={selectedPeriod === period}
+                            onClick={() => {
+                              setSelectedPeriod(period);
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-mono transition-colors text-left cursor-pointer ${
+                              selectedPeriod === period
+                                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold"
+                                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                            }`}
+                          >
+                            <span>{period}</span>
+                            {selectedPeriod === period && (
+                              <Check className="size-3 text-emerald-600 dark:text-emerald-400" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 sm:gap-5 text-xs font-mono text-muted-foreground">
-                <div>
-                  Total active days:{" "}
-                  <span className="text-foreground font-bold">{periodStats.activeDays}</span>
-                </div>
-                <div>
-                  Max streak:{" "}
-                  <span className="text-foreground font-bold">{periodStats.maxStreak}</span>
-                </div>
+              {/* Track 1: GitHub Contribution Heatmap */}
+              {(viewMode === "both" || viewMode === "github") && (
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div className="inline-flex items-center gap-1.5 font-medium text-foreground">
+                      <Github
+                        className="size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0"
+                        aria-hidden="true"
+                      />
+                      <span>GitHub</span>
+                      <span className="text-muted-foreground font-mono">• {ghLabel}</span>
+                    </div>
+                    <span className="sm:hidden text-[10px] font-mono text-muted-foreground/75">
+                      ← Swipe grid →
+                    </span>
+                  </div>
 
-                {/* LeetCode Authentic Period / History Dropdown */}
-                <div className="relative" ref={dropdownRef}>
-                  <button
-                    type="button"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="flex items-center gap-1.5 rounded-lg bg-secondary hover:bg-secondary/80 border border-border px-2.5 py-1 text-xs font-mono text-foreground transition-all cursor-pointer"
-                    aria-haspopup="listbox"
-                    aria-expanded={isDropdownOpen}
-                  >
-                    <span>{selectedPeriod}</span>
-                    <ChevronDown
-                      className={`size-3.5 text-muted-foreground transition-transform duration-200 ${
-                        isDropdownOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
+                  <ActivityHeatmapGrid
+                    submissionCalendar={ghSubmissionCalendar}
+                    selectedPeriod={selectedPeriod}
+                    levelByIsoDate={ghLevelsByIso}
+                    unitSingular="contribution"
+                    unitPlural="contributions"
+                    ariaLabel={`GitHub activity: ${ghLabel}`}
+                    isMounted={isHeatmapMounted}
+                    isFetching={isGhFetching}
+                    onHoverChange={(cell) =>
+                      setHoveredInfo(
+                        cell
+                          ? `GitHub: ${cell.count} contribution${cell.count === 1 ? "" : "s"} on ${cell.date}`
+                          : null,
+                      )
+                    }
+                  />
+                </div>
+              )}
 
-                  {isDropdownOpen && (
-                    <div className="absolute right-0 top-full mt-1.5 w-32 rounded-xl bg-card border border-border shadow-lift p-1 z-30 flex flex-col">
-                      {(["Current", "2025", "2024"] as const).map((period) => (
-                        <button
-                          key={period}
-                          type="button"
-                          onClick={() => {
-                            setSelectedPeriod(period);
-                            setIsDropdownOpen(false);
-                          }}
-                          className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-mono transition-colors text-left cursor-pointer ${
-                            selectedPeriod === period
-                              ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold"
-                              : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                          }`}
+              {viewMode === "both" && <div className="border-t border-border/60" />}
+
+              {/* Track 2: LeetCode Submission Heatmap */}
+              {(viewMode === "both" || viewMode === "leetcode") && (
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div className="inline-flex items-center gap-1.5 font-medium text-foreground">
+                      <Code2
+                        className="size-3.5 text-emerald-600 dark:text-[#00b8a3] shrink-0"
+                        aria-hidden="true"
+                      />
+                      <span>LeetCode</span>
+                      <span className="text-muted-foreground font-mono">
+                        • {lcPeriodStats.label}
+                      </span>
+                    </div>
+                    <span className="sm:hidden text-[10px] font-mono text-muted-foreground/75">
+                      ← Swipe grid →
+                    </span>
+                  </div>
+
+                  <ActivityHeatmapGrid
+                    submissionCalendar={lcCalendar}
+                    selectedPeriod={selectedPeriod}
+                    unitSingular="submission"
+                    unitPlural="submissions"
+                    ariaLabel={`LeetCode activity: ${lcPeriodStats.label}`}
+                    isMounted={isHeatmapMounted}
+                    isFetching={isLcFetching}
+                    enable2025LeetCodeFallback
+                    onHoverChange={(cell) =>
+                      setHoveredInfo(
+                        cell
+                          ? `LeetCode: ${cell.count} submission${cell.count === 1 ? "" : "s"} on ${cell.date}`
+                          : null,
+                      )
+                    }
+                  />
+
+                  {/* Compact Single-Line Recent Java Solutions Strip */}
+                  {recentSubmissions && recentSubmissions.length > 0 && (
+                    <div className="pt-2 flex flex-wrap items-center gap-1.5">
+                      <span className="text-[11px] font-mono text-muted-foreground mr-1">
+                        Recent {dsa.language || "Java"}:
+                      </span>
+                      {recentSubmissions.map((sub, idx) => (
+                        <a
+                          key={idx}
+                          href={`https://leetcode.com/problems/${sub.titleSlug}/`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-surface/80 dark:bg-secondary/35 border border-border/70 px-2 py-1 text-[11px] text-foreground hover:border-emerald-500/40 hover:text-primary transition-colors"
                         >
-                          <span>{period}</span>
-                          {selectedPeriod === period && (
-                            <Check className="size-3 text-emerald-600 dark:text-emerald-400" />
-                          )}
-                        </button>
+                          <CheckCircle2
+                            className="size-3 text-emerald-500 shrink-0"
+                            aria-hidden="true"
+                          />
+                          <span className="font-medium truncate max-w-[155px]">{sub.title}</span>
+                          <span className="text-[10px] font-mono text-muted-foreground">
+                            {sub.difficulty || "Easy"}
+                          </span>
+                        </a>
                       ))}
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
+              )}
 
-            {/* Mobile Swipe Cue */}
-            <div className="flex sm:hidden items-center justify-end gap-1.5 pb-2 text-[10px] font-mono text-muted-foreground/80 select-none">
-              <span>← Swipe to view 1-year activity →</span>
-            </div>
-
-            {/* Heatmap Grid (Month clusters matching LeetCode layout) */}
-            <div className="overflow-x-auto pb-2 -mx-1 px-1">
-              <div
-                role="img"
-                aria-label={`${periodStats.submissions} LeetCode submissions in ${
-                  selectedPeriod === "Current" ? "the past one year" : selectedPeriod
-                }`}
-                className="min-w-[680px] flex items-start justify-between gap-1 sm:gap-2 select-none"
-              >
-                {monthsData.map((m, mIdx) => (
-                  <div key={mIdx} className="flex flex-col items-center">
-                    {/* Month Columns */}
-                    <div className="flex gap-[3px]">
-                      {m.cols.map((col, cIdx) => (
-                        <div key={cIdx} className="flex flex-col gap-[3px]">
-                          {col.map((cell, rIdx) => {
-                            if (!cell) {
-                              return (
-                                <div
-                                  key={rIdx}
-                                  className="size-2.5 invisible pointer-events-none"
-                                />
-                              );
-                            }
-
-                            let cellBg =
-                              "bg-muted/70 dark:bg-white/[0.08] border border-border/40 dark:border-white/[0.05]";
-                            if (cell.count === 1) cellBg = "bg-emerald-300 dark:bg-[#0e4429]";
-                            else if (cell.count === 2) cellBg = "bg-emerald-400 dark:bg-[#006d32]";
-                            else if (cell.count === 3) cellBg = "bg-emerald-500 dark:bg-[#26a641]";
-                            else if (cell.count >= 4) cellBg = "bg-emerald-600 dark:bg-[#39d353]";
-
-                            return (
-                              <div
-                                key={rIdx}
-                                aria-hidden="true"
-                                title={`${cell.count} submission${cell.count === 1 ? "" : "s"} on ${cell.date}`}
-                                onMouseEnter={() => setHoveredDay(cell)}
-                                onMouseLeave={() => setHoveredDay(null)}
-                                className={`size-2.5 rounded-[2px] ${cellBg} transition-transform hover:scale-150 hover:z-10 cursor-pointer`}
-                              />
-                            );
-                          })}
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Centered Month Label */}
-                    <span className="text-[11px] font-mono text-muted-foreground text-center mt-2 select-none">
-                      {m.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Heatmap Footer: Legend & Live Cell Status */}
-            <div className="mt-3 pt-2.5 border-t border-border flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <span className="inline-block size-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
-                {hoveredDay ? (
-                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-                    {hoveredDay.count} submission{hoveredDay.count === 1 ? "" : "s"} on{" "}
-                    {hoveredDay.date}
-                  </span>
-                ) : (
-                  <span>
-                    {selectedPeriod === "Current"
-                      ? "Daily practice activity across past one year"
-                      : `Daily practice activity in ${selectedPeriod}`}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex items-center gap-1.5 ml-auto">
-                <span>Less</span>
-                <div
-                  className="size-2.5 rounded-[2px] bg-muted/70 dark:bg-white/[0.08] border border-border/40 dark:border-white/[0.05]"
-                  title="0 submissions"
-                />
-                <div
-                  className="size-2.5 rounded-[2px] bg-emerald-300 dark:bg-[#0e4429]"
-                  title="1 submission"
-                />
-                <div
-                  className="size-2.5 rounded-[2px] bg-emerald-400 dark:bg-[#006d32]"
-                  title="2 submissions"
-                />
-                <div
-                  className="size-2.5 rounded-[2px] bg-emerald-500 dark:bg-[#26a641]"
-                  title="3 submissions"
-                />
-                <div
-                  className="size-2.5 rounded-[2px] bg-emerald-600 dark:bg-[#39d353]"
-                  title="4+ submissions"
-                />
-                <span>More</span>
-              </div>
-            </div>
-
-            {/* Recent Solved Problems (Java) */}
-            {recentSubmissions && recentSubmissions.length > 0 && (
-              <div className="mt-4 pt-3.5 border-t border-border">
-                <div className="flex items-center justify-between mb-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono font-semibold text-foreground">
-                      Recent Verified Solutions (Java)
-                    </span>
-                    <span className="hidden sm:inline-block rounded bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-medium">
-                      LeetCode Verified
-                    </span>
-                  </div>
-                  <span className="text-[11px] font-mono text-muted-foreground">
-                    Live Submissions
+              {/* Subtle Bottom Hover Readout */}
+              <div className="pt-2.5 border-t border-border/60 flex items-center justify-between gap-2 text-[11px] font-mono text-muted-foreground">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="inline-block size-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span className="truncate">
+                    {hoveredInfo ||
+                      (selectedPeriod === "Current"
+                        ? "Hover any square to inspect daily commit or submission count"
+                        : `Showing verified ${selectedPeriod} activity timeline`)}
                   </span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                  {recentSubmissions.map((sub, idx) => {
-                    const diff = sub.difficulty || "Easy";
-                    let diffBadge = "text-[#00b8a3] bg-[#00b8a3]/10 border-[#00b8a3]/20";
-                    if (diff === "Medium") {
-                      diffBadge = "text-[#ffc01e] bg-[#ffc01e]/10 border-[#ffc01e]/20";
-                    } else if (diff === "Hard") {
-                      diffBadge = "text-[#ef4444] bg-[#ef4444]/10 border-[#ef4444]/20";
-                    }
-
-                    return (
-                      <a
-                        key={idx}
-                        href={`https://leetcode.com/problems/${sub.titleSlug}/`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-between rounded-xl bg-surface/80 dark:bg-secondary/30 border border-border/80 p-2.5 text-xs text-foreground hover:bg-surface dark:hover:bg-secondary/60 hover:border-emerald-500/40 hover:shadow-soft transition-all group"
-                      >
-                        <div className="flex items-center gap-2 truncate">
-                          <CheckCircle2 className="size-3.5 text-emerald-500 dark:text-emerald-400 shrink-0 group-hover:scale-110 transition-transform" />
-                          <span className="truncate font-medium group-hover:text-primary transition-colors">
-                            {sub.title}
-                          </span>
-                        </div>
-                        <div className="ml-1.5 shrink-0 flex items-center gap-1">
-                          <span
-                            className={`rounded border px-1.5 py-0.5 text-[10px] font-mono font-medium ${diffBadge}`}
-                          >
-                            {diff}
-                          </span>
-                          <span className="rounded bg-secondary border border-border px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground uppercase">
-                            {sub.lang}
-                          </span>
-                        </div>
-                      </a>
-                    );
-                  })}
+                <div className="flex sm:hidden items-center gap-1 shrink-0">
+                  <span>Less</span>
+                  <span className="size-2 rounded-[2px] bg-emerald-300 dark:bg-[#0e4429]" />
+                  <span className="size-2 rounded-[2px] bg-emerald-500 dark:bg-[#26a641]" />
+                  <span className="size-2 rounded-[2px] bg-emerald-600 dark:bg-[#39d353]" />
+                  <span>More</span>
                 </div>
               </div>
-            )}
+            </div>
           </Reveal>
 
-          {/* Action Footer: LeetCode Profile & GitHub Repo Buttons */}
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <a
-              href={info.leetcode || PERSONAL_INFO.leetcode}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs sm:text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:opacity-90 active:scale-[0.98] cursor-pointer"
-            >
-              <span>
-                Open LeetCode Profile (@{info.leetcodeUsername || PERSONAL_INFO.leetcodeUsername})
-              </span>
-              <ExternalLink className="size-4 shrink-0" />
-            </a>
+          {/* Compact Action Footer */}
+          <div className="pt-1 flex flex-col sm:flex-row flex-wrap items-center justify-between gap-2.5">
+            <div className="flex flex-col sm:flex-row w-full sm:w-auto items-center gap-2.5">
+              <a
+                href={info.leetcode || PERSONAL_INFO.leetcode}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs sm:text-sm font-semibold text-primary-foreground shadow-soft transition-opacity hover:opacity-90 active:scale-[0.98]"
+              >
+                <span>LeetCode (@{leetCodeUser})</span>
+                <ExternalLink className="size-3.5 shrink-0" />
+              </a>
+
+              <a
+                href={info.github || PERSONAL_INFO.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-border-strong bg-card px-4 py-2 text-xs sm:text-sm font-medium text-foreground transition-colors hover:bg-secondary active:scale-[0.98]"
+              >
+                <Github className="size-3.5 shrink-0 text-emerald-500" />
+                <span>GitHub (@{gitHubUser})</span>
+              </a>
+            </div>
 
             <a
               href={dsa.repoUrl || DSA_INFO.repoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-border-strong bg-card px-5 py-2.5 text-xs sm:text-sm font-medium text-foreground transition-all hover:bg-secondary active:scale-[0.98] cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-mono text-muted-foreground hover:text-primary transition-colors"
             >
-              <Github className="size-4 shrink-0 text-muted-foreground" />
-              <span>Explore Java Solutions Repository</span>
+              <FolderGit2 className="size-3.5 shrink-0" />
+              <span>Java Solutions Repository</span>
+              <ExternalLink className="size-3 shrink-0" />
             </a>
           </div>
         </div>

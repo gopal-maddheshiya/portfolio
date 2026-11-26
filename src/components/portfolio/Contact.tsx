@@ -1,8 +1,8 @@
 import { useState, useEffect, type FormEvent } from "react";
-import emailjs from "@emailjs/browser";
 import {
   AlertCircle,
   CheckCircle2,
+  Code2,
   Github,
   Linkedin,
   Loader2,
@@ -84,7 +84,7 @@ export function Contact() {
     if (success) setSuccess("");
   };
 
-  const validate = () => {
+  const validate = (mode: "email" | "whatsapp") => {
     const trimmedName = form.name.trim();
     const trimmedEmail = form.email.trim();
     const trimmedMessage = form.message.trim();
@@ -95,15 +95,20 @@ export function Contact() {
       return false;
     }
 
-    if (!trimmedEmail) {
-      setError("Please enter your email address.");
-      setSuccess("");
-      return false;
-    }
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(trimmedEmail)) {
-      setError("Please enter a valid email address.");
+    if (mode === "email") {
+      if (!trimmedEmail) {
+        setError("Please enter your email address.");
+        setSuccess("");
+        return false;
+      }
+      if (!emailRegex.test(trimmedEmail)) {
+        setError("Please enter a valid email address.");
+        setSuccess("");
+        return false;
+      }
+    } else if (trimmedEmail && !emailRegex.test(trimmedEmail)) {
+      setError("Please enter a valid email address, or leave it blank for WhatsApp.");
       setSuccess("");
       return false;
     }
@@ -123,7 +128,7 @@ export function Contact() {
   const handleWhatsApp = (event?: FormEvent) => {
     if (event) event.preventDefault();
 
-    if (!validate()) return;
+    if (!validate("whatsapp")) return;
 
     const text = encodeURIComponent(buildMessage(form));
 
@@ -145,11 +150,12 @@ export function Contact() {
       return;
     }
 
-    if (!validate()) return;
+    if (!validate("email")) return;
 
     setSending(true);
 
     try {
+      const { default: emailjs } = await import("@emailjs/browser");
       await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
@@ -304,23 +310,11 @@ export function Contact() {
 
             {/* Buttons */}
             <div className="mt-5 sm:mt-6 flex flex-col gap-3 sm:flex-row">
-              {/* WhatsApp */}
-              <button
-                type="button"
-                onClick={() => handleWhatsApp()}
-                disabled={sending}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-xs sm:text-sm font-medium text-primary-foreground transition-all hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 shadow-soft cursor-pointer"
-              >
-                <MessageCircle className="size-4 shrink-0" aria-hidden="true" />
-
-                <span>Send via WhatsApp</span>
-              </button>
-
-              {/* Email */}
+              {/* Primary CTA: Email */}
               <button
                 type="submit"
                 disabled={sending || cooldown > 0}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-md border border-border-strong bg-secondary/60 px-5 py-3 text-xs sm:text-sm font-medium transition-all hover:bg-secondary active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-xs sm:text-sm font-medium text-primary-foreground transition-all hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 shadow-soft cursor-pointer"
               >
                 {sending ? (
                   <>
@@ -329,7 +323,7 @@ export function Contact() {
                   </>
                 ) : cooldown > 0 ? (
                   <>
-                    <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden="true" />
+                    <CheckCircle2 className="size-4 shrink-0" aria-hidden="true" />
                     <span>Sent! Wait ({cooldown}s)</span>
                   </>
                 ) : (
@@ -339,10 +333,22 @@ export function Contact() {
                   </>
                 )}
               </button>
+
+              {/* Secondary CTA: WhatsApp */}
+              <button
+                type="button"
+                onClick={() => handleWhatsApp()}
+                disabled={sending}
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-md border border-border-strong bg-secondary/60 px-5 py-3 text-xs sm:text-sm font-medium transition-all hover:bg-secondary active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+              >
+                <MessageCircle className="size-4 shrink-0 text-primary" aria-hidden="true" />
+                <span>Send via WhatsApp</span>
+              </button>
             </div>
 
             <p className="mt-3 text-[11px] sm:text-xs text-muted-foreground">
-              WhatsApp opens in a new tab. Email is delivered directly to my inbox.
+              Email delivers directly to my inbox. WhatsApp opens in a new tab with your name and
+              message.
             </p>
           </form>
         </Reveal>
@@ -437,9 +443,9 @@ export function Contact() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Visit Gopal's LeetCode profile"
-              className="flex size-10 sm:size-11 items-center justify-center rounded-md border border-border font-mono text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              className="flex size-10 sm:size-11 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
-              LC
+              <Code2 className="size-4 shrink-0" aria-hidden="true" />
             </a>
           </div>
         </Reveal>

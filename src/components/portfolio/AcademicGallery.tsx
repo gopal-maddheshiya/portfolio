@@ -59,9 +59,14 @@ function GalleryMediaVisual({
   imgClassName?: string;
 }) {
   const posterSrc = resolveMediaPoster(item);
+  const [hasMounted, setHasMounted] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     setHasError(false);
@@ -93,7 +98,7 @@ function GalleryMediaVisual({
 
   return (
     <div className="relative size-full overflow-hidden bg-surface/80">
-      {!isLoaded && !hasError ? (
+      {hasMounted && !isLoaded && !hasError ? (
         <div className="pointer-events-none absolute inset-0 z-1 flex items-center justify-center bg-card/40">
           <div className="size-6 rounded-full border-2 border-border border-t-primary animate-spin opacity-55" />
         </div>
@@ -600,12 +605,12 @@ function GalleryMediaDialog({
                 </span>
               ) : null}
 
-              <h1
+              <h2
                 id="gallery-modal-title"
                 className="font-display font-semibold text-sm sm:text-base text-zinc-100 truncate"
               >
                 {activeItem.title}
-              </h1>
+              </h2>
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
@@ -831,7 +836,7 @@ export function AcademicGallery() {
         <div
           role="tablist"
           aria-label="Filter gallery media"
-          className="flex items-center gap-2 overflow-x-auto flex-nowrap sm:flex-wrap pb-2 pt-0.5 sm:pb-0 touch-pan-x [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-4 px-4 sm:mx-0 sm:px-0"
+          className="skills-edge-mask flex items-center gap-2 overflow-x-auto flex-nowrap sm:flex-wrap pb-2 pt-0.5 sm:pb-0 touch-pan-x [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-4 px-4 sm:mx-0 sm:px-0"
         >
           <button
             type="button"

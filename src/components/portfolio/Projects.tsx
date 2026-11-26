@@ -18,11 +18,8 @@ import {
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import {
-  canHoverFinePointer,
-  MagneticWrap,
-  prefersReducedMotion,
-} from "@/components/common/MagneticWrap";
+import { MagneticWrap } from "@/components/common/MagneticWrap";
+import { canHoverFinePointer, prefersReducedMotion } from "@/lib/motion";
 import { usePortfolio } from "@/context/PortfolioContext";
 import { DEFAULT_SECTION_HEADERS, type Project } from "@/data/profile";
 import { pauseSmoothScroll, resumeSmoothScroll, scrollToId } from "@/lib/scroll";
@@ -301,12 +298,12 @@ function ProjectCaseDialog({ project, onClose }: { project: Project | null; onCl
                   </>
                 ) : null}
               </div>
-              <h1
+              <h2
                 id="project-case-dialog-title"
                 className="mt-1.5 font-display text-lg sm:text-xl font-bold tracking-tight text-foreground"
               >
                 {project.title}
-              </h1>
+              </h2>
             </div>
 
             <form method="dialog">
@@ -383,9 +380,9 @@ function ProjectCaseDialog({ project, onClose }: { project: Project | null; onCl
             {/* Complete Engineering Highlights */}
             {project.features?.length ? (
               <div>
-                <h2 className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                <h3 className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                   Key Engineering Features ({project.features.length})
-                </h2>
+                </h3>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-foreground/90">
                   {project.features.map((feature) => (
                     <li
@@ -406,10 +403,10 @@ function ProjectCaseDialog({ project, onClose }: { project: Project | null; onCl
             {/* Outcomes & Impact */}
             {project.impact?.length ? (
               <div>
-                <h2 className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
+                <h3 className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
                   <TrendingUp className="size-3.5 text-primary" aria-hidden="true" />
                   <span>Outcomes &amp; Impact</span>
-                </h2>
+                </h3>
                 <ul className="space-y-1.5 text-xs text-foreground/90">
                   {project.impact.map((outcome) => (
                     <li
@@ -429,9 +426,9 @@ function ProjectCaseDialog({ project, onClose }: { project: Project | null; onCl
 
             {/* Complete Stack */}
             <div>
-              <h2 className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+              <h3 className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                 Technology Stack
-              </h2>
+              </h3>
               <div className="flex flex-wrap gap-1.5">
                 {project.technologies.map((tech) => (
                   <span
@@ -446,28 +443,35 @@ function ProjectCaseDialog({ project, onClose }: { project: Project | null; onCl
           </div>
 
           {/* Sticky Bottom Action Bar (Thumb-Friendly on Mobile) */}
-          <div className="border-t border-border/80 bg-surface/60 px-5 py-3.5 flex flex-wrap items-center gap-2.5 shrink-0">
-            {project.liveUrl ? (
+          <div className="border-t border-border/80 bg-surface/60 px-5 py-3.5 space-y-2.5 shrink-0">
+            {project.liveUrl?.includes(".onrender.com") ? (
+              <p className="font-mono text-[11px] text-muted-foreground">
+                Hosted on Render free tier — first wake-up load can take ~30 seconds.
+              </p>
+            ) : null}
+            <div className="flex flex-wrap items-center gap-2.5">
+              {project.liveUrl ? (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 min-w-[140px] min-h-10 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs sm:text-sm font-semibold text-primary-foreground shadow-soft transition-opacity hover:opacity-90 cursor-pointer"
+                >
+                  <span>Open Live Demo</span>
+                  <ExternalLink className="size-3.5 shrink-0" aria-hidden="true" />
+                </a>
+              ) : null}
+
               <a
-                href={project.liveUrl}
+                href={project.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 min-w-[140px] min-h-10 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs sm:text-sm font-semibold text-primary-foreground shadow-soft transition-opacity hover:opacity-90 cursor-pointer"
+                className="flex-1 min-w-[140px] min-h-10 inline-flex items-center justify-center gap-2 rounded-xl border border-border-strong bg-card px-4 py-2 text-xs sm:text-sm font-medium text-foreground transition-colors hover:bg-secondary cursor-pointer"
               >
-                <span>Open Live Demo</span>
-                <ExternalLink className="size-3.5 shrink-0" aria-hidden="true" />
+                <Github className="size-4 shrink-0" aria-hidden="true" />
+                <span>View Source Code</span>
               </a>
-            ) : null}
-
-            <a
-              href={project.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 min-w-[140px] min-h-10 inline-flex items-center justify-center gap-2 rounded-xl border border-border-strong bg-card px-4 py-2 text-xs sm:text-sm font-medium text-foreground transition-colors hover:bg-secondary cursor-pointer"
-            >
-              <Github className="size-4 shrink-0" aria-hidden="true" />
-              <span>View Source Code</span>
-            </a>
+            </div>
           </div>
         </div>
       ) : null}

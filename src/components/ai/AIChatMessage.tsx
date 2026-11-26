@@ -13,7 +13,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import type { ChatAction, ChatMessage } from "@/server/ai";
+import type { ChatAction, ChatMessage } from "@/lib/ai-knowledge";
 
 function CodeBlock({ code, language }: { code: string; language?: string | undefined }) {
   const [copied, setCopied] = useState(false);

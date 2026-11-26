@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import { Upload, ExternalLink, Image as ImageIcon, X } from "lucide-react";
 import { toast } from "sonner";
 import { uploadPortfolioImage } from "@/lib/supabase";
@@ -24,6 +24,7 @@ export function ImageUploader({
   placeholder = "Image URL or upload from device",
   helpText = "Uploads file directly to Supabase Storage bucket.",
 }: ImageUploaderProps) {
+  const fieldId = useId();
   const [isUploading, setIsUploading] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,7 +78,12 @@ export function ImageUploader({
   return (
     <div className="rounded-2xl border-2 border-border/80 bg-surface/50 p-4 sm:p-5 space-y-3.5 shadow-2xs">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-border/60 pb-2.5">
-        <label className="block text-xs sm:text-sm font-bold text-foreground">{label}</label>
+        <label
+          htmlFor={`${fieldId}-url`}
+          className="block text-xs sm:text-sm font-bold text-foreground"
+        >
+          {label}
+        </label>
         {aspectRatioLabel && (
           <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
             {aspectRatioLabel}
@@ -134,16 +140,23 @@ export function ImageUploader({
         <div className="flex-1 space-y-2.5 w-full">
           <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
             <input
+              id={`${fieldId}-url`}
+              name={`${fieldId}-url`}
               type="text"
               value={value || ""}
               onChange={(e) => onChange(e.target.value)}
               placeholder={placeholder}
               className="flex-1 w-full rounded-lg border border-border-strong bg-card px-3.5 py-2 text-xs text-foreground focus:border-primary focus:outline-none font-mono"
             />
-            <label className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary hover:bg-primary/90 px-3.5 py-2 text-xs font-semibold text-primary-foreground cursor-pointer transition-all shrink-0 shadow-xs active:scale-[0.98]">
+            <label
+              htmlFor={`${fieldId}-file`}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary hover:bg-primary/90 px-3.5 py-2 text-xs font-semibold text-primary-foreground cursor-pointer transition-all shrink-0 shadow-xs active:scale-[0.98]"
+            >
               <Upload className="size-3.5" />
               <span>{isUploading ? "Uploading..." : "Upload Image"}</span>
               <input
+                id={`${fieldId}-file`}
+                name={`${fieldId}-file`}
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/gif,image/jpg"
                 className="hidden"

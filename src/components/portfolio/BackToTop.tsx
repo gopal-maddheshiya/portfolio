@@ -115,7 +115,7 @@ export function BackToTop() {
         aria-label="Back to top"
         title="Back to top"
         className={cn(
-          "flex size-10 sm:size-11 items-center justify-center rounded-full border border-border/80 bg-background/90 backdrop-blur-md shadow-md text-foreground transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary hover:border-primary/50 hover:bg-accent hover:scale-105 active:scale-95 cursor-pointer",
+          "group flex size-10 sm:size-11 items-center justify-center rounded-full border border-border/80 bg-background/90 backdrop-blur-md shadow-md text-foreground transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary hover:border-primary/50 hover:bg-secondary hover:text-primary hover:scale-105 active:scale-95 cursor-pointer",
           // Visibility toggle
           isVisible
             ? "opacity-100 scale-100 pointer-events-auto"

@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent } from "react";
+import { useId, useState, type KeyboardEvent } from "react";
 import { Plus, X } from "lucide-react";
 
 interface TagListInputProps {
@@ -18,6 +18,7 @@ export function TagListInput({
   helpText,
   badgeColorClass = "bg-primary/10 text-primary border-primary/20",
 }: TagListInputProps) {
+  const inputId = useId();
   const [inputValue, setInputValue] = useState("");
 
   const addTag = (text: string) => {
@@ -57,7 +58,10 @@ export function TagListInput({
     <div className="space-y-2">
       {label && (
         <div className="flex items-center justify-between">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <label
+            htmlFor={inputId}
+            className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+          >
             {label}
           </label>
           <span className="text-[11px] font-mono text-muted-foreground">
@@ -87,7 +91,10 @@ export function TagListInput({
 
         <div className="flex-1 min-w-[160px] flex items-center gap-1.5">
           <input
+            id={inputId}
+            name={inputId}
             type="text"
+            aria-label={label || "Add tag item"}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}

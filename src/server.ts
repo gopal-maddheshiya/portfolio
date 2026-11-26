@@ -1,8 +1,11 @@
 import "./lib/error-capture";
 
+import { PERSONAL_INFO } from "./data/profile";
 import { consumeLastCapturedError } from "./lib/error-capture";
+import type { ChatMessage } from "./lib/ai-knowledge";
 import { renderErrorPage } from "./lib/error-page";
 import { handleAiChatStream } from "./server/ai";
+import { fetchGitHubStats } from "./server/github";
 import { fetchLeetCodeStats } from "./server/leetcode";
 
 type ServerEntry = {
@@ -28,6 +31,15 @@ function getClientIp(request: Request): string {
 function isRateLimited(request: Request): boolean {
   const key = getClientIp(request);
   const now = Date.now();
+
+  if (rateBuckets.size > 500) {
+    for (const [ip, entry] of rateBuckets) {
+      if (now - entry.windowStart >= RATE_LIMIT_WINDOW_MS) {
+        rateBuckets.delete(ip);
+      }
+    }
+  }
+
   const bucket = rateBuckets.get(key);
 
   if (!bucket || now - bucket.windowStart >= RATE_LIMIT_WINDOW_MS) {
@@ -98,21 +110,78 @@ export default {
 
         try {
           const body = (await request.json()) as {
-            message?: string;
-            history?: unknown[];
-            stream?: boolean;
+            message?: unknown;
+            history?: unknown;
           };
-          const message = typeof body.message === "string" ? body.message : "";
-          const history = Array.isArray(body.history) ? (body.history as never) : [];
+          const rawMessage = typeof body.message === "string" ? body.message.trim() : "";
+          if (!rawMessage) {
+            return new Response(JSON.stringify({ error: "Message is required." }), {
+              status: 400,
+              headers: { "content-type": "application/json; charset=utf-8" },
+            });
+          }
+          if (rawMessage.length > 2000) {
+            return new Response(
+              JSON.stringify({ error: "Message exceeds 2000 character limit." }),
+              {
+                status: 400,
+                headers: { "content-type": "application/json; charset=utf-8" },
+              },
+            );
+          }
+
+          const rawHistory = Array.isArray(body.history) ? body.history.slice(-10) : [];
+          const history: ChatMessage[] = rawHistory
+            .filter(
+              (item): item is { role: "user" | "assistant"; content: string } =>
+                typeof item === "object" &&
+                item !== null &&
+                ((item as { role?: unknown }).role === "user" ||
+                  (item as { role?: unknown }).role === "assistant") &&
+                typeof (item as { content?: unknown }).content === "string",
+            )
+            .map((item) => ({
+              role: item.role,
+              content: item.content.slice(0, 2000),
+            }));
+
           const serverEnv = (typeof env === "object" && env !== null ? env : {}) as Record<
             string,
             unknown
           >;
 
-          return await handleAiChatStream(message, history, serverEnv);
+          return await handleAiChatStream(rawMessage, history, serverEnv);
         } catch (apiErr) {
           console.error("API /api/chat error:", apiErr);
           return new Response(JSON.stringify({ error: "Failed to process AI chat request" }), {
+            status: 500,
+            headers: { "content-type": "application/json; charset=utf-8" },
+          });
+        }
+      }
+
+      if (
+        url.pathname === "/api/github" &&
+        (request.method === "GET" || request.method === "POST")
+      ) {
+        try {
+          const defaultUsername = PERSONAL_INFO.githubUsername || "gopal-maddheshiya";
+          const rawUsername = url.searchParams.get("username")?.trim();
+          const safeUsername =
+            rawUsername && /^[a-zA-Z0-9-]{1,39}$/.test(rawUsername) ? rawUsername : defaultUsername;
+          const rawYear = url.searchParams.get("year")?.trim();
+          const safeYear = rawYear && /^(Current|20\d{2})$/.test(rawYear) ? rawYear : "Current";
+          const stats = await fetchGitHubStats(safeUsername, safeYear);
+          return new Response(JSON.stringify(stats), {
+            status: 200,
+            headers: {
+              "content-type": "application/json; charset=utf-8",
+              "cache-control": "public, s-maxage=300, stale-while-revalidate=600",
+            },
+          });
+        } catch (ghErr) {
+          console.error("API /api/github error:", ghErr);
+          return new Response(JSON.stringify({ error: "Failed to fetch GitHub statistics" }), {
             status: 500,
             headers: { "content-type": "application/json; charset=utf-8" },
           });
@@ -124,11 +193,12 @@ export default {
         (request.method === "GET" || request.method === "POST")
       ) {
         try {
+          const defaultUsername = PERSONAL_INFO.leetcodeUsername || "gopal-maddheshiya";
           const rawUsername = url.searchParams.get("username")?.trim();
           const safeUsername =
             rawUsername && /^[a-zA-Z0-9_-]{1,40}$/.test(rawUsername)
               ? rawUsername
-              : "gopal-maddheshiya";
+              : defaultUsername;
           const stats = await fetchLeetCodeStats(safeUsername);
           return new Response(JSON.stringify(stats), {
             status: 200,

@@ -1,15 +1,6 @@
 import { useCallback, useEffect, useRef, type ReactNode } from "react";
 import { gsap } from "gsap";
-
-export function prefersReducedMotion(): boolean {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-export function canHoverFinePointer(): boolean {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia("(hover: hover) and (pointer: fine)").matches && !prefersReducedMotion();
-}
+import { canHoverFinePointer, prefersReducedMotion } from "@/lib/motion";
 
 interface MagneticWrapProps {
   children: ReactNode;

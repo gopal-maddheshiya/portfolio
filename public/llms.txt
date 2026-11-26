@@ -8,6 +8,7 @@
 - Phone / WhatsApp: +91 6388354988
 - GitHub: https://github.com/gopal-maddheshiya
 - LinkedIn: https://www.linkedin.com/in/gopal-maddheshiya
+- X (Twitter): https://x.com/itsGopalM
 - LeetCode: https://leetcode.com/u/gopal-maddheshiya/
 - GeeksforGeeks: https://www.geeksforgeeks.org/profile/gopalmaddheshiya
 - CodeChef: https://www.codechef.com/users/gopal_code_96
@@ -17,7 +18,7 @@
 - Reddit: https://www.reddit.com/user/gopal_96/
 - Facebook: https://www.facebook.com/gopalmaddheshiya63/
 - Instagram: https://www.instagram.com/gopalmaddheshiya63/
-- Public Handles: gopal-maddheshiya, gopalmaddheshiya63, gopal_96
+- Public Handles: gopal-maddheshiya, itsGopalM, gopalmaddheshiya63, gopal_96
 - Resume: https://gopal-maddheshiya.vercel.app/gopal-cv.pdf
 
 ## Overview
@@ -40,7 +41,7 @@ Gopal Maddheshiya is an aspiring software engineer and full-stack developer curr
 2. **Arun Gopal Traders — Bilingual E-Commerce Platform**
    - Commercial grocery and retail e-commerce platform with real-time stock sync, Supabase PostgreSQL with RLS, bilingual i18n support, and automated PDF invoicing.
    - Stack: React 19, TanStack Start, TypeScript, Supabase, PostgreSQL, Tailwind CSS v4, Gemini AI.
-   - Repo: https://github.com/gopal-maddheshiya/trading-company
+   - Repo: https://github.com/gopal-maddheshiya/online-shopping-store
    - Live: https://arun-gopal-traders.vercel.app/
 
 3. **DSA & Interview Prep Tracker**
@@ -55,10 +56,10 @@ Gopal Maddheshiya is an aspiring software engineer and full-stack developer curr
    - Repo: https://github.com/gopal-maddheshiya/node-chat-api
 
 ## Problem Solving & Achievements
-- **LeetCode**: 54+ verified Java solutions with detailed Big-O analysis.
+- **LeetCode**: 66+ verified Java solutions with detailed Big-O analysis.
 - **Competitions**: Smart India Hackathon (SIH 2026) Participant; SRMU VIVEKA 5.0 'Find The Language' Competition Winner.
 - **Certificates**: Semantic HTML5 & Modern Responsive CSS3 certified.
 
 ## Availability & Contact
-- **Internships**: Actively seeking Summer 2026 Software Development Engineer (SDE), Full-Stack, and Java internship opportunities (Remote or On-Site across India).
+- **Internships**: Actively seeking Winter 2026 / Summer 2027 Software Development Engineer (SDE), Full-Stack, and Java internship opportunities (Remote or On-Site across India).
 - **Direct Contact**: gopalmaddheshiya138@gmail.com | WhatsApp: +91 6388354988

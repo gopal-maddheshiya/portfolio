@@ -2,11 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowUp, Bot, Loader2, Maximize2, Minimize2, RotateCcw, Sparkles, X } from "lucide-react";
 import { gsap } from "gsap";
 
-import { prefersReducedMotion } from "@/components/common/MagneticWrap";
+import { prefersReducedMotion } from "@/lib/motion";
 import { PERSONAL_INFO } from "@/data/profile";
 import { usePortfolio } from "@/context/PortfolioContext";
+import { useLeetCodeStats } from "@/hooks/useLeetCodeStats";
+import { askGopalAiStream } from "@/lib/ai-client";
+import type { ChatAction, ChatMessage } from "@/lib/ai-knowledge";
+import { scrollToId } from "@/lib/scroll";
 import { cn } from "@/lib/utils";
-import { askGopalAiStream, type ChatAction, type ChatMessage } from "@/server/ai";
 import { AIChatMessage } from "./AIChatMessage";
 
 const INITIAL_SUGGESTIONS = [
@@ -24,6 +27,7 @@ const createWelcomeMessage = (): ChatMessage => ({
 export function GopalAIAssistant() {
   const { data } = usePortfolio();
   const info = data?.personalInfo || PERSONAL_INFO;
+  const { total: leetCodeTotal } = useLeetCodeStats(info.leetcodeUsername);
 
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -40,6 +44,7 @@ export function GopalAIAssistant() {
   const launcherRef = useRef<HTMLDivElement>(null);
   const lastScrollYRef = useRef(0);
   const scrollStopTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Auto-dismissing discovery cue 2.5s after mount, hides after 8.5s
   useEffect(() => {
@@ -173,7 +178,14 @@ export function GopalAIAssistant() {
       gsap.fromTo(
         launcher,
         { x: 180, opacity: 0 },
-        { x: 0, opacity: 1, duration: 1.0, ease: "power3.out", delay: 0.35, clearProps: "x" },
+        {
+          x: 0,
+          opacity: 1,
+          duration: 1.0,
+          ease: "power3.out",
+          delay: 0.35,
+          clearProps: "transform,opacity",
+        },
       );
     }, launcherRef);
 
@@ -198,6 +210,38 @@ export function GopalAIAssistant() {
     return () => window.removeEventListener("open-gopal-ai-assistant", handleOpenEvent);
   }, []);
 
+  const handleClose = () => {
+    abortControllerRef.current?.abort();
+    const modal = modalRef.current;
+    if (modal && !prefersReducedMotion()) {
+      gsap.to(modal, {
+        opacity: 0,
+        scale: 0.92,
+        y: 14,
+        duration: 0.2,
+        ease: "power2.in",
+        overwrite: "auto",
+        onComplete: () => {
+          setIsOpen(false);
+        },
+      });
+    } else {
+      setIsOpen(false);
+    }
+  };
+
+  // Close open assistant window on Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isOpen]);
+
   // Animate Chat Window Open with GSAP (respects reduced motion + cleans up cleanly)
   useEffect(() => {
     const modal = modalRef.current;
@@ -220,25 +264,6 @@ export function GopalAIAssistant() {
 
     return () => ctx.revert();
   }, [isOpen]);
-
-  const handleClose = () => {
-    const modal = modalRef.current;
-    if (modal && !prefersReducedMotion()) {
-      gsap.to(modal, {
-        opacity: 0,
-        scale: 0.92,
-        y: 14,
-        duration: 0.2,
-        ease: "power2.in",
-        overwrite: "auto",
-        onComplete: () => {
-          setIsOpen(false);
-        },
-      });
-    } else {
-      setIsOpen(false);
-    }
-  };
 
   // Isolate wheel scrolling to chat window, prevent background website scrolling
   useEffect(() => {
@@ -276,9 +301,10 @@ export function GopalAIAssistant() {
     };
   }, [isOpen]);
 
-  // Cleanup typewriter timer on unmount
+  // Cleanup active streams and typewriter timer on unmount
   useEffect(() => {
     return () => {
+      abortControllerRef.current?.abort();
       if (timerRef.current !== null) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
@@ -346,17 +372,22 @@ export function GopalAIAssistant() {
     const query = (textToSend || input).trim();
     if (!query || loading) return;
 
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setInput("");
+    const now = Date.now();
     const userMsg: ChatMessage = {
       role: "user",
       content: query,
-      timestamp: Date.now(),
+      timestamp: now,
     };
 
     const initialAssistantMsg: ChatMessage = {
       role: "assistant",
       content: "",
-      timestamp: Date.now(),
+      timestamp: now + 1,
     };
 
     const previousHistory = messages.filter((m) => m.content.length > 0).slice(-6);
@@ -376,8 +407,11 @@ export function GopalAIAssistant() {
       await askGopalAiStream({
         message: query,
         history: previousHistory,
+        portfolioData: data,
+        leetCodeTotal,
         resumeUrl: info.resume,
         whatsappNumber: info.whatsapp,
+        signal: controller.signal,
         onChunk: (chunk) => {
           bufferRef.current += chunk;
         },
@@ -388,9 +422,7 @@ export function GopalAIAssistant() {
         onError: (err) => {
           console.error("AI assistant stream error:", err);
           bufferRef.current +=
-            "\n\nGopal is open for software engineering opportunities! You can contact him directly at " +
-            info.email +
-            " or on WhatsApp.";
+            "\n\nYou can contact " + info.name + " directly at " + info.email + " or on WhatsApp.";
           completionDataRef.current = {
             suggestions: ["What projects has Gopal built?", "Tell me about his DSA skills"],
             actions: [
@@ -418,15 +450,11 @@ export function GopalAIAssistant() {
       return;
     }
 
-    if (action.action === "projects") {
-      const el = document.getElementById("projects");
-      el?.scrollIntoView({ behavior: "smooth" });
-    } else if (action.action === "dsa") {
-      const el = document.getElementById("dsa");
-      el?.scrollIntoView({ behavior: "smooth" });
-    } else if (action.action === "contact") {
-      const el = document.getElementById("contact");
-      el?.scrollIntoView({ behavior: "smooth" });
+    if (action.action === "projects" || action.action === "dsa" || action.action === "contact") {
+      if (window.innerWidth < 640) {
+        handleClose();
+      }
+      scrollToId(action.action);
     } else if (action.action === "resume") {
       window.open(info.resume || PERSONAL_INFO.resume, "_blank", "noopener,noreferrer");
     } else if (action.action === "whatsapp") {
@@ -439,6 +467,7 @@ export function GopalAIAssistant() {
   };
 
   const handleClearHistory = () => {
+    abortControllerRef.current?.abort();
     if (timerRef.current !== null) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
@@ -458,7 +487,6 @@ export function GopalAIAssistant() {
         <div
           ref={launcherRef}
           className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 pointer-events-auto"
-          style={{ opacity: 0, transform: "translateX(180px)" }}
         >
           {/* Scroll-aware animated wrapper: slides down immediately when scrolling down; when reappearing, delays slightly (150ms) so the BackToTop arrow has already lifted out of the way */}
           <div
@@ -597,11 +625,12 @@ export function GopalAIAssistant() {
           >
             {messages
               .filter((msg) => msg.content.length > 0)
-              .map((msg, index) => {
-                const isLastAssistant = index === messages.length - 1 && msg.role === "assistant";
+              .map((msg, index, visibleMessages) => {
+                const isLastAssistant =
+                  index === visibleMessages.length - 1 && msg.role === "assistant";
                 return (
                   <AIChatMessage
-                    key={index}
+                    key={`${msg.role}-${msg.timestamp ?? index}-${index}`}
                     message={msg}
                     isStreaming={isLastAssistant && isStreaming}
                     onActionClick={handleActionClick}

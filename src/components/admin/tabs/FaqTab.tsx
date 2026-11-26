@@ -94,7 +94,10 @@ export function FaqTab({ data, updateData }: FaqTabProps) {
           <div className="relative flex-1 sm:flex-initial">
             <Search className="size-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
+              id="faq-search"
+              name="faq-search"
               type="text"
+              aria-label="Search FAQs"
               placeholder="Search FAQs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -150,10 +153,15 @@ export function FaqTab({ data, updateData }: FaqTabProps) {
 
             <div className="grid gap-4 sm:grid-cols-4">
               <div className="sm:col-span-3">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                <label
+                  htmlFor={`faq-question-${originalIndex}`}
+                  className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                >
                   Question
                 </label>
                 <input
+                  id={`faq-question-${originalIndex}`}
+                  name={`faq-question-${originalIndex}`}
                   type="text"
                   value={item.question}
                   onChange={(e) => {
@@ -166,10 +174,15 @@ export function FaqTab({ data, updateData }: FaqTabProps) {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                <label
+                  htmlFor={`faq-category-${originalIndex}`}
+                  className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                >
                   Category
                 </label>
                 <select
+                  id={`faq-category-${originalIndex}`}
+                  name={`faq-category-${originalIndex}`}
                   value={item.category}
                   onChange={(e) => {
                     const updated = [...faqs];
@@ -190,10 +203,15 @@ export function FaqTab({ data, updateData }: FaqTabProps) {
               </div>
 
               <div className="sm:col-span-4">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                <label
+                  htmlFor={`faq-answer-${originalIndex}`}
+                  className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                >
                   Answer (Supports line breaks)
                 </label>
                 <textarea
+                  id={`faq-answer-${originalIndex}`}
+                  name={`faq-answer-${originalIndex}`}
                   rows={3}
                   value={item.answer}
                   onChange={(e) => {

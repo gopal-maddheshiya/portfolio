@@ -29,10 +29,15 @@ export function ContactTab({ data, updateData }: ContactTabProps) {
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="contact-eyebrow"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Eyebrow Tag
             </label>
             <input
+              id="contact-eyebrow"
+              name="contact-eyebrow"
               type="text"
               value={contact.eyebrow}
               onChange={(e) => updateData({ contactData: { ...contact, eyebrow: e.target.value } })}
@@ -41,10 +46,15 @@ export function ContactTab({ data, updateData }: ContactTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="contact-title"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Main Title
             </label>
             <input
+              id="contact-title"
+              name="contact-title"
               type="text"
               value={contact.title}
               onChange={(e) => updateData({ contactData: { ...contact, title: e.target.value } })}
@@ -53,10 +63,15 @@ export function ContactTab({ data, updateData }: ContactTabProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="contact-description"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Description
             </label>
             <textarea
+              id="contact-description"
+              name="contact-description"
               rows={2}
               value={contact.description}
               onChange={(e) =>
@@ -67,10 +82,15 @@ export function ContactTab({ data, updateData }: ContactTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="contact-direct-heading"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Direct Contact Card Heading
             </label>
             <input
+              id="contact-direct-heading"
+              name="contact-direct-heading"
               type="text"
               value={contact.directHeading || ""}
               placeholder="Direct contact"
@@ -82,10 +102,15 @@ export function ContactTab({ data, updateData }: ContactTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="contact-availability-title"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Availability Highlight Title
             </label>
             <input
+              id="contact-availability-title"
+              name="contact-availability-title"
               type="text"
               value={contact.availabilityTitle || ""}
               placeholder="Open for Internship & Full-Time Roles"
@@ -97,10 +122,15 @@ export function ContactTab({ data, updateData }: ContactTabProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="contact-availability-subtitle"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Availability Details Subtitle
             </label>
             <input
+              id="contact-availability-subtitle"
+              name="contact-availability-subtitle"
               type="text"
               value={contact.availabilitySubtitle || ""}
               placeholder="B.Tech CSE at SRMU · Verified DSA & Full-Stack track record · Typical response within 24 hours."
@@ -112,10 +142,15 @@ export function ContactTab({ data, updateData }: ContactTabProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="contact-footer-tagline"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Footer Tagline (Shown Next to Copyright)
             </label>
             <input
+              id="contact-footer-tagline"
+              name="contact-footer-tagline"
               type="text"
               value={info.footerTagline || ""}
               placeholder="Built with code and continuous learning."
@@ -142,10 +177,15 @@ export function ContactTab({ data, updateData }: ContactTabProps) {
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="resume-cta-eyebrow"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Eyebrow Tag
             </label>
             <input
+              id="resume-cta-eyebrow"
+              name="resume-cta-eyebrow"
               type="text"
               value={cta.eyebrow}
               onChange={(e) => updateData({ resumeCTA: { ...cta, eyebrow: e.target.value } })}
@@ -154,10 +194,15 @@ export function ContactTab({ data, updateData }: ContactTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="resume-cta-title"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Banner Title
             </label>
             <input
+              id="resume-cta-title"
+              name="resume-cta-title"
               type="text"
               value={cta.title}
               onChange={(e) => updateData({ resumeCTA: { ...cta, title: e.target.value } })}
@@ -166,10 +211,15 @@ export function ContactTab({ data, updateData }: ContactTabProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="resume-cta-description"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Banner Description
             </label>
             <textarea
+              id="resume-cta-description"
+              name="resume-cta-description"
               rows={2}
               value={cta.description}
               onChange={(e) => updateData({ resumeCTA: { ...cta, description: e.target.value } })}
@@ -188,10 +238,15 @@ export function ContactTab({ data, updateData }: ContactTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="resume-cta-button-text"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Download Button Text
             </label>
             <input
+              id="resume-cta-button-text"
+              name="resume-cta-button-text"
               type="text"
               value={cta.buttonText || ""}
               placeholder="Download Resume"
@@ -201,10 +256,15 @@ export function ContactTab({ data, updateData }: ContactTabProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+            <label
+              htmlFor="resume-cta-updated-label"
+              className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+            >
               Document Status Badge
             </label>
             <input
+              id="resume-cta-updated-label"
+              name="resume-cta-updated-label"
               type="text"
               value={cta.updatedLabel || ""}
               placeholder="Updated 2026 · 1-Page PDF"

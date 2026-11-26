@@ -200,10 +200,15 @@ export function GalleryTab({ data, updateData }: GalleryTabProps) {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            <label className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 hover:bg-primary/20 px-3.5 py-2 text-xs font-semibold text-primary transition-colors cursor-pointer">
+            <label
+              htmlFor="gallery-batch-upload"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 hover:bg-primary/20 px-3.5 py-2 text-xs font-semibold text-primary transition-colors cursor-pointer"
+            >
               <Upload className="size-3.5" />
               <span>{isBatchUploading ? "Uploading Photos..." : "Upload Multiple Photos"}</span>
               <input
+                id="gallery-batch-upload"
+                name="gallery-batch-upload"
                 type="file"
                 accept="image/*"
                 multiple
@@ -260,7 +265,10 @@ export function GalleryTab({ data, updateData }: GalleryTabProps) {
           <div className="relative">
             <Search className="size-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
+              id="gallery-search"
+              name="gallery-search"
               type="text"
+              aria-label="Search gallery items"
               placeholder="Search titles, events, dates..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -447,10 +455,15 @@ export function GalleryTab({ data, updateData }: GalleryTabProps) {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      <label
+                        htmlFor={`gallery-title-${originalIndex}`}
+                        className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                      >
                         Milestone / Event Title
                       </label>
                       <input
+                        id={`gallery-title-${originalIndex}`}
+                        name={`gallery-title-${originalIndex}`}
                         type="text"
                         value={item.title}
                         placeholder="e.g. Smart India Hackathon internal finals presentation"
@@ -464,10 +477,15 @@ export function GalleryTab({ data, updateData }: GalleryTabProps) {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      <label
+                        htmlFor={`gallery-category-${originalIndex}`}
+                        className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                      >
                         Category Tag
                       </label>
                       <input
+                        id={`gallery-category-${originalIndex}`}
+                        name={`gallery-category-${originalIndex}`}
                         type="text"
                         value={item.category || ""}
                         placeholder="Smart India Hackathon, Coding Competition..."
@@ -497,10 +515,15 @@ export function GalleryTab({ data, updateData }: GalleryTabProps) {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      <label
+                        htmlFor={`gallery-date-${originalIndex}`}
+                        className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                      >
                         Date / Year
                       </label>
                       <input
+                        id={`gallery-date-${originalIndex}`}
+                        name={`gallery-date-${originalIndex}`}
                         type="text"
                         value={item.date || ""}
                         placeholder="e.g. Feb 2026 or 2026"
@@ -515,7 +538,10 @@ export function GalleryTab({ data, updateData }: GalleryTabProps) {
 
                     <div className="sm:col-span-2 rounded-xl border-2 border-primary/20 bg-primary/5 p-4 space-y-2">
                       <div className="flex items-center justify-between">
-                        <label className="block text-xs font-bold text-foreground flex items-center gap-1.5">
+                        <label
+                          htmlFor={`gallery-caption-${originalIndex}`}
+                          className="block text-xs font-bold text-foreground flex items-center gap-1.5"
+                        >
                           <Tag className="size-3.5 text-primary" />
                           <span>Story &amp; Related Context Details</span>
                         </label>
@@ -524,6 +550,8 @@ export function GalleryTab({ data, updateData }: GalleryTabProps) {
                         </span>
                       </div>
                       <textarea
+                        id={`gallery-caption-${originalIndex}`}
+                        name={`gallery-caption-${originalIndex}`}
                         rows={3}
                         value={item.caption || ""}
                         placeholder="Explain what happened here, project presented, team role, or achievement details..."

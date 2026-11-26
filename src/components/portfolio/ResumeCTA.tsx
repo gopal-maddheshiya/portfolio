@@ -27,71 +27,79 @@ function ResumePreviewDialog({
       className="max-w-3xl"
     >
       <div className="flex max-h-[90dvh] flex-col">
-        {/* Mobile drag handle */}
-        <div className="flex justify-center pt-2.5 sm:hidden shrink-0" aria-hidden="true">
-          <span className="h-1 w-10 rounded-full bg-border-strong" />
-        </div>
+        {open ? (
+          <>
+            {/* Mobile drag handle */}
+            <div className="flex justify-center pt-2.5 sm:hidden shrink-0" aria-hidden="true">
+              <span className="h-1 w-10 rounded-full bg-border-strong" />
+            </div>
 
-        {/* Sticky Dialog Header */}
-        <div className="flex items-start justify-between gap-3 border-b border-border/80 bg-surface/50 px-5 py-4 shrink-0">
-          <div className="min-w-0">
-            <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-primary font-medium">
-              <FileText className="size-3.5" aria-hidden="true" />
-              <span>Curriculum Vitae Preview</span>
-            </span>
-            <h1
-              id="resume-preview-dialog-title"
-              className="mt-1 font-display text-base sm:text-xl font-bold tracking-tight text-foreground truncate"
-            >
-              {ownerName} — Resume
-            </h1>
-          </div>
+            {/* Sticky Dialog Header */}
+            <div className="flex items-start justify-between gap-3 border-b border-border/80 bg-surface/50 px-5 py-4 shrink-0">
+              <div className="min-w-0">
+                <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-primary font-medium">
+                  <FileText className="size-3.5" aria-hidden="true" />
+                  <span>Curriculum Vitae Preview</span>
+                </span>
+                <h2
+                  id="resume-preview-dialog-title"
+                  className="mt-1 font-display text-base sm:text-xl font-bold tracking-tight text-foreground truncate"
+                >
+                  {ownerName} — Resume
+                </h2>
+              </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close resume preview"
-            className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:border-border-strong hover:text-foreground transition-colors cursor-pointer"
-          >
-            <X className="size-4" aria-hidden="true" />
-          </button>
-        </div>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close resume preview"
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:border-border-strong hover:text-foreground transition-colors cursor-pointer"
+              >
+                <X className="size-4" aria-hidden="true" />
+              </button>
+            </div>
 
-        {/* Embedded PDF Viewer */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-2.5">
-          <div className="overflow-hidden rounded-xl border border-border bg-surface">
-            <iframe
-              src={`${resumeUrl}#view=FitH`}
-              title={`${ownerName} Resume PDF Preview`}
-              className="h-[55dvh] sm:h-[64dvh] w-full bg-white"
-            />
-          </div>
-          <p className="text-[11px] text-muted-foreground font-mono text-center sm:text-left">
-            On phones where inline PDF viewers are restricted, tap &ldquo;Open PDF Tab&rdquo; or
-            &ldquo;Download Resume&rdquo; below.
-          </p>
-        </div>
+            {/* Embedded PDF Viewer (mounted lazily only while dialog is open) */}
+            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-2.5">
+              <div className="overflow-hidden rounded-xl border border-border bg-surface">
+                <iframe
+                  src={`${resumeUrl}#view=FitH`}
+                  title={`${ownerName} Resume PDF Preview`}
+                  className="h-[55dvh] sm:h-[64dvh] w-full bg-white"
+                />
+              </div>
+              <p className="text-[11px] text-muted-foreground font-mono text-center sm:text-left">
+                On phones where inline PDF viewers are restricted, tap &ldquo;Open PDF Tab&rdquo; or
+                &ldquo;Download Resume&rdquo; below.
+              </p>
+            </div>
 
-        {/* Sticky Bottom Action Footer */}
-        <div className="border-t border-border/80 bg-surface/60 px-5 py-3.5 flex flex-col sm:flex-row gap-2.5 shrink-0">
-          <a
-            href={resumeUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border-strong bg-card px-4 py-2.5 text-xs sm:text-sm font-medium text-foreground hover:bg-secondary transition-colors cursor-pointer"
-          >
-            <ExternalLink className="size-4 text-primary shrink-0" aria-hidden="true" />
-            <span>Open PDF Tab</span>
-          </a>
-          <a
-            href={resumeUrl}
-            download={downloadName}
-            className="flex-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs sm:text-sm font-medium text-primary-foreground shadow-soft hover:opacity-90 transition-opacity cursor-pointer"
-          >
-            <Download className="size-4 shrink-0" aria-hidden="true" />
-            <span>Download Resume</span>
-          </a>
-        </div>
+            {/* Sticky Bottom Action Footer */}
+            <div className="border-t border-border/80 bg-surface/60 px-5 py-3.5 flex flex-col sm:flex-row gap-2.5 shrink-0">
+              <a
+                href={resumeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border-strong bg-card px-4 py-2.5 text-xs sm:text-sm font-medium text-foreground hover:bg-secondary transition-colors cursor-pointer"
+              >
+                <ExternalLink className="size-4 text-primary shrink-0" aria-hidden="true" />
+                <span>Open PDF Tab</span>
+              </a>
+              <a
+                href={resumeUrl}
+                download={downloadName}
+                className="flex-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs sm:text-sm font-medium text-primary-foreground shadow-soft hover:opacity-90 transition-opacity cursor-pointer"
+              >
+                <Download className="size-4 shrink-0" aria-hidden="true" />
+                <span>Download Resume</span>
+              </a>
+            </div>
+          </>
+        ) : (
+          <h2 id="resume-preview-dialog-title" className="sr-only">
+            {ownerName} — Resume
+          </h2>
+        )}
       </div>
     </ModalDialog>
   );

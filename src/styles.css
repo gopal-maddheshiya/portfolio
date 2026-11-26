@@ -209,8 +209,6 @@
   }
 
   .reveal {
-    opacity: 0;
-    transform: translateY(16px);
     backface-visibility: hidden;
   }
 

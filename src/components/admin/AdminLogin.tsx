@@ -10,6 +10,7 @@ import {
   EyeOff,
 } from "lucide-react";
 import { toast } from "sonner";
+import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
 import { supabase } from "@/lib/supabase";
 
 interface AdminLoginProps {
@@ -17,7 +18,7 @@ interface AdminLoginProps {
 }
 
 export function AdminLogin({ onSuccess }: AdminLoginProps) {
-  const [email, setEmail] = useState("gopalmaddheshiya138@gmail.com");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -138,6 +139,9 @@ export function AdminLogin({ onSuccess }: AdminLoginProps) {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12 relative overflow-hidden">
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggleButton className="size-9 rounded-xl border border-border bg-card/85 hover:bg-secondary text-foreground shadow-2xs backdrop-blur-md" />
+      </div>
       {/* Background ambient lighting */}
       <div className="pointer-events-none absolute -top-40 -right-40 size-96 rounded-full bg-primary/10 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-40 -left-40 size-96 rounded-full bg-accent/10 blur-3xl" />
@@ -163,13 +167,19 @@ export function AdminLogin({ onSuccess }: AdminLoginProps) {
           {isRecoverySession ? (
             <form onSubmit={handleUpdateNewPassword} className="mt-6 space-y-4">
               <div>
-                <label className="block text-xs font-medium text-foreground mb-1.5">
+                <label
+                  htmlFor="admin-recovery-password"
+                  className="block text-xs font-medium text-foreground mb-1.5"
+                >
                   New Password
                 </label>
                 <div className="relative">
                   <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                   <input
+                    id="admin-recovery-password"
+                    name="new-password"
                     type="password"
+                    autoComplete="new-password"
                     required
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
@@ -180,13 +190,19 @@ export function AdminLogin({ onSuccess }: AdminLoginProps) {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-foreground mb-1.5">
+                <label
+                  htmlFor="admin-recovery-confirm-password"
+                  className="block text-xs font-medium text-foreground mb-1.5"
+                >
                   Confirm New Password
                 </label>
                 <div className="relative">
                   <CheckCircle2 className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                   <input
+                    id="admin-recovery-confirm-password"
+                    name="confirm-password"
                     type="password"
+                    autoComplete="new-password"
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
@@ -214,17 +230,23 @@ export function AdminLogin({ onSuccess }: AdminLoginProps) {
           ) : (
             <form onSubmit={handleSignIn} className="mt-6 space-y-4">
               <div>
-                <label className="block text-xs font-medium text-foreground mb-1.5">
+                <label
+                  htmlFor="admin-login-email"
+                  className="block text-xs font-medium text-foreground mb-1.5"
+                >
                   Admin Email
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                   <input
+                    id="admin-login-email"
+                    name="email"
                     type="email"
+                    autoComplete="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="gopalmaddheshiya138@gmail.com"
+                    placeholder="admin@example.com"
                     className="w-full rounded-lg border border-border bg-surface px-10 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
@@ -232,7 +254,12 @@ export function AdminLogin({ onSuccess }: AdminLoginProps) {
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-medium text-foreground">Password</label>
+                  <label
+                    htmlFor="admin-login-password"
+                    className="block text-xs font-medium text-foreground"
+                  >
+                    Password
+                  </label>
                   <button
                     type="button"
                     onClick={handleForgotPassword}
@@ -245,7 +272,10 @@ export function AdminLogin({ onSuccess }: AdminLoginProps) {
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                   <input
+                    id="admin-login-password"
+                    name="password"
                     type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -283,11 +313,7 @@ export function AdminLogin({ onSuccess }: AdminLoginProps) {
           {/* Footer note */}
           <div className="mt-6 pt-4 border-t border-border/60 text-center">
             <p className="text-[11px] text-muted-foreground">
-              Only authorized administrator (
-              <span className="font-mono text-foreground font-medium">
-                gopalmaddheshiya138@gmail.com
-              </span>
-              ) can access this dashboard.
+              Authorized portfolio administrator access only.
             </p>
           </div>
         </div>

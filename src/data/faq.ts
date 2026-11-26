@@ -31,7 +31,7 @@ export const FAQS: FAQItem[] = [
     id: "dsa-track-record",
     question: "What is Gopal Maddheshiya's problem-solving and DSA track record?",
     answer:
-      "Gopal is an active problem solver on LeetCode with 54+ verified Java solutions across Arrays, Strings, Recursion, Two Pointers, Sliding Window, and Binary Search Trees. He documents brute-force to optimal approaches with time and space complexity analysis in his open-source 'dsa-with-java' repository, and maintains active competitive profiles on GeeksforGeeks, CodeChef, and HackerRank.",
+      "Gopal is an active problem solver on LeetCode with 66+ verified Java solutions across Arrays, Strings, Recursion, Two Pointers, Sliding Window, and Binary Search Trees. He documents brute-force to optimal approaches with time and space complexity analysis in his open-source 'dsa-with-java' repository, and maintains active competitive profiles on GeeksforGeeks, CodeChef, and HackerRank.",
     category: "DSA",
   },
   {
@@ -45,7 +45,7 @@ export const FAQS: FAQItem[] = [
     id: "internship-availability",
     question: "Is Gopal Maddheshiya available for internships or hire?",
     answer:
-      "Yes, Gopal is actively open to Summer 2026 Software Development Engineer (SDE), Java Developer, and Full-Stack Web Developer internship opportunities. He is available for remote or in-person roles across India.",
+      "Yes, Gopal is actively open to Winter 2026 / Summer 2027 Software Development Engineer (SDE), Java Developer, and Full-Stack Web Developer internship opportunities. He is available for remote or in-person roles across India.",
     category: "Internships",
   },
   {

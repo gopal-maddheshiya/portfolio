@@ -10,6 +10,19 @@ export function extractGoogleVerificationToken(raw?: string | null): string {
   return (match?.[1] ?? trimmed).trim();
 }
 
+/** Extracts an `@handle` for Twitter/X card meta tags from a profile URL or handle string. */
+export function extractTwitterHandle(raw?: string | null): string {
+  const cleaned = (raw || "").trim();
+  if (!cleaned) return "@itsGopalM";
+  if (cleaned.startsWith("@")) return cleaned.split(/[/?#]/)[0] || "@itsGopalM";
+  const match = cleaned.match(/(?:x\.com|twitter\.com)\/(@?[A-Za-z0-9_]+)/i);
+  if (match?.[1]) {
+    const handle = match[1].replace(/^@/, "");
+    return `@${handle}`;
+  }
+  return "@itsGopalM";
+}
+
 /** Single source of truth for canonical profile URLs used across JSON-LD `sameAs` and `<link rel="me">`. */
 export function collectSameAsProfiles(
   info: PersonalInfo,
@@ -24,6 +37,7 @@ export function collectSameAsProfiles(
   const candidates = [
     info.github,
     info.linkedin,
+    info.twitter ?? PERSONAL_INFO.twitter,
     info.leetcode,
     info.medium ?? PERSONAL_INFO.medium,
     info.substack ?? PERSONAL_INFO.substack,
@@ -136,6 +150,8 @@ export function generateSeoSchema(
           "gopal-maddheshiya",
           "gopalmaddheshiya63",
           "gopal_96",
+          "itsGopalM",
+          "@itsGopalM",
           "@gopal-maddheshiya",
           "@gopalmaddheshiya",
         ],

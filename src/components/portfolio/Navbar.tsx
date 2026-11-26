@@ -12,16 +12,14 @@ import {
   Linkedin,
   Mail,
   Menu,
-  Moon,
-  Sun,
   User,
   X,
 } from "lucide-react";
 
+import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
 import { usePortfolio } from "@/context/PortfolioContext";
 import { NAV_LINKS } from "@/data/profile";
 import { useActiveSection } from "@/hooks/useActiveSection";
-import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
 import { handleAnchorClick } from "@/lib/scroll";
 
@@ -52,7 +50,6 @@ export function Navbar() {
   const availabilityStatus = data.heroData?.availabilityStatus?.trim() || "Open to Work";
   const universityShort = info.universityShort?.trim() || "SRMU · CSE '28";
 
-  const { theme, toggleTheme, mounted } = useTheme();
   const active = useActiveSection(SECTION_IDS);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -87,7 +84,7 @@ export function Navbar() {
           <nav
             aria-label="Main Navigation"
             className={cn(
-              "flex w-full items-center justify-between gap-3 sm:gap-6 px-4 sm:px-7 h-14 sm:h-16 rounded-full border transition-all duration-300",
+              "flex w-full items-center justify-between gap-2 sm:gap-4 xl:gap-6 px-3.5 sm:px-5 xl:px-7 h-14 sm:h-16 rounded-full border transition-all duration-300",
               scrolled
                 ? "bg-card/92 dark:bg-card/92 border-border shadow-lift backdrop-blur-2xl"
                 : "bg-card/80 dark:bg-card/80 border-border/80 hover:border-border shadow-soft backdrop-blur-xl",
@@ -97,13 +94,13 @@ export function Navbar() {
             <a
               onClick={handleAnchorClick}
               href="#top"
-              className="nav-anim-item group flex items-center gap-2 sm:gap-3 font-display text-sm sm:text-[0.9375rem] font-bold tracking-tight shrink-0 pl-0.5"
+              className="nav-anim-item group flex items-center gap-2 sm:gap-2.5 font-display text-sm sm:text-[0.9375rem] font-bold tracking-tight shrink-0 pl-0.5"
             >
               <span className="flex size-8 sm:size-9 shrink-0 items-center justify-center rounded-full bg-primary font-mono text-xs font-bold text-primary-foreground shadow-soft transition-transform duration-200 group-hover:scale-105">
                 {monogram}
               </span>
               <div className="flex items-center gap-2 min-w-0">
-                <span className="truncate max-w-[170px] min-[360px]:max-w-none text-foreground font-semibold group-hover:text-primary transition-colors">
+                <span className="truncate max-w-[170px] min-[360px]:max-w-none lg:max-w-[145px] xl:max-w-none text-foreground font-semibold group-hover:text-primary transition-colors">
                   {info.name}
                 </span>
               </div>
@@ -120,9 +117,9 @@ export function Navbar() {
                       href={`#${link.id}`}
                       aria-current={isActive ? "true" : undefined}
                       className={cn(
-                        "nav-anim-item rounded-full px-3.5 py-1.5 text-[0.875rem] font-medium transition-all duration-200",
+                        "nav-anim-item rounded-full lg:px-2.5 xl:px-3.5 py-1.5 text-[13px] xl:text-[0.875rem] font-medium whitespace-nowrap transition-all duration-200",
                         isActive
-                          ? "bg-primary/15 text-primary font-semibold shadow-[inset_0_0_0_1px_rgba(var(--primary),0.2)]"
+                          ? "bg-primary/15 text-primary font-semibold ring-1 ring-inset ring-primary/25"
                           : "text-muted-foreground hover:text-foreground hover:bg-secondary/70",
                       )}
                     >
@@ -135,20 +132,10 @@ export function Navbar() {
 
             {/* Right Actions — inside the pill */}
             <div className="nav-anim-item flex items-center gap-2 shrink-0 pr-0.5">
-              <button
-                type="button"
-                onClick={toggleTheme}
-                aria-label={
-                  mounted && theme === "dark" ? "Switch to light theme" : "Switch to dark theme"
-                }
-                className="flex size-8 sm:size-9 items-center justify-center rounded-full border border-border/80 bg-secondary/60 hover:bg-secondary text-foreground/80 hover:text-foreground transition-all active:scale-95"
-              >
-                {mounted && theme === "dark" ? (
-                  <Sun className="size-3.5 sm:size-4 text-primary" aria-hidden="true" />
-                ) : (
-                  <Moon className="size-3.5 sm:size-4" aria-hidden="true" />
-                )}
-              </button>
+              <ThemeToggleButton
+                className="size-8 sm:size-9 rounded-full border border-border/80 bg-secondary/60 hover:bg-secondary text-foreground/80 hover:text-foreground"
+                iconClassName="size-3.5 sm:size-4"
+              />
 
               {/* Resume CTA — inside pill, hidden on mobile */}
               <a

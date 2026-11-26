@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { prefersReducedMotion } from "@/components/common/MagneticWrap";
+import { prefersReducedMotion } from "@/lib/motion";
 import { usePortfolio } from "@/context/PortfolioContext";
 import { handleAnchorClick } from "@/lib/scroll";
 
@@ -45,7 +45,16 @@ const ICONS_MAP: Record<string, LucideIcon> = {
 export function Highlights() {
   const { data } = usePortfolio();
   const highlights = data.highlights;
-  const marqueeItems = [...highlights, ...highlights, ...highlights, ...highlights];
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  // Render a single clean pass on SSR to cut duplicate DOM bytes, expanding to 4x marquee clones on client mount.
+  const marqueeItems = hasMounted
+    ? [...highlights, ...highlights, ...highlights, ...highlights]
+    : highlights;
 
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);

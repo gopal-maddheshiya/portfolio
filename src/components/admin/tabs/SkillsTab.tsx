@@ -255,10 +255,15 @@ export function SkillsTab({ data, updateData }: SkillsTabProps) {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                <label
+                  htmlFor={`skill-category-title-${idx}`}
+                  className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5"
+                >
                   Category Title
                 </label>
                 <input
+                  id={`skill-category-title-${idx}`}
+                  name={`skill-category-title-${idx}`}
                   type="text"
                   value={group.title}
                   onChange={(e) => {
@@ -274,6 +279,7 @@ export function SkillsTab({ data, updateData }: SkillsTabProps) {
                 <input
                   type="checkbox"
                   id={`primary-skill-${idx}`}
+                  name={`primary-skill-${idx}`}
                   checked={group.primary}
                   onChange={(e) => {
                     const updated = [...skillGroups];

@@ -22,7 +22,8 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 import { usePortfolio } from "@/context/PortfolioContext";
-import { DEFAULT_SECTION_HEADERS } from "@/data/profile";
+import { DEFAULT_SECTION_HEADERS, PERSONAL_INFO } from "@/data/profile";
+import { useGitHubStats } from "@/hooks/useGitHubStats";
 import { useLeetCodeStats } from "@/hooks/useLeetCodeStats";
 import { Reveal } from "./Reveal";
 import { Section, SectionHeading } from "./Section";
@@ -63,6 +64,11 @@ export function Profiles() {
   const info = data.personalInfo;
   const codingProfiles = data.codingProfiles || [];
   const { total: leetCodeTotal, isLive: isLeetCodeLive } = useLeetCodeStats(info.leetcodeUsername);
+  const {
+    publicRepos: gitHubReposCount,
+    totalContributions: gitHubContribs,
+    isLive: isGitHubLive,
+  } = useGitHubStats(info.githubUsername || PERSONAL_INFO.githubUsername);
 
   const linkedInHandle = info.linkedin?.replace(/\/+$/, "").split("/").pop() || "gopal-maddheshiya";
   const profilesHeader = {
@@ -87,7 +93,8 @@ export function Profiles() {
         "Production repositories, REST APIs, open-source source code, and documented DSA work.",
       cta: "Explore GitHub",
       url: info.github,
-      badge: `${data.projects.length} Public Projects`,
+      badge: `${gitHubReposCount} Repos · ${gitHubContribs} Contribs`,
+      liveBadge: Boolean(isGitHubLive),
       Icon: Github,
     },
     ...(leetCodeProfile

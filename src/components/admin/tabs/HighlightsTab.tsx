@@ -108,10 +108,15 @@ export function HighlightsTab({ data, updateData }: HighlightsTabProps) {
 
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                  <label
+                    htmlFor={`highlight-label-${idx}`}
+                    className="block text-xs font-semibold text-muted-foreground mb-1"
+                  >
                     Badge Label
                   </label>
                   <input
+                    id={`highlight-label-${idx}`}
+                    name={`highlight-label-${idx}`}
                     type="text"
                     value={hl.label}
                     onChange={(e) => {
@@ -124,10 +129,15 @@ export function HighlightsTab({ data, updateData }: HighlightsTabProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                  <label
+                    htmlFor={`highlight-detail-${idx}`}
+                    className="block text-xs font-semibold text-muted-foreground mb-1"
+                  >
                     Detail Text
                   </label>
                   <input
+                    id={`highlight-detail-${idx}`}
+                    name={`highlight-detail-${idx}`}
                     type="text"
                     value={hl.detail}
                     onChange={(e) => {
@@ -140,10 +150,15 @@ export function HighlightsTab({ data, updateData }: HighlightsTabProps) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-1">
+                  <label
+                    htmlFor={`highlight-section-${idx}`}
+                    className="block text-xs font-semibold text-muted-foreground mb-1"
+                  >
                     Click Scroll Target
                   </label>
                   <select
+                    id={`highlight-section-${idx}`}
+                    name={`highlight-section-${idx}`}
                     value={hl.section || "about"}
                     onChange={(e) => {
                       const updated = [...highlights];

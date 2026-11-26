@@ -13,6 +13,7 @@ import {
 import { usePortfolio } from "@/context/PortfolioContext";
 import { FAQS } from "@/data/faq";
 import { DEFAULT_SECTION_HEADERS } from "@/data/profile";
+import { useLeetCodeStats } from "@/hooks/useLeetCodeStats";
 import { pauseSmoothScroll, resumeSmoothScroll } from "@/lib/scroll";
 import { cn } from "@/lib/utils";
 import { Section } from "./Section";
@@ -30,7 +31,22 @@ type Category = (typeof CATEGORIES)[number];
 
 export function FAQ() {
   const { data } = usePortfolio();
-  const faqs = data.faqs && data.faqs.length > 0 ? data.faqs : FAQS;
+  const { total: leetCodeTotal } = useLeetCodeStats(data.personalInfo?.leetcodeUsername);
+  const rawFaqs = data.faqs && data.faqs.length > 0 ? data.faqs : FAQS;
+  const faqs = useMemo(() => {
+    if (!leetCodeTotal || leetCodeTotal <= 0) return rawFaqs;
+    return rawFaqs.map((item) =>
+      item.id === "dsa-track-record"
+        ? {
+            ...item,
+            answer: item.answer.replace(
+              /\b\d+\+ verified Java solutions/g,
+              `${leetCodeTotal}+ verified Java solutions`,
+            ),
+          }
+        : item,
+    );
+  }, [rawFaqs, leetCodeTotal]);
   const faqHeader = {
     eyebrow: data.sectionHeaders?.faq?.eyebrow || DEFAULT_SECTION_HEADERS.faq.eyebrow,
     title: data.sectionHeaders?.faq?.title || DEFAULT_SECTION_HEADERS.faq.title,
@@ -127,7 +143,7 @@ export function FAQ() {
   };
 
   return (
-    <Section id="faq" tone="surface" className="py-8 sm:py-12">
+    <Section id="faq" tone="surface" className="py-8 sm:py-12 lg:py-14">
       {/* 
         Sleek, Compact Knowledge Base Strip:
         Replaces 1200+ vertical pixels with an elegant interactive card on the page.
@@ -148,7 +164,7 @@ export function FAQ() {
               </span>
               <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
                 <span className="size-2 rounded-full bg-primary animate-pulse" />
-                Schema.org FAQPage • AI Engine Verified
+                Verified Facts &amp; Quick Answers
               </span>
             </div>
 
@@ -217,6 +233,7 @@ export function FAQ() {
         aria-modal={isDrawerOpen}
         aria-label="Frequently Asked Questions & Knowledge Base"
         aria-hidden={!isDrawerOpen}
+        inert={!isDrawerOpen}
       >
         {/* Backdrop */}
         <div
@@ -263,7 +280,10 @@ export function FAQ() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
               <input
+                id="faq-drawer-search"
+                name="faqSearch"
                 type="text"
+                aria-label="Search frequently asked questions"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search questions or keywords (e.g. Java, SRMU, SIH)..."
@@ -401,7 +421,7 @@ export function FAQ() {
           <div className="p-4 sm:p-5 border-t border-border bg-card/90 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="size-2 rounded-full bg-primary" />
-              <span className="font-mono text-[11px]">Schema.org FAQPage • JSON-LD</span>
+              <span className="font-mono text-[11px]">Verified Portfolio Quick Facts</span>
             </div>
 
             <button

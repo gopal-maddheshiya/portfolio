@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Search,
 } from "lucide-react";
+import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
 import { usePortfolio } from "@/context/PortfolioContext";
 
 // Tabs
@@ -66,21 +67,22 @@ interface NavGroup {
 }
 
 export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
-  const { data, updateData, saveData, resetToDefaults, isSaving, isDirty } = usePortfolio();
+  const { data, updateData, saveData, resetToDefaults, isSaving, isDirty, isAutoSavePaused } =
+    usePortfolio();
   const [activeTab, setActiveTab] = useState<TabType>("hero");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Debounced auto-save: automatically persist changes 2.5s after user stops typing
+  // Debounced auto-save: persist user edits 2.5s after typing stops, but never auto-publish a factory reset.
   useEffect(() => {
-    if (!isDirty || isSaving) return;
+    if (!isDirty || isSaving || isAutoSavePaused) return;
 
     const timer = setTimeout(() => {
       saveData();
     }, 2500);
 
     return () => clearTimeout(timer);
-  }, [data, isDirty, isSaving, saveData]);
+  }, [data, isDirty, isSaving, isAutoSavePaused, saveData]);
 
   // Global Ctrl+S / Cmd+S Save Shortcut
   useEffect(() => {
@@ -286,11 +288,14 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
         </div>
 
         {/* Live Filter / Search Input */}
-        <div className="px-3.5 pt-3 pb-1">
+        <div className="px-3.5 pt-2.5 pb-1">
           <div className="relative">
             <Search className="size-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
             <input
+              id="admin-sidebar-search"
+              name="admin-sidebar-search"
               type="text"
+              aria-label="Search sections"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search sections..."
@@ -310,7 +315,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
         </div>
 
         {/* User Badge */}
-        <div className="mx-3.5 my-2 p-2 rounded-xl bg-surface/60 border border-border/60 flex items-center justify-between text-xs backdrop-blur-xs">
+        <div className="mx-3.5 my-1.5 px-2.5 py-1.5 rounded-xl bg-surface/60 border border-border/60 flex items-center justify-between text-xs backdrop-blur-xs">
           <div className="flex items-center gap-2 min-w-0">
             <div className="size-6 rounded-full bg-primary/15 text-primary flex items-center justify-center font-bold text-[11px] shrink-0 border border-primary/25">
               {userEmail ? userEmail.charAt(0).toUpperCase() : "A"}
@@ -328,18 +333,18 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
         </div>
 
         {/* Navigation List (Scrollable, Independent from page) */}
-        <nav className="flex-1 overflow-y-auto px-3.5 py-2 space-y-4 [scrollbar-width:thin] [scrollbar-color:var(--color-border)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/60 hover:[&::-webkit-scrollbar-thumb]:bg-border">
+        <nav className="flex-1 min-h-0 overflow-y-auto px-3.5 py-1.5 space-y-2.5 [scrollbar-width:thin] [scrollbar-color:var(--color-border)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/60 hover:[&::-webkit-scrollbar-thumb]:bg-border">
           {filteredNavGroups.length === 0 ? (
             <div className="px-3 py-6 text-center text-xs text-muted-foreground">
               No section matching &ldquo;{searchQuery}&rdquo;
             </div>
           ) : (
             filteredNavGroups.map((group) => (
-              <div key={group.groupTitle} className="space-y-1">
-                <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/75 mb-1.5">
+              <div key={group.groupTitle} className="space-y-0.5">
+                <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/75 mb-1">
                   {group.groupTitle}
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   {group.items.map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
@@ -348,7 +353,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                         key={item.id}
                         type="button"
                         onClick={() => handleSelectTab(item.id)}
-                        className={`w-full group relative flex items-center justify-between rounded-xl px-3 py-2 text-xs font-medium transition-all duration-150 cursor-pointer text-left ${
+                        className={`w-full group relative flex items-center justify-between rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-150 cursor-pointer text-left ${
                           isActive
                             ? "bg-primary text-primary-foreground font-semibold shadow-xs shadow-primary/20 ring-1 ring-primary/40"
                             : "text-muted-foreground hover:text-foreground hover:bg-secondary/70 hover:translate-x-0.5"
@@ -448,7 +453,10 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
               <div className="relative">
                 <Search className="size-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                 <input
+                  id="admin-mobile-search"
+                  name="admin-mobile-search"
                   type="text"
+                  aria-label="Filter sections"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Filter sections..."
@@ -457,6 +465,7 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                 {searchQuery && (
                   <button
                     type="button"
+                    aria-label="Clear filter"
                     onClick={() => setSearchQuery("")}
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
@@ -580,6 +589,13 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                     <span className="size-2 rounded-full bg-amber-500 animate-pulse" />
                     <span className="text-amber-500 font-mono text-[11px]">Saving...</span>
                   </>
+                ) : isDirty && isAutoSavePaused ? (
+                  <>
+                    <span className="size-2 rounded-full bg-amber-400" />
+                    <span className="text-amber-500 font-mono text-[11px]">
+                      Reset preview (click Save Live)
+                    </span>
+                  </>
                 ) : isDirty ? (
                   <>
                     <span className="size-2 rounded-full bg-amber-400" />
@@ -595,12 +611,14 @@ export function AdminDashboard({ onSignOut, userEmail }: AdminDashboardProps) {
                 )}
               </div>
 
+              <ThemeToggleButton className="size-8 rounded-lg border border-border-strong bg-card hover:bg-secondary text-foreground transition-colors shadow-2xs" />
+
               <a
                 href={`/${currentTabItem.sectionHash || ""}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => {
-                  if (isDirty) {
+                  if (isDirty && !isAutoSavePaused) {
                     saveData();
                   }
                 }}
