@@ -217,11 +217,11 @@
     animation-play-state: paused !important;
   }
 
-  /* ── Hardware-Accelerated First-Paint Entrances (Zero-FOUC, Zero-Double-Load) ── */
+  /* ── Hardware-Accelerated Unified Hero & Portrait Choreography (Smooth Expo-Out, Zero-FOUC) ── */
   @keyframes hero-badge-in {
     from {
       opacity: 0;
-      transform: translateY(-12px) scale(0.92);
+      transform: translateY(-10px) scale(0.95);
     }
 
     to {
@@ -233,7 +233,7 @@
   @keyframes hero-line-reveal {
     from {
       opacity: 0;
-      transform: translateY(115%);
+      transform: translateY(110%);
     }
 
     to {
@@ -245,7 +245,7 @@
   @keyframes hero-fade-up {
     from {
       opacity: 0;
-      transform: translateY(18px);
+      transform: translateY(22px);
     }
 
     to {
@@ -254,57 +254,61 @@
     }
   }
 
-  /* ── Cutout Portrait Entrance Animations (Synchronized Page Load) ── */
   @keyframes portrait-glow-in {
-    0% {
+    from {
       opacity: 0;
-      transform: scale(0.7);
+      transform: scale(0.84);
     }
-    100% {
-      opacity: 0.55;
+
+    to {
+      opacity: 0.7;
       transform: scale(1);
     }
   }
 
   @keyframes portrait-core-in {
-    0% {
+    from {
       opacity: 0;
-      transform: translateY(28px) scale(0.85);
+      transform: translateY(26px) scale(0.91);
     }
-    100% {
+
+    to {
       opacity: 1;
       transform: translateY(0) scale(1);
     }
   }
 
   @keyframes portrait-orbit-in {
-    0% {
+    from {
       opacity: 0;
-      transform: scale(0.78) rotate(-28deg);
+      transform: scale(0.86) rotate(-20deg);
     }
-    100% {
+
+    to {
       opacity: 1;
       transform: scale(1) rotate(0deg);
     }
   }
 
   @keyframes portrait-badge-left-in {
-    0% {
+    from {
       opacity: 0;
-      transform: translateX(-45px) scale(0.9);
+      transform: translateX(-38px) scale(0.94);
     }
-    100% {
+
+    to {
       opacity: 1;
       transform: translateX(0) scale(1);
     }
   }
 
   @keyframes portrait-badge-right-in {
-    0% {
+    from {
       opacity: 0;
-      transform: translateX(45px) scale(0.9);
+      transform: translateX(38px) scale(0.94);
     }
-    100% {
+
+    to {
       opacity: 1;
       transform: translateX(0) scale(1);
     }
@@ -313,7 +317,7 @@
   @keyframes nav-drop-down {
     from {
       opacity: 0;
-      transform: translateY(-16px);
+      transform: translateY(-14px);
     }
 
     to {
@@ -322,80 +326,89 @@
     }
   }
 
-  .nav-entrance {
-    animation: nav-drop-down 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-    will-change: transform, opacity;
+  /* Opt-in smooth Expo-Out glide so elements float cleanly in place rather than popping abruptly */
+  @media (prefers-reduced-motion: no-preference) {
+    .nav-entrance {
+      animation: nav-drop-down 0.72s cubic-bezier(0.16, 1, 0.3, 1) 0ms both;
+    }
+
+    /* Left Column Hierarchy (Desktop + Mobile Base) */
+    .hero-badge-entrance {
+      animation: hero-badge-in 0.68s cubic-bezier(0.16, 1, 0.3, 1) 60ms both;
+    }
+
+    .hero-title-entrance {
+      animation: hero-line-reveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
+    }
+
+    .hero-role-entrance {
+      animation: hero-line-reveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) 230ms both;
+    }
+
+    .hero-bio-entrance {
+      animation: hero-fade-up 0.78s cubic-bezier(0.16, 1, 0.3, 1) 310ms both;
+    }
+
+    .hero-loc-entrance {
+      animation: hero-fade-up 0.72s cubic-bezier(0.16, 1, 0.3, 1) 380ms both;
+    }
+
+    .hero-cta-entrance {
+      animation: hero-fade-up 0.74s cubic-bezier(0.16, 1, 0.3, 1) 430ms both;
+    }
+
+    .hero-social-entrance {
+      animation: hero-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 500ms both;
+    }
+
+    /* Portrait Mobile Top-to-Bottom Cascade (< 1024px) */
+    .portrait-core-entrance {
+      animation: portrait-core-in 0.88s cubic-bezier(0.16, 1, 0.3, 1) 340ms both;
+    }
+
+    .portrait-glow-entrance {
+      animation: portrait-glow-in 0.95s cubic-bezier(0.16, 1, 0.3, 1) 380ms both;
+    }
+
+    .portrait-orbit-entrance {
+      animation: portrait-orbit-in 0.88s cubic-bezier(0.16, 1, 0.3, 1) 460ms both;
+      transform-origin: center center;
+    }
+
+    .portrait-badge-left-entrance {
+      animation: portrait-badge-left-in 0.78s cubic-bezier(0.16, 1, 0.3, 1) 520ms both;
+    }
+
+    .portrait-badge-right-entrance {
+      animation: portrait-badge-right-in 0.78s cubic-bezier(0.16, 1, 0.3, 1) 590ms both;
+    }
+
+    .hero-scroll-entrance {
+      animation: hero-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 640ms both;
+    }
   }
 
-  .hero-badge-entrance {
-    animation: hero-badge-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
-    will-change: transform, opacity;
-  }
+  /* Desktop Synchronized 4-Beat Cross-Column Conductor (lg >= 1024px) */
+  @media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
+    .portrait-core-entrance {
+      animation-delay: 140ms;
+    }
 
-  .hero-title-entrance {
-    animation: hero-line-reveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
-    will-change: transform, opacity;
-  }
+    .portrait-glow-entrance {
+      animation-delay: 180ms;
+    }
 
-  .hero-role-entrance {
-    animation: hero-line-reveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
-    will-change: transform, opacity;
-  }
+    .portrait-orbit-entrance {
+      animation-delay: 300ms;
+    }
 
-  .hero-bio-entrance {
-    animation: hero-fade-up 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.48s both;
-    will-change: transform, opacity;
-  }
+    .portrait-badge-left-entrance {
+      animation-delay: 440ms;
+    }
 
-  .hero-loc-entrance {
-    animation: hero-fade-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.58s both;
-    will-change: transform, opacity;
-  }
-
-  .hero-cta-entrance {
-    animation: hero-fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.66s both;
-    will-change: transform, opacity;
-  }
-
-  .hero-social-entrance {
-    animation: hero-fade-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.74s both;
-    will-change: transform, opacity;
-  }
-
-  .hero-photo-entrance {
-    will-change: auto;
-  }
-
-  .portrait-glow-entrance {
-    animation: portrait-glow-in 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
-    will-change: transform, opacity;
-  }
-
-  .portrait-core-entrance {
-    animation: portrait-core-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
-    will-change: transform, opacity;
-    isolation: isolate;
-  }
-
-  .portrait-orbit-entrance {
-    animation: portrait-orbit-in 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
-    will-change: transform, opacity;
-    transform-origin: center center;
-  }
-
-  .portrait-badge-left-entrance {
-    animation: portrait-badge-left-in 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
-    will-change: transform, opacity;
-  }
-
-  .portrait-badge-right-entrance {
-    animation: portrait-badge-right-in 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
-    will-change: transform, opacity;
-  }
-
-  .hero-scroll-entrance {
-    animation: hero-fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.85s both;
-    will-change: transform, opacity;
+    .portrait-badge-right-entrance {
+      animation-delay: 510ms;
+    }
   }
 
   /* ── Aurora Spin Animation ── */
@@ -531,29 +544,31 @@
     }
   }
 
-  .cutout-blob-floating {
-    animation: cutout-blob-drift 8s ease-in-out 1.2s infinite;
-    transform-origin: center center;
-  }
+  @media (prefers-reduced-motion: no-preference) {
+    .cutout-blob-floating {
+      animation: cutout-blob-drift 8s ease-in-out 1.05s infinite;
+      transform-origin: center center;
+    }
 
-  .animate-ambient-glow {
-    animation: cutout-ambient-glow 6s ease-in-out infinite;
-  }
+    .animate-ambient-glow {
+      animation: cutout-ambient-glow 6s ease-in-out 1.05s infinite;
+    }
 
-  .cutout-orbit-clockwise {
-    transform-origin: 250px 250px;
-    animation: cutout-orbit-spin 26s linear infinite;
-    will-change: transform;
-  }
+    .cutout-orbit-clockwise {
+      transform-origin: 250px 250px;
+      animation: cutout-orbit-spin 26s linear infinite;
+      will-change: transform;
+    }
 
-  .cutout-orbit-counter {
-    transform-origin: 250px 250px;
-    animation: cutout-orbit-spin-reverse 44s linear infinite;
-    will-change: transform;
-  }
+    .cutout-orbit-counter {
+      transform-origin: 250px 250px;
+      animation: cutout-orbit-spin-reverse 44s linear infinite;
+      will-change: transform;
+    }
 
-  .cutout-shimmer {
-    animation: cutout-pulse-glow 5s ease-in-out infinite;
+    .cutout-shimmer {
+      animation: cutout-pulse-glow 5s ease-in-out 1.05s infinite;
+    }
   }
 
   /* Shimmer skeleton utility for progressive loading & zero layout shift */
@@ -879,19 +894,24 @@
     scroll-behavior: auto;
   }
 
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-
   .reveal,
+  .nav-entrance,
+  .hero-badge-entrance,
+  .hero-title-entrance,
+  .hero-role-entrance,
+  .hero-bio-entrance,
+  .hero-loc-entrance,
+  .hero-cta-entrance,
+  .hero-social-entrance,
+  .hero-scroll-entrance,
   .portrait-glow-entrance,
   .portrait-core-entrance,
   .portrait-orbit-entrance,
   .portrait-badge-left-entrance,
-  .portrait-badge-right-entrance {
+  .portrait-badge-right-entrance,
+  .animate-ping,
+  .animate-pulse,
+  .animate-mouse-wheel {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;

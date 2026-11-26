@@ -210,7 +210,7 @@ export function Hero() {
               </span>
               <span className="hero-anim-line block overflow-hidden pt-0.5">
                 <span className="hero-anim-line-inner hero-role-entrance block min-h-[1.25em]">
-                  <TypewriterRole roles={hero.typewriterRoles} startDelay={1500} />
+                  <TypewriterRole roles={hero.typewriterRoles} startDelay={1450} />
                 </span>
               </span>
             </span>

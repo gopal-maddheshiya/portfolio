@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import gopalCutout from "@/assets/gopal-cutout.webp";
+import { resolvePortraitPhoto } from "@/lib/portrait";
 
 interface CutoutPortraitProps {
   photoSrc?: string | undefined;
@@ -59,29 +60,12 @@ export function CutoutPortrait({
   badge1 = "Java • DSA",
   badgeRole = "Full-Stack Developer",
 }: CutoutPortraitProps) {
-  // Resolve photo source:
-  // If empty, placeholder asset, or me-b (the raw studio shot),
-  // return gopalCutout (which is the high-res transparent studio cutout in the black suit).
-  // Otherwise, use the user's uploaded custom photo URL directly.
-  const resolvePhoto = (src?: string) => {
-    if (!src || src.trim().length === 0) return gopalCutout;
-    const clean = src.trim().toLowerCase();
-    if (
-      clean.includes("gopal-profile") ||
-      clean.includes("me-b") ||
-      clean.includes("gopal-cutout")
-    ) {
-      return gopalCutout;
-    }
-    return src.trim();
-  };
-
-  const [currentPhoto, setCurrentPhoto] = useState<string>(() => resolvePhoto(photoSrc));
+  const [currentPhoto, setCurrentPhoto] = useState<string>(() => resolvePortraitPhoto(photoSrc));
   const [isPaused, setIsPaused] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setCurrentPhoto(resolvePhoto(photoSrc));
+    setCurrentPhoto(resolvePortraitPhoto(photoSrc));
   }, [photoSrc]);
 
   // Pause orbital SVG and glow animations when scrolled out of viewport
@@ -105,15 +89,15 @@ export function CutoutPortrait({
       data-paused={isPaused ? "true" : "false"}
       className="relative w-full h-full aspect-square flex items-center justify-center select-none isolate"
     >
-      {/* ── Layer 0: Controlled, Softened Ambient Glow Behind Blob & Portrait ── */}
+      {/* ── Layer 0: Controlled Ambient Glow Behind Blob & Portrait ── */}
+      {/* Outer wrapper owns entrance animation so inner continuous pulse never collides in CSS cascade */}
       <div
-        className="portrait-glow-entrance absolute inset-0 -inset-x-4 -inset-y-4 rounded-full bg-[radial-gradient(ellipse_at_50%_45%,rgba(249,115,22,0.14),rgba(249,115,22,0.03)_50%,transparent_70%)] blur-xl sm:blur-2xl pointer-events-none opacity-55 animate-ambient-glow -z-10"
+        className="portrait-glow-entrance pointer-events-none absolute inset-0 -z-10"
         aria-hidden="true"
-      />
-      <div
-        className="portrait-glow-entrance absolute top-1/4 right-1/4 size-32 sm:size-40 rounded-full bg-cyan-500/5 blur-2xl pointer-events-none -z-10"
-        aria-hidden="true"
-      />
+      >
+        <div className="animate-ambient-glow absolute -inset-4 rounded-full bg-[radial-gradient(ellipse_at_50%_45%,rgba(249,115,22,0.14),rgba(249,115,22,0.03)_50%,transparent_70%)] blur-xl sm:blur-2xl" />
+        <div className="absolute top-1/4 right-1/4 size-32 sm:size-40 rounded-full bg-cyan-500/5 blur-2xl" />
+      </div>
 
       {/* ── Layer 2: Ultra High Classy Animated Cosmic Rings & Orbiting Satellites ── */}
       <div className="portrait-orbit-entrance absolute inset-0 size-full pointer-events-none z-[15] overflow-visible">
@@ -210,9 +194,9 @@ export function CutoutPortrait({
         </svg>
       </div>
 
-      {/* ── Synchronized Portrait Core: Layer 1 (Blob) + Layer 3 (Photo Cutout) ── */}
-      {/* Both animate synchronously as an isolated composite layer with zero displacement and zero orange bleed */}
-      <div className="portrait-core-entrance relative z-20 w-full h-full flex items-center justify-center">
+      {/* ── Synchronized Portrait Core: Layer 1 (Blob) + Layer 3 (Subject Cutout) ── */}
+      {/* Both layers animate as one unified composite unit so the backdrop never pops in before the photo */}
+      <div className="portrait-core-entrance relative z-20 w-full h-full flex items-center justify-center isolate">
         {/* Layer 1: Large Organic Orange Abstract Blob with Soft Shadow */}
         <div className="absolute inset-0 size-[92%] sm:size-[90%] m-auto pointer-events-none z-10 flex items-center justify-center">
           <svg
@@ -266,8 +250,9 @@ export function CutoutPortrait({
             alt={name}
             width={520}
             height={520}
+            fetchPriority="high"
             loading="eager"
-            decoding="async"
+            decoding="sync"
             onError={() => {
               if (currentPhoto !== gopalCutout) {
                 setCurrentPhoto(gopalCutout);
@@ -280,7 +265,7 @@ export function CutoutPortrait({
 
       {/* ── Layer 4A: Top-Left Floating Aurora Pill (Java • DSA) ── */}
       {badge1 && (
-        <div className="portrait-badge-left-entrance absolute top-5 sm:top-6 -left-1 min-[375px]:-left-3 z-30 pointer-events-auto select-none">
+        <div className="portrait-badge-left-entrance absolute top-3.5 sm:top-4 -left-2 min-[375px]:-left-4 sm:-left-6 lg:-left-8 z-30 pointer-events-auto select-none">
           <div className="transition-transform hover:scale-105 duration-300">
             <div className="aurora-badge-wrapper rounded-full shadow-md shadow-black/25">
               <div className="inline-flex items-center gap-2 rounded-full bg-card/95 dark:bg-[#0f1016]/95 px-3 py-1.5 sm:px-3.5 sm:py-1.5 backdrop-blur-md">
